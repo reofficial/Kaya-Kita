@@ -1,2 +1,11 @@
 # Kaya-Kita
-An app that aims to promote livelihood in the local community. It focuses on the economy on a smaller scale (UP community / local barangay). The ultimate goal of this however is to serve as both a job listing app and a bridge for the connection between the contractor and long-term employment.
+
+This is a course requirement for CS 191/CS192 Software Engineering Courses of the Department of Computer Science, College of Engineering, University of the Philippines, Diliman under the guidance of Prof. Ma. Rowena C. Solamo for the AY 2024-2025.
+
+### Team Members
+
+Calabia, Bastian Nathaniel
+Chan, Krisha Anne
+Limbo, Seth Kiefer
+Lopez, Alec Terence
+Roy, Rodrigo Emmanuel
