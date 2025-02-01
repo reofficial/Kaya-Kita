@@ -14,3 +14,25 @@ Roy, Rodrigo Emmanuel
 Frontend: Flutter (Android)\
 Backend: Python(FastAPI)\
 Database: MongoDB
+
+# Project Setup
+
+## Frontend
+For members working on frontend:\
+Note: Files and folders in the initial commit are made through `flutter create .`\
+Install Flutter: https://docs.flutter.dev/get-started/install\
+Using the terminal, `cd frontend`\
+Launch an emulator:\
+`flutter emulators`\
+`flutter emulators --launch <emulator id>`\
+Launch the app:\
+`flutter run`
+
+## Backend
+For members working on backend:\
+Using the terminal, `cd backend`\
+Create a virtual environment: `python -m venv venv`\
+Activate virtual environment: Windows: `.\venv\Scripts\Activate`, Mac/Linux: `source venv/bin/activate` \
+Run `pip install -r requirements.txt`\
+Ask for .env file from RE (for privacy reasons), place it inside backend folder\
+To run the server: `uvicorn app.main:app --reload`\
