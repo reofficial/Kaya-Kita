@@ -8,7 +8,7 @@ Calabia, Bastian Nathaniel\
 Chan, Krisha Anne\
 Limbo, Seth Kiefer\
 Lopez, Alec Terence\
-Roy, Rodrigo Emmanuel\
+Roy, Rodrigo Emmanuel
 
 ## Tech Stack
 Frontend: Flutter (Android)\
