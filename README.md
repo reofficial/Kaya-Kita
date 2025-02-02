@@ -35,4 +35,4 @@ Create a virtual environment: `python -m venv venv`\
 Activate virtual environment: Windows: `.\venv\Scripts\Activate`, Mac/Linux: `source venv/bin/activate` \
 Run `pip install -r requirements.txt`\
 Ask for .env file from RE (for privacy reasons), place it inside backend folder\
-To run the server: `uvicorn app.main:app --reload`\
+To run the server: `uvicorn app.main:app --reload`
