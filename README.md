@@ -12,7 +12,7 @@ Roy, Rodrigo Emmanuel
 
 ## Tech Stack
 Frontend: Flutter (Android)\
-Backend: Python(FastAPI)\
+Backend: Python (FastAPI)\
 Database: MongoDB
 
 # Project Setup
@@ -20,7 +20,7 @@ Database: MongoDB
 ## Frontend
 For members working on frontend:\
 Note: Files and folders in the initial commit are made through `flutter create .`\
-Install Flutter: https://docs.flutter.dev/get-started/install\
+Install Flutter: https://docs.flutter.dev/get-started/install \
 Using the terminal, `cd frontend`\
 Launch an emulator:\
 `flutter emulators`\
