@@ -5,9 +5,11 @@ from fastapi.responses import JSONResponse
 from motor.motor_asyncio import AsyncIOMotorClient
 from typing import List
 from app.classes import Customer
+from app.DAO.customer_DAO import CustomerDAO
 
 # .\venv\Scripts\Activate
 # uvicorn app.main:app --reload
+
 
 load_dotenv()
 app = FastAPI()
@@ -15,54 +17,24 @@ MONGO_URI = os.getenv("MONGO_URI")
 
 client = AsyncIOMotorClient(MONGO_URI)
 database = client["Kaya_Kita"]
+
+
+customer_dao = CustomerDAO(database)
     
 @app.get("/customers", response_model=List[Customer])
 async def get_customers():
-    """
-    Retrieves all customers from the database.
-
-    Returns:
-        List[Customer]: A list of Customer objects
-    """
-    collection = database["Customer"]
-    customers_cursor = collection.find()
-    customers = await customers_cursor.to_list(length=None)
-    return [Customer(**customer) for customer in customers]
+    return await customer_dao.get_all_customers()
 
 @app.post("/customers", status_code=status.HTTP_201_CREATED)
 async def create_customer(customer: Customer):
-    """
-    Creates a new customer in the database.
+    if await customer_dao.find_by_username(customer.username):
+        raise HTTPException(status_code=422, detail="Profile already registered.")
 
-    Args:
-        customer (Customer): The customer information to be inserted.
+    if await customer_dao.find_by_email(customer.email):
+        raise HTTPException(status_code=409, detail="Invalid data given. Please check your registration.")
 
-    Raises:
-        HTTPException: If the email or username already exists in the database.
-        Error code 422: Username already exists -- duplicate account.
-        Error code 409: Email already exists -- invalid data given.
-
-    Returns:
-        Response: A response indicating successful creation of the customer.
-    """
-    collection = database["Customer"]
-    
-    existing_username = await collection.find_one({"username": customer.username})
-    if existing_username:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Profile already registered."
-        )
-    
-    existing_email = await collection.find_one({"email": customer.email})
-    if existing_email:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Invalid data given. Please check your registration."
-        )
-
-    await collection.insert_one(customer.model_dump())
-    return JSONResponse(status_code=status.HTTP_201_CREATED, content={"message": "Customer created successfully"})
+    await customer_dao.create_customer(customer)
+    return JSONResponse(status_code=201, content={"message": "Customer created successfully"})
 
 
 @app.get("/hello")
