@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:developer';
+import 'entrance.dart';
 
 class PersonalInfoScreen extends StatelessWidget {
   const PersonalInfoScreen({super.key});
@@ -9,11 +10,11 @@ class PersonalInfoScreen extends StatelessWidget {
     return Scaffold(
       resizeToAvoidBottomInset: false, //finally, i've fixed the 3-hour problem where the keyboard pushes the image up
       appBar: AppBar(
-        title: Text('Personal Information', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        title: Text('Personal Information', style: TextStyle(color: Color(0xFF000000), fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: Color(0xFF000000)),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -44,7 +45,7 @@ class PersonalInfoScreen extends StatelessWidget {
                       Text(
                         'User Details',
                         style: TextStyle(
-                          color: Colors.purple,
+                          color: Color(0xFF87027B),
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
                         ),
@@ -61,11 +62,18 @@ class PersonalInfoScreen extends StatelessWidget {
                       Center(
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.purple,
+                            backgroundColor: Color(0xFF87027B),
                             padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                           ),
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EntranceScreen(), 
+                              ),
+                            );
+                          },
                           child: Text("Submit", style: TextStyle(color: Colors.white)),
                         ),
                       ),
@@ -104,7 +112,7 @@ class CustomTextField extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.purple),
+          borderSide: BorderSide(color: Color(0xFF87027B)),
         ),
       ),
     );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'main.dart';
-import 'personalinfo.dart';
+import 'register.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
@@ -87,7 +87,7 @@ class OnboardingScreen extends StatelessWidget {
                         ),
                       );
                     },
-                    child: Text('Register'),
+                    child: Text('Log-in', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, fontFamily: 'Roboto',),),
                   ),
                   SizedBox(height: 2), 
                   TextButton(
@@ -95,15 +95,17 @@ class OnboardingScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => PersonalInfoScreen(), 
+                          builder: (context) => RegisterScreen(), 
                         ),
                       );
                     },
                     child: Text(
-                      'Log-in',
+                      'Create account',
                       style: TextStyle(
                         decoration: TextDecoration.underline,
-                        fontWeight: FontWeight.bold, 
+                        fontFamily: 'Roboto',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500, 
                         color: Color(0xFF000000), 
                       ),
                     ),
