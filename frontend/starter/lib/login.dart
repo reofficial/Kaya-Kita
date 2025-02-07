@@ -1,22 +1,29 @@
 import 'package:flutter/material.dart';
 import 'dart:developer';
-import 'personalinfo.dart';
-import 'login.dart';
+import 'entrance.dart';
+import 'home.dart';
+import 'register.dart';
+import 'onboarding.dart';
 
-class RegisterScreen extends StatelessWidget {
-  const RegisterScreen({super.key});
+class LoginScreen extends StatelessWidget {
+  const LoginScreen({super.key});
   @override
   Widget build(BuildContext context) {
-    log("Entered RegisterScreen");
+    log("Entered LoginScreen");
     return Scaffold(
       appBar: AppBar(
-        title: Text('Register', style: TextStyle(color: Color(0xFF000000), fontWeight: FontWeight.bold)),
+        title: Text('Log-in', style: TextStyle(color: Color(0xFF000000), fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Color(0xFF000000)),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => OnboardingScreen(),
+              ),
+            );
           },
         ),
       ),
@@ -31,7 +38,7 @@ class RegisterScreen extends StatelessWidget {
                   SizedBox(height: 20),
                   Center(
                     child: Text(
-                      'Create Account',
+                      'Login here',
                       style: TextStyle(
                         color: Color(0xFF87027B),
                         fontSize: 30,
@@ -45,12 +52,12 @@ class RegisterScreen extends StatelessWidget {
                     child: SizedBox(
                       width: 250,
                       child: Text(
-                        'Create an account so you can explore all the existing services',
+                        'Welcome back, you\'ve been missed!',
                         style: TextStyle(
                           color: Color(0xFF000000),
                           fontSize: 18,
                           fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -61,7 +68,30 @@ class RegisterScreen extends StatelessWidget {
                   SizedBox(height: 10),
                   CustomTextField(hintText: "Password"),
                   SizedBox(height: 10),
-                  CustomTextField(hintText: "Confirm Password"),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => HomeScreen(),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        'Forgot your password?',
+                        style: TextStyle(
+                          decoration: TextDecoration.underline,
+                          fontFamily: 'Poppins',
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF87027B),
+                        ),
+                      ),
+                    ),
+                  ),
+
                   SizedBox(height: 30),
                   Center(
                     child: ElevatedButton(
@@ -74,12 +104,12 @@ class RegisterScreen extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => PersonalInfoScreen(),
+                            builder: (context) => EntranceScreen(),
                           ),
                         );
                       },
                       child: Text(
-                        "Continue",
+                        "Sign in",
                         style: TextStyle(color: Colors.white, fontFamily: 'Poppins', fontWeight: FontWeight.w600, fontSize: 16),
                       ),
                     ),
@@ -91,12 +121,12 @@ class RegisterScreen extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => LoginScreen(),
+                            builder: (context) => RegisterScreen(),
                           ),
                         );
                       },
                       child: Text(
-                        'Already have an account?',
+                        'Create a new account',
                         style: TextStyle(
                           decoration: TextDecoration.underline,
                           fontFamily: 'Roboto',
@@ -107,7 +137,7 @@ class RegisterScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(height: 50),
+                  SizedBox(height: 60),
 
                   Center(
                     child: Column(

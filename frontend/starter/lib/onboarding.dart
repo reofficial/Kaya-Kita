@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'main.dart';
 import 'register.dart';
+import 'login.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
@@ -83,7 +83,7 @@ class OnboardingScreen extends StatelessWidget {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const MyHomePage(title: 'Flutter Demo Home Page'),
+                          builder: (context) => LoginScreen(),
                         ),
                       );
                     },

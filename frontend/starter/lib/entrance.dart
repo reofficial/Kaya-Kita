@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'personalinfo.dart';
+import 'home.dart';
 
 class EntranceScreen extends StatefulWidget {
   const EntranceScreen({super.key});
@@ -16,7 +16,7 @@ class EntranceScreenState extends State<EntranceScreen> {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => PersonalInfoScreen()), 
+          MaterialPageRoute(builder: (context) => HomeScreen()), 
         );
       }
     });

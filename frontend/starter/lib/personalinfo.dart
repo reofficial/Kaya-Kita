@@ -33,7 +33,7 @@ class PersonalInfoScreen extends StatelessWidget {
             ),
           ),
 
-          Column(
+          Column(  
             children: [
               Expanded(
                 child: Padding(
@@ -43,11 +43,12 @@ class PersonalInfoScreen extends StatelessWidget {
                     children: [
                       SizedBox(height: 20),
                       Text(
-                        'User Details',
+                        '  User Details',
                         style: TextStyle(
                           color: Color(0xFF87027B),
                           fontWeight: FontWeight.bold,
-                          fontSize: 20,
+                          fontSize: 25,
+                          fontFamily: 'Poppins',
                         ),
                       ),
                       SizedBox(height: 10),
@@ -74,7 +75,7 @@ class PersonalInfoScreen extends StatelessWidget {
                               ),
                             );
                           },
-                          child: Text("Submit", style: TextStyle(color: Colors.white)),
+                          child: Text("Submit", style: TextStyle(color: Colors.white, fontSize: 16, fontFamily: 'Roboto', fontWeight: FontWeight.w500,),),
                         ),
                       ),
                     ],
