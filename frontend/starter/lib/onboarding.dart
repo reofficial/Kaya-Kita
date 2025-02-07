@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'main.dart';
+import 'personalinfo.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
@@ -19,8 +20,8 @@ class OnboardingScreen extends StatelessWidget {
           ),
 
           Positioned(
-            top: MediaQuery.of(context).size.height * 0.01, 
-            left: MediaQuery.of(context).size.width * -0.16, 
+            top: MediaQuery.of(context).size.height * 0.06, 
+            left: MediaQuery.of(context).size.width * -0.24, 
             child: Image.asset(
               'assets/logo.png', 
               width: 600, 
@@ -91,7 +92,12 @@ class OnboardingScreen extends StatelessWidget {
                   SizedBox(height: 2), 
                   TextButton(
                     onPressed: () {
-                      // action
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PersonalInfoScreen(), 
+                        ),
+                      );
                     },
                     child: Text(
                       'Log-in',
