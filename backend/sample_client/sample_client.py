@@ -1,6 +1,10 @@
 import httpx
+import os
+from dotenv import load_dotenv
 
-BASE_URL = "http://127.0.0.1:8000"
+load_dotenv()
+
+BASE_URL = os.getenv("BACKEND_URL")
 
 # Sample customer data
 customer_data = {
@@ -14,9 +18,7 @@ customer_data = {
     "contact_number": "216"
 }
 
-
-response = httpx.post(f"{BASE_URL}/customers", json=customer_data)
-
+response = httpx.post(f"{BASE_URL}/customers", json=customer_data, verify=False)
 
 print(f"Status Code: {response.status_code}")
 print(f"Response: {response.json()}")
