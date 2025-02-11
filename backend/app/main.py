@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException, status
 from fastapi.responses import JSONResponse
 from motor.motor_asyncio import AsyncIOMotorClient
 from typing import List
-from app.classes import Customer
+from app.classes import Customer, InitialInfo
 from app.DAO.customer_DAO import CustomerDAO
 
 # .\venv\Scripts\Activate
@@ -30,11 +30,15 @@ async def create_customer(customer: Customer):
     if await customer_dao.find_by_username(customer.username):
         raise HTTPException(status_code=422, detail="Profile already registered.")
 
-    if await customer_dao.find_by_email(customer.email):
-        raise HTTPException(status_code=409, detail="Invalid data given. Please check your registration.")
-
     await customer_dao.create_customer(customer)
     return JSONResponse(status_code=201, content={"message": "Customer created successfully"})
+
+@app.post("/customers/email", status_code=status.HTTP_201_CREATED)
+async def check_email(info: InitialInfo):
+    if await customer_dao.find_by_email(info.email):
+        raise HTTPException(status_code=409, detail="Email already registered.")
+
+    return JSONResponse(status_code=201, content={"message": "Email available"})
 
 
 @app.get("/hello")

@@ -9,3 +9,7 @@ class Customer(BaseModel):
     username: str
     address: str
     contact_number: str
+
+class InitialInfo(BaseModel):
+    email: str
+    password: str
