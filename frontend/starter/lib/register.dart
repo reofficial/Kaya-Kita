@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'api_service.dart'; // Import our API service that performs the HTTP POST
+import 'api_service.dart'; // API service that handles the registration POST call.
 import 'personalinfo.dart';
 import 'login.dart';
 
@@ -11,12 +11,12 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  // Controllers for text fields
+  // Controllers for the text fields
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
 
-  // Variables to handle UI state and validation errors
+  // UI state and error messages
   bool obscurePassword = true;
   bool obscureConfirmPassword = true;
   String? passwordError;
@@ -27,9 +27,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool hasNumber = false;
   bool hasSpecialChar = false;
   
-  bool isLoading = false; // Flag for showing a loading overlay
+  bool isLoading = false; // Used for displaying the loading overlay
 
-  // Validate password and update password criteria booleans
+  // Validate the password and update criteria flags
   void validatePassword(String value) {
     setState(() {
       hasMinLength = value.length >= 6;
@@ -39,14 +39,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
   }
 
-  // Simple email regex validation
+  // Basic email validation using regex
   bool isValidEmail(String email) {
     return RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(email);
   }
 
-  // Updated registration function that now includes an API call
+  // This function handles registration:
+  // 1. It validates the form fields.
+  // 2. It calls the API to register the user.
+  // 3. On success, it navigates to PersonalInfoScreen, carrying over email and password.
   Future<void> onRegister() async {
-    // Validate email and password fields before calling the API.
     setState(() {
       emailError = isValidEmail(emailController.text) ? null : "Invalid email format";
 
@@ -61,42 +63,43 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
     });
 
-    // Proceed only if there are no validation errors.
     if (emailError == null && passwordError == null) {
       setState(() {
-        isLoading = true; // Show loading indicator during API call
+        isLoading = true; // Show loading indicator while API call is in progress
       });
 
       try {
-        // API CALL: Register the user by sending email and password.
-        // The ApiService.registerUser method sends a POST request to the backend.
+        // --- API CALL ---
+        // This method sends a POST request to your backend for registration.
         final response = await ApiService.registerUser(
           emailController.text,
           passwordController.text,
         );
+        // ------------------
 
-        // If the response status is 201, registration was successful.
         if (response.statusCode == 201) {
-          // Navigate to the PersonalInfoScreen upon successful registration.
+          // Navigate to PersonalInfoScreen and pass email and password
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const PersonalInfoScreen()),
+            MaterialPageRoute(
+              builder: (context) => PersonalInfoScreen(
+                email: emailController.text,
+                password: passwordController.text,
+              ),
+            ),
           );
         } else {
-          // If registration fails, display an error message.
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("Registration failed: ${response.body}")),
           );
         }
       } catch (error) {
-        // Catch any errors during the API call and show a snackbar.
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("An error occurred: $error")),
         );
       } finally {
-        // Hide the loading indicator once the API call is done.
         setState(() {
-          isLoading = false;
+          isLoading = false; // Hide loading indicator after API call completes
         });
       }
     }
@@ -114,7 +117,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      // Stack allows us to overlay a loading indicator over the form
+      // Use Stack to overlay a loading indicator over the registration form
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -131,7 +134,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  // Email text field with error message handling
                   TextField(
                     controller: emailController,
                     decoration: InputDecoration(
@@ -144,7 +146,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  // Password text field with visibility toggle and validation
                   TextField(
                     controller: passwordController,
                     obscureText: obscurePassword,
@@ -167,7 +168,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  // Display password requirements
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -178,7 +178,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  // Confirm Password text field with visibility toggle
                   TextField(
                     controller: confirmPasswordController,
                     obscureText: obscureConfirmPassword,
@@ -198,7 +197,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 30),
-                  // Button that triggers the registration (and API call)
                   Center(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF87027B)),
@@ -207,7 +205,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  // Button to navigate to the login page
                   Center(
                     child: TextButton(
                       onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())),
@@ -218,7 +215,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 50),
-                  // Social login section
                   Center(
                     child: Column(
                       children: [
@@ -263,7 +259,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
           ),
-          // Loading overlay displayed when isLoading is true
+          // Loading overlay: shows a semi-transparent background and a spinner when isLoading is true.
           if (isLoading)
             Container(
               color: Colors.black.withOpacity(0.3),
@@ -277,7 +273,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 }
 
-// Widget to display password requirements with an icon indicator.
+// Widget to display individual password requirements.
 class PasswordRequirement extends StatelessWidget {
   final String text;
   final bool satisfied;
@@ -290,7 +286,8 @@ class PasswordRequirement extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         children: [
-          Icon(satisfied ? Icons.check_circle : Icons.circle, color: satisfied ? Colors.green : Colors.grey, size: 16),
+          Icon(satisfied ? Icons.check_circle : Icons.circle,
+              color: satisfied ? Colors.green : Colors.grey, size: 16),
           const SizedBox(width: 5),
           Text(text, style: TextStyle(color: satisfied ? Colors.green : Colors.grey, fontSize: 14)),
         ],
@@ -299,7 +296,7 @@ class PasswordRequirement extends StatelessWidget {
   }
 }
 
-// (Optional) CustomTextField widget for reuse if needed.
+// Optional reusable custom text field widget.
 class CustomTextField extends StatelessWidget {
   const CustomTextField({
     super.key,

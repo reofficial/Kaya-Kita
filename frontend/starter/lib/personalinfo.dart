@@ -3,18 +3,28 @@ import 'dart:developer';
 import 'entrance.dart';
 
 class PersonalInfoScreen extends StatelessWidget {
-  const PersonalInfoScreen({super.key});
+  // Receive the email and password from the registration screen.
+  final String email;
+  final String password;
+
+  const PersonalInfoScreen({super.key, required this.email, required this.password});
+
   @override
   Widget build(BuildContext context) {
-    log("Entered PersonalInfoScreen"); 
+    // Log the received email and password (for debugging purposes)
+    log("Entered PersonalInfoScreen with email: $email and password: $password"); 
+
     return Scaffold(
-      resizeToAvoidBottomInset: false, //finally, i've fixed the 3-hour problem where the keyboard pushes the image up
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: Text('Personal Information', style: TextStyle(color: Color(0xFF000000), fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Personal Information',
+          style: TextStyle(color: Color(0xFF000000), fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Color(0xFF000000)),
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF000000)),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -23,26 +33,25 @@ class PersonalInfoScreen extends StatelessWidget {
       body: Stack(
         children: [
           Positioned(
-            bottom: -30, 
+            bottom: -30,
             left: 0,
             right: 0,
             child: Image.asset(
-              'assets/personalinfo.png', 
+              'assets/personalinfo.png',
               fit: BoxFit.cover,
               width: double.infinity,
             ),
           ),
-
-          Column(  
+          Column(
             children: [
               Expanded(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20), 
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: 20),
-                      Text(
+                      const SizedBox(height: 20),
+                      const Text(
                         '  User Details',
                         style: TextStyle(
                           color: Color(0xFF87027B),
@@ -51,31 +60,41 @@ class PersonalInfoScreen extends StatelessWidget {
                           fontFamily: 'Poppins',
                         ),
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
+                      // The following fields collect additional user details.
+                      // You can also display the passed email/password if needed.
                       CustomTextField(hintText: "First Name"),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       CustomTextField(hintText: "Last Name"),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       CustomTextField(hintText: "Mobile Number"),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       CustomTextField(hintText: "Address"),
-                      SizedBox(height: 30),
+                      const SizedBox(height: 30),
                       Center(
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF87027B),
-                            padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                            backgroundColor: const Color(0xFF87027B),
+                            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                           ),
                           onPressed: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => EntranceScreen(), 
+                                builder: (context) => EntranceScreen(),
                               ),
                             );
                           },
-                          child: Text("Submit", style: TextStyle(color: Colors.white, fontSize: 16, fontFamily: 'Roboto', fontWeight: FontWeight.w500,),),
+                          child: const Text(
+                            "Submit",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontFamily: 'Roboto',
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -90,11 +109,12 @@ class PersonalInfoScreen extends StatelessWidget {
   }
 }
 
+// Reusable custom text field widget for PersonalInfoScreen.
 class CustomTextField extends StatelessWidget {
-  const CustomTextField({super.key, required this.hintText, this.borderColor = const Color(0xFFE8F0FE)});
-
   final String hintText;
   final Color borderColor;
+
+  const CustomTextField({super.key, required this.hintText, this.borderColor = const Color(0xFFE8F0FE)});
 
   @override
   Widget build(BuildContext context) {
@@ -113,7 +133,7 @@ class CustomTextField extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Color(0xFF87027B)),
+          borderSide: const BorderSide(color: Color(0xFF87027B)),
         ),
       ),
     );
