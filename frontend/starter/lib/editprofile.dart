@@ -1,66 +1,48 @@
 import 'package:flutter/material.dart';
-import 'package:starter/home.dart';
 import 'dart:developer';
 
 class EditProfileScreen extends StatelessWidget {
   const EditProfileScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     log("Entered EditProfileScreen"); 
     return Scaffold(
       resizeToAvoidBottomInset: false, 
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(140.0), // Total height for both AppBars
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            AppBar(
-              title: Text('Customer Profile', style: TextStyle(fontSize: 14, color: Color(0xFFE8F0FE))),
-              backgroundColor: Color(0xFF87027B),
-              elevation: 0,
-              automaticallyImplyLeading: false,
-              actions: <Widget> [
-                IconButton(
-                  icon: const Icon(Icons.account_circle, size: 40, color: Color(0xFFE8F0FE)),
-                  tooltip: 'Profile',
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EditProfileScreen(),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-
-            AppBar(
-              title: Text('Edit Profile', style: TextStyle(color: Color(0xFF000000), fontWeight: FontWeight.bold)),
-              toolbarHeight: 20.0,
-              elevation: 0,
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back, color: Color(0xFF000000)),
-                  padding: EdgeInsets.only(bottom: 20),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => HomeScreen(),
-                      ),
-                    );
-                  },
-                ), // Or any custom leading widget
-              
-            ),
-          ],
+      appBar: AppBar(
+        title: Text(
+          'Customer Profile',
+          style: TextStyle(fontSize: 20, color: Color(0xFFE8F0FE)),
         ),
+        backgroundColor: Color(0xFF87027B),
+        elevation: 0,
+        automaticallyImplyLeading: true, 
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Color(0xFFE8F0FE)),
+          onPressed: () {
+            Navigator.pop(context); 
+          },
+        ),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.account_circle, size: 40, color: Color(0xFFE8F0FE)),
+            tooltip: 'Profile',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditProfileScreen(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       
-      body: 
-        Column(  
-          children: [
-            Stack(
+      body: Column(
+        children: [
+          SizedBox(height: 30),
+          Stack(
             children: [
               CircleAvatar(
                 radius: 50, 
@@ -112,18 +94,18 @@ class EditProfileScreen extends StatelessWidget {
                   SizedBox(height: 10),
                   CustomTextField(hintText: "Email"),
                   SizedBox(height: 12),
-                  CustomText(text: "Password"),
+                  CustomText(text: "Mobile Address"),
                   SizedBox(height: 10),
-                  CustomTextField(hintText: "Password"),
+                  CustomTextField(hintText: "Mobile Address"),
                   SizedBox(height: 12),
-                  CustomText(text: "Date of Birth"),
+                  CustomText(text: "Address"),
                   SizedBox(height: 10),
-                  CustomTextField(hintText: "Date of Birth"),
+                  CustomTextField(hintText: "Address"),
                   SizedBox(height: 12),
                   CustomText(text: "Country/Region"),
                   SizedBox(height: 10),
                   CustomTextField(hintText: "Country/Region"),
-                  SizedBox(height: 30),
+                  SizedBox(height: 20),
                   Center(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
@@ -132,12 +114,35 @@ class EditProfileScreen extends StatelessWidget {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => HomeScreen(), 
+                        final overlay = Overlay.of(context);
+                        final overlayEntry = OverlayEntry(
+                          builder: (context) => Positioned(
+                            top: 100, 
+                            left: MediaQuery.of(context).size.width * 0.1,
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            child: Material(
+                              color: Colors.transparent,
+                              child: Container(
+                                padding: EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.black87,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text(
+                                  "Profile settings saved successfully!",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: Colors.white, fontSize: 16),
+                                ),
+                              ),
+                            ),
                           ),
                         );
+
+                        overlay.insert(overlayEntry);
+
+                        Future.delayed(Duration(seconds: 2), () {
+                          overlayEntry.remove();
+                        });
                       },
                       child: Text("Save", style: TextStyle(color: Colors.white, fontSize: 14, fontFamily: 'Roboto', fontWeight: FontWeight.w500,),),
                     ),

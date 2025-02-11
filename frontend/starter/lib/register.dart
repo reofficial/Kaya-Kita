@@ -1,101 +1,78 @@
 import 'package:flutter/material.dart';
 import 'api_service.dart';
 import 'personalinfo.dart';
+import 'login.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({Key? key}) : super(key: key);
+  const RegisterScreen({super.key});
 
   @override
-  _RegisterScreenState createState() => _RegisterScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  // Controllers for the input fields
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
 
-  // Display a loading dialog to indicate the request is in progress.
-  void showLoadingDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false, // Prevent dismissing by tapping outside
-      builder: (context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                CircularProgressIndicator(),
-                SizedBox(width: 15),
-                Text("Registering..."),
-              ],
-            ),
-          ),
-        );
-      },
+  bool obscurePassword = true;
+  bool obscureConfirmPassword = true;
+  String? passwordError;
+  String? emailError;
+  
+  bool hasMinLength = false;
+  bool hasUpperCase = false;
+  bool hasNumber = false;
+  bool hasSpecialChar = false;
+
+  void validatePassword(String value) {
+    setState(() {
+      hasMinLength = value.length >= 6;
+      hasUpperCase = RegExp(r'[A-Z]').hasMatch(value);
+      hasNumber = RegExp(r'[0-9]').hasMatch(value);
+      hasSpecialChar = RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(value);
+    });
+  }
+
+  bool isValidEmail(String email) {
+    return RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(email);
+  }
+
+
+  void onRegister() {
+  setState(() {
+    emailError = isValidEmail(emailController.text) ? null : "Invalid email format";
+
+    if (passwordController.text.isEmpty) {
+      passwordError = "Password cannot be empty";
+    } else if (passwordController.text != confirmPasswordController.text) {
+      passwordError = "Passwords do not match";
+    } else if (!hasMinLength || !hasUpperCase || !hasNumber || !hasSpecialChar) {
+      passwordError = "Password does not meet all requirements";
+    } else {
+      passwordError = null; 
+    }
+  });
+
+  if (emailError == null && passwordError == null) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PersonalInfoScreen()),
     );
   }
+}
 
-  // Hide the loading dialog
-  void hideLoadingDialog() {
-    Navigator.pop(context);
-  }
-
-  // Call the API to register the user
-  Future<void> handleRegister() async {
-    String email = emailController.text.trim();
-    String password = passwordController.text.trim();
-    String confirmPassword = confirmPasswordController.text.trim();
-
-    if (password != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Passwords do not match")),
-      );
-      return;
-    }
-
-    // Show loading indicator
-    showLoadingDialog();
-
-    // Make the API call
-    final response = await ApiService.registerUser(email, password);
-
-    // Hide the loading indicator
-    hideLoadingDialog();
-
-    // Check the API response
-    if (response.statusCode == 201) {
-      // If successful, navigate to the PersonalInfoScreen
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const PersonalInfoScreen()),
-      );
-    } else {
-      // If registration failed, show an error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Registration failed: ${response.body}")),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Register',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        ),
+        title: const Text('Register', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: SingleChildScrollView(
@@ -108,74 +85,92 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const Center(
                 child: Text(
                   'Create Account',
-                  style: TextStyle(
-                    color: Color(0xFF87027B),
-                    fontSize: 30,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(color: Color(0xFF87027B), fontSize: 30, fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(height: 10),
-              const Center(
-                child: SizedBox(
-                  width: 250,
-                  child: Text(
-                    'Create an account so you can explore all the existing services',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w500,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
+              TextField(
+                controller: emailController,
+                decoration: InputDecoration(
+                  hintText: "Email",
+                  filled: true,
+                  fillColor: Colors.grey[200],
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  errorText: emailError,
+                  errorStyle: const TextStyle(
+                  fontSize: 14, 
+                  color: Colors.red, 
+                ),
                 ),
               ),
               const SizedBox(height: 10),
-              CustomTextField(controller: emailController, hintText: "Email"),
-              const SizedBox(height: 10),
-              CustomTextField(
+              TextField(
                 controller: passwordController,
-                hintText: "Password",
-                obscureText: true,
+                obscureText: obscurePassword,
+                onChanged: validatePassword,
+                decoration: InputDecoration(
+                  hintText: "Password",
+                  filled: true,
+                  fillColor: Colors.grey[200],
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  suffixIcon: IconButton(
+                    icon: Icon(obscurePassword ? Icons.visibility_off : Icons.visibility),
+                    onPressed: () {
+                      setState(() {
+                        obscurePassword = !obscurePassword;
+                      });
+                    },
+                  ),
+                  errorText: passwordError, 
+                  errorStyle: const TextStyle(fontSize: 14, color: Colors.red),
+                ),
               ),
+
               const SizedBox(height: 10),
-              CustomTextField(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  PasswordRequirement(text: "At least 6 characters", satisfied: hasMinLength),
+                  PasswordRequirement(text: "At least one uppercase letter", satisfied: hasUpperCase),
+                  PasswordRequirement(text: "At least one number", satisfied: hasNumber),
+                  PasswordRequirement(text: "At least one special character", satisfied: hasSpecialChar),
+                ],
+              ),
+              
+              const SizedBox(height: 10),
+              TextField(
                 controller: confirmPasswordController,
-                hintText: "Confirm Password",
-                obscureText: true,
+                obscureText: obscureConfirmPassword,
+                decoration: InputDecoration(
+                  hintText: "Confirm Password",
+                  filled: true,
+                  fillColor: Colors.grey[200],
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  suffixIcon: IconButton(
+                    icon: Icon(obscureConfirmPassword ? Icons.visibility_off : Icons.visibility),
+                    onPressed: () {
+                      setState(() {
+                        obscureConfirmPassword = !obscureConfirmPassword;
+                      });
+                    },
+                  ),
+                ),
               ),
               const SizedBox(height: 30),
               Center(
                 child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF87027B),
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                  ),
-                  onPressed: handleRegister,
-                  child: const Text(
-                    "Register",
-                    style: TextStyle(color: Colors.white, fontFamily: 'Poppins', fontWeight: FontWeight.w600, fontSize: 16),
-                  ),
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF87027B)),
+                  onPressed: onRegister,
+                  child: const Text("Continue", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)),
                 ),
               ),
               const SizedBox(height: 10),
               Center(
                 child: TextButton(
-                  onPressed: () {
-                    // Add navigation to LoginScreen if desired
-                  },
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())),
                   child: const Text(
                     'Already have an account?',
-                    style: TextStyle(
-                      decoration: TextDecoration.underline,
-                      fontFamily: 'Roboto',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black,
-                    ),
+                    style: TextStyle(decoration: TextDecoration.underline, fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black),
                   ),
                 ),
               ),
@@ -198,7 +193,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       children: [
                         IconButton(
                           onPressed: () {
-                            // Google sign-in code here
+                            // google
                           },
                           icon: Image.asset('assets/google.png', width: 30, height: 30),
                           iconSize: 30,
@@ -206,7 +201,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         const SizedBox(width: 3),
                         IconButton(
                           onPressed: () {
-                            // Facebook sign-in code here
+                            // fb
                           },
                           icon: Image.asset('assets/facebook.png', width: 30, height: 30),
                           iconSize: 30,
@@ -214,7 +209,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         const SizedBox(width: 2),
                         IconButton(
                           onPressed: () {
-                            // Apple sign-in code here
+                            // apple
                           },
                           icon: Image.asset('assets/apple.png', width: 32, height: 32),
                           iconSize: 32,
@@ -233,18 +228,42 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 }
 
-// A custom text field widget for reuse across the registration form.
-class CustomTextField extends StatelessWidget {
-  final TextEditingController controller;
-  final String hintText;
-  final bool obscureText;
 
+class PasswordRequirement extends StatelessWidget {
+  final String text;
+  final bool satisfied;
+
+  const PasswordRequirement({super.key, required this.text, required this.satisfied});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          Icon(satisfied ? Icons.check_circle : Icons.circle, color: satisfied ? Colors.green : Colors.grey, size: 16),
+          const SizedBox(width: 5),
+          Text(text, style: TextStyle(color: satisfied ? Colors.green : Colors.grey, fontSize: 14)),
+        ],
+      ),
+    );
+  }
+}
+
+
+class CustomTextField extends StatelessWidget {
   const CustomTextField({
-    Key? key,
+    super.key,
     required this.controller,
     required this.hintText,
+    this.borderColor = const Color(0xFFE8F0FE),
     this.obscureText = false,
-  }) : super(key: key);
+  });
+
+  final TextEditingController controller;
+  final String hintText;
+  final Color borderColor;
+  final bool obscureText;
 
   @override
   Widget build(BuildContext context) {
