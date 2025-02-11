@@ -33,7 +33,7 @@ class PersonalInfoScreen extends StatelessWidget {
       body: Stack(
         children: [
           Positioned(
-            bottom: -30,
+            bottom: -40,
             left: 0,
             right: 0,
             child: Image.asset(
@@ -64,6 +64,8 @@ class PersonalInfoScreen extends StatelessWidget {
                       // The following fields collect additional user details.
                       // You can also display the passed email/password if needed.
                       CustomTextField(hintText: "First Name"),
+                      const SizedBox(height: 10),
+                      CustomTextField(hintText: "Middle Initial"),
                       const SizedBox(height: 10),
                       CustomTextField(hintText: "Last Name"),
                       const SizedBox(height: 10),
