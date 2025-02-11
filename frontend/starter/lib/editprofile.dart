@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:starter/home.dart';
 import 'dart:developer';
-import 'entrance.dart';
 
 class EditProfileScreen extends StatelessWidget {
   const EditProfileScreen({super.key});
@@ -43,7 +43,12 @@ class EditProfileScreen extends StatelessWidget {
                 icon: Icon(Icons.arrow_back, color: Color(0xFF000000)),
                   padding: EdgeInsets.only(bottom: 20),
                   onPressed: () {
-                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HomeScreen(),
+                      ),
+                    );
                   },
                 ), // Or any custom leading widget
               
@@ -130,7 +135,7 @@ class EditProfileScreen extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => EntranceScreen(), 
+                            builder: (context) => HomeScreen(), 
                           ),
                         );
                       },
