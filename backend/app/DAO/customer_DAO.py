@@ -8,6 +8,7 @@ class CustomerDAO:
     
     #CRUD operations
     async def create_customer(self, customer: Customer) -> None:
+        customer.username = await self.build_username(customer.first_name, customer.last_name)
         await self.collection.insert_one(customer.model_dump())
     
     async def read_customers(self) -> List[Customer]:
@@ -34,3 +35,12 @@ class CustomerDAO:
     async def find_by_email(self, email: str) -> Optional[Customer]:
         customer_data = await self.collection.find_one({"email": email})
         return Customer(**customer_data) if customer_data else None
+    
+    async def build_username(self, first_name: str, last_name: str) -> str:
+        #build initial username, and then test if it already exists. if it exists, then append a number incrementally until a unique username is found
+        username = f"{first_name[0].lower()}{last_name.lower()}"
+        counter = 1
+        while await self.find_by_username(username):
+            username = f"{username}{counter}"
+            counter += 1
+        return username
