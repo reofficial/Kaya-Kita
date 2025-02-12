@@ -1,12 +1,22 @@
 import 'package:flutter/material.dart';
+
 import 'dart:developer';
 import 'entrance.dart';
 import 'home.dart';
 import 'register.dart';
 import 'onboarding.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+
+  bool obscurePassword = true;
+
   @override
   Widget build(BuildContext context) {
     log("Entered LoginScreen");
@@ -66,7 +76,34 @@ class LoginScreen extends StatelessWidget {
                   SizedBox(height: 10),
                   CustomTextField(hintText: "Email"),
                   SizedBox(height: 10),
-                  CustomTextField(hintText: "Password"),
+                  TextField(
+                    obscureText: obscurePassword,
+                    decoration: InputDecoration(
+                      hintText: "Password",
+                      filled: true,
+                      fillColor: Color(0xFFE8F0FE).withAlpha((0.2 * 255).toInt()),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Color(0xFFE8F0FE)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Color(0xFFE8F0FE)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Color(0xFF87027B)),
+                      ),
+                      suffixIcon: IconButton(
+                        icon: Icon(obscurePassword ? Icons.visibility_off : Icons.visibility),
+                        onPressed: () {
+                          setState(() {
+                            obscurePassword = !obscurePassword;
+                          });
+                        },
+                      ),
+                    ),
+                  ),
                   SizedBox(height: 10),
                   Align(
                     alignment: Alignment.centerRight,
