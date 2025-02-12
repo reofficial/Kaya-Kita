@@ -13,3 +13,7 @@ class Customer(BaseModel):
 class InitialInfo(BaseModel):
     email: str
     password: str
+
+class LoginInfo(BaseModel):
+    email:str
+    password:str
