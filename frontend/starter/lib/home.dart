@@ -136,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       body: Center(
         child: Text(
-          "gagawin ko pa :P",
+          "(rest of Home Page to follow)",
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
       ),
