@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'api_service.dart'; // API service that handles the registration POST call.
 import 'personalinfo.dart';
 import 'login.dart';
+import 'providers/profile_provider.dart';
+import 'package:provider/provider.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -79,6 +81,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
         if (response.statusCode == 201) {
           // Navigate to PersonalInfoScreen and pass email and password
+          Provider.of<UserProvider>(context, listen: false).setEmail(emailController.text);
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
