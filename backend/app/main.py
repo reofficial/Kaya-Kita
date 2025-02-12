@@ -27,15 +27,19 @@ async def get_customers():
 
 @app.post("/customers/register", status_code=status.HTTP_201_CREATED)
 async def create_customer(customer: Customer):
-    await customer_dao.create_customer(customer)
-    return JSONResponse(status_code=201, content={"message": "Customer created successfully"})
+    #check if contact number is already in use
+    if await customer_dao.find_by_contact_number(customer.contact_number):
+        raise HTTPException(status_code=409, detail="Contact number is already in use.")
+    else:
+        await customer_dao.create_customer(customer)
+        return JSONResponse(status_code=201, content={"message": "Customer created successfully"})
 
 @app.post("/customers/email", status_code=status.HTTP_201_CREATED)
 async def check_email(info: InitialInfo):
     if await customer_dao.find_by_email(info.email):
         raise HTTPException(status_code=409, detail="Email already registered.")
-
-    return JSONResponse(status_code=201, content={"message": "Email available"})
+    else:
+        return JSONResponse(status_code=201, content={"message": "Email available"})
 
 
 @app.get("/hello")

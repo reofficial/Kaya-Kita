@@ -44,3 +44,8 @@ class CustomerDAO:
             username = f"{username}{counter}"
             counter += 1
         return username
+    
+    async def find_by_contact_number(self, contact_number: str) -> Optional[Customer]:
+        #check if exact contact number is already in use
+        customer_data = await self.collection.find_one({"contact_number": contact_number})        
+        return Customer(**customer_data) if customer_data else None
