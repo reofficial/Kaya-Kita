@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:starter/draftonboarding.dart';
 import 'package:starter/editprofile.dart';
+import 'package:starter/entrance.dart';
+import 'package:starter/main.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -57,6 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 )
               ),
             ),
+
             Align(
               alignment: Alignment.centerLeft,
               child: Padding(
@@ -72,9 +76,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             CustomButton(title: 'Edit Profile', icon: Icons.person, screen: EditProfileScreen()),
-            CustomButton(title: 'Security', icon: Icons.shield, screen: EditProfileScreen()),
-            CustomButton(title: 'Notifications', icon: Icons.notifications, screen: EditProfileScreen()),
-            CustomButton(title: 'Privacy', icon: Icons.lock, screen: EditProfileScreen()),
+            CustomButton(title: 'Security', icon: Icons.shield, screen: null),
+            CustomButton(title: 'Notifications', icon: Icons.notifications, screen: null),
+            CustomButton(title: 'Privacy', icon: Icons.lock, screen: null),
 
             Align(
               alignment: Alignment.centerLeft,
@@ -90,9 +94,44 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            CustomButton(title: 'My Subscription', icon: Icons.person, screen: EditProfileScreen()),
-            CustomButton(title: 'Help & Support', icon: Icons.shield, screen: EditProfileScreen()),
-            CustomButton(title: 'Terms and Policies', icon: Icons.notifications, screen: EditProfileScreen()),
+            CustomButton(title: 'My Subscription', icon: Icons.business_center, screen: null),
+            CustomButton(title: 'Help & Support', icon: Icons.help, screen: null),
+            CustomButton(title: 'Terms and Policies', icon: Icons.policy, screen: null),
+
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: EdgeInsets.only(left:10, bottom: 5, top: 10) ,
+                child: Text(
+                  'Cache & Cellular', 
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'Roboto',
+                    fontWeight: FontWeight.bold 
+                  ),
+                ),
+              ),
+            ),
+            CustomButton(title: 'Free up space', icon: Icons.delete, screen: null),
+            CustomButton(title: 'Data Saver', icon: Icons.moving, screen: null),
+
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: EdgeInsets.only(left:10, bottom: 5, top: 10) ,
+                child: Text(
+                  'Actions', 
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'Roboto',
+                    fontWeight: FontWeight.bold 
+                  ),
+                ),
+              ),
+            ),
+            CustomButton(title: 'Report a problem', icon: Icons.flag, screen: null),
+            CustomButton(title: 'Add account', icon: Icons.people, screen: null),
+            CustomButton(title: 'Log out', icon: Icons.logout, screen: MyApp()),
           ],
         ),
       ),
@@ -153,7 +192,7 @@ class CustomButton extends StatelessWidget {
 
   final String title;
   final IconData icon;
-  final Widget screen;
+  final Widget? screen;
   final Color color;
 
   @override
@@ -164,6 +203,7 @@ class CustomButton extends StatelessWidget {
       child:
       ElevatedButton(
         style: ElevatedButton.styleFrom(
+          padding: EdgeInsets.only(left: 5),
           backgroundColor: const Color.fromARGB(255, 223, 223, 223),
           shape: BeveledRectangleBorder(
             borderRadius: BorderRadius.circular(1)
@@ -175,16 +215,18 @@ class CustomButton extends StatelessWidget {
             SizedBox(width: 10),
             Text(
               title, 
-              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),)
+              style: TextStyle(fontSize: 14, color: Colors.black, fontWeight: FontWeight.bold),)
           ],
         ),
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => screen,
-            ),
-          );
+          if (screen != null) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => screen!,
+              ),
+            );
+          }
         },
       ),
     );
