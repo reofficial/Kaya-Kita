@@ -1,30 +1,26 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:starter/main.dart';
+import 'package:starter/login.dart';
+import 'package:starter/main.dart'; 
 
 void main() {
-  // testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-  //   // Build our app and trigger a frame.
-  //   await tester.pumpWidget(const MyApp());
+  testWidgets('Verify login button appears on Onboarding screen', (WidgetTester tester) async {
+    await tester.pumpWidget(const MyApp()); 
 
-  //   // Verify that our counter starts at 0.
-  //   expect(find.text('0'), findsOneWidget);
-  //   expect(find.text('1'), findsNothing);
+    expect(find.text('Log-in'), findsOneWidget);
+  });
 
-  //   // Tap the '+' icon and trigger a frame.
-  //   await tester.tap(find.byIcon(Icons.add));
-  //   await tester.pump();
+  testWidgets('User can enter email and password', (WidgetTester tester) async {
+    await tester.pumpWidget(const MaterialApp(home: LoginScreen()));
 
-  //   // Verify that our counter has incremented.
-  //   expect(find.text('0'), findsNothing);
-  //   expect(find.text('1'), findsOneWidget);
-  // });
+    await tester.enterText(find.byType(CustomTextField).first, 'email@domain.com');
+    expect(find.text('email@domain.com'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField).last, 'validpassword');
+    expect(find.text('validpassword'), findsOneWidget);
+
+    // Tap Login Button
+    await tester.tap(find.text('Sign in'));
+    await tester.pumpAndSettle(); 
+  });
 }
