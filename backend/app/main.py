@@ -25,7 +25,7 @@ customer_dao = CustomerDAO(database)
 async def get_customers():
     return await customer_dao.get_all_customers()
 
-@app.post("/customers", status_code=status.HTTP_201_CREATED)
+@app.post("/customers/register", status_code=status.HTTP_201_CREATED)
 async def create_customer(customer: Customer):
     if await customer_dao.find_by_username(customer.username):
         raise HTTPException(status_code=422, detail="Profile already registered.")

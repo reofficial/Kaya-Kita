@@ -23,4 +23,17 @@ class ApiService {
 
     return response;
   }
+
+  static Future<http.Response> createCustomer(Map<String, dynamic> customer) async {
+    final url = Uri.parse('$baseUrl/customers/register');
+    final response = await _client.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(customer),
+    );
+
+    return response;
+  }
+
+
 }
