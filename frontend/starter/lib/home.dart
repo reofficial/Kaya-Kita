@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-// import 'package:starter/draftonboarding.dart';
 import 'package:starter/editprofile.dart';
-// import 'package:starter/entrance.dart';
+import 'package:starter/editprofile.dart';
 import 'package:starter/main.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -138,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       body: Center(
         child: Text(
-          "gagawin ko pa :P",
+          "(rest of Home Page to follow)",
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
       ),
