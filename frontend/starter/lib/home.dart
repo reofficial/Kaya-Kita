@@ -20,15 +20,10 @@ class _HomeScreenState extends State<HomeScreen> {
       key: _scaffoldKey,
       backgroundColor: Colors.white,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: CustomTextField(hintText: 'Find services near your area' ,),
         backgroundColor: Color(0xFF87027B),
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
 
         actions: <Widget>[
           IconButton(
@@ -46,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           children: [
             SizedBox(
-              height: 85,
+              height: 88,
               child:
               DrawerHeader(
                 padding: EdgeInsets.only(bottom: 5, left: 10, right: 10),
@@ -55,7 +50,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Image.asset('assets/logofull.png'),
                     Spacer(),
-                    Icon(Icons.account_circle, size: 40)
+                    IconButton(
+                      icon: Icon(Icons.account_circle, size: 40),
+                      onPressed: () {
+                        _scaffoldKey.currentState?.closeEndDrawer();
+                      },
+                    )
                   ]
                 )
               ),
