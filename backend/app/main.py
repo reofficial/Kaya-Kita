@@ -41,11 +41,11 @@ async def check_email(info: InitialInfo):
     else:
         return JSONResponse(status_code=201, content={"message": "Email available"})
 
-@app.post("customers/login", status_code=status.HTTP_201_CREATED)
+@app.post("/customers/login", status_code=status.HTTP_200_OK)
 async def login(info: LoginInfo):
     customer = await customer_dao.find_by_email(info.email)
     if customer and customer.password == info.password:
-        return JSONResponse(status_code=201, content={"message": "Login successful"})
+        return JSONResponse(status_code=200, content={"message": "Login successful"})
     else:
         raise HTTPException(status_code=401, detail="Invalid email or password")
 

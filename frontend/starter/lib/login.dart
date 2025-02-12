@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-
 import 'dart:developer';
 import 'entrance.dart';
 import 'home.dart';
 import 'register.dart';
 import 'onboarding.dart';
+import 'api_service.dart'; // Ensure your ApiService has a loginUser method
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,39 +14,90 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
   bool obscurePassword = true;
+  bool isLoading = false; // For the loading overlay
+
+  // Controllers for capturing email and password input.
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    // Dispose controllers when the widget is disposed.
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  /// This function performs the login API call.
+  /// It sends the email and password to the backend, shows a loading indicator,
+  /// and navigates to the EntranceScreen upon success.
+  Future<void> handleLogin() async {
+    setState(() {
+      isLoading = true; // Show the loading overlay.
+    });
+
+    try {
+      // Call the login API. The backend expects a JSON payload with email and password.
+      final response = await ApiService.loginUser(
+        emailController.text,
+        passwordController.text,
+      );
+
+      // Assuming a 200 status code indicates a successful login.
+      if (response.statusCode == 200) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const EntranceScreen()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Login failed: ${response.body}")),
+        );
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("An error occurred: $error")),
+      );
+    } finally {
+      setState(() {
+        isLoading = false; // Hide the loading overlay.
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     log("Entered LoginScreen");
     return Scaffold(
       appBar: AppBar(
-        title: Text('Log-in', style: TextStyle(color: Color(0xFF000000), fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Log-in',
+          style: TextStyle(color: Color(0xFF000000), fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Color(0xFF000000)),
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF000000)),
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => OnboardingScreen(),
-              ),
+              MaterialPageRoute(builder: (context) => const OnboardingScreen()),
             );
           },
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
+      // Wrap the body in a Stack to overlay the loading indicator.
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 20),
-                  Center(
+                  const SizedBox(height: 20),
+                  const Center(
                     child: Text(
                       'Login here',
                       style: TextStyle(
@@ -57,8 +108,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
-                  Center(
+                  const SizedBox(height: 10),
+                  const Center(
                     child: SizedBox(
                       width: 250,
                       child: Text(
@@ -73,10 +124,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
-                  CustomTextField(hintText: "Email"),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
+                  // Email field with controller.
+                  CustomTextField(
+                    controller: emailController,
+                    hintText: "Email",
+                  ),
+                  const SizedBox(height: 10),
+                  // Password field with controller and visibility toggle.
                   TextField(
+                    controller: passwordController,
                     obscureText: obscurePassword,
                     decoration: InputDecoration(
                       hintText: "Password",
@@ -84,18 +141,20 @@ class _LoginScreenState extends State<LoginScreen> {
                       fillColor: Color(0xFFE8F0FE).withAlpha((0.2 * 255).toInt()),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Color(0xFFE8F0FE)),
+                        borderSide: const BorderSide(color: Color(0xFFE8F0FE)),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Color(0xFFE8F0FE)),
+                        borderSide: const BorderSide(color: Color(0xFFE8F0FE)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Color(0xFF87027B)),
+                        borderSide: const BorderSide(color: Color(0xFF87027B)),
                       ),
                       suffixIcon: IconButton(
-                        icon: Icon(obscurePassword ? Icons.visibility_off : Icons.visibility),
+                        icon: Icon(
+                          obscurePassword ? Icons.visibility_off : Icons.visibility,
+                        ),
                         onPressed: () {
                           setState(() {
                             obscurePassword = !obscurePassword;
@@ -104,19 +163,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => HomeScreen(),
-                          ),
+                          MaterialPageRoute(builder: (context) => const HomeScreen()),
                         );
                       },
-                      child: Text(
+                      child: const Text(
                         'Forgot your password?',
                         style: TextStyle(
                           decoration: TextDecoration.underline,
@@ -128,41 +185,38 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-
-                  SizedBox(height: 30),
+                  const SizedBox(height: 30),
                   Center(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF87027B),
-                        padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                        backgroundColor: const Color(0xFF87027B),
+                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
                       ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => EntranceScreen(),
-                          ),
-                        );
-                      },
-                      child: Text(
+                      onPressed: handleLogin, // Use the API call on button press.
+                      child: const Text(
                         "Sign in",
-                        style: TextStyle(color: Colors.white, fontFamily: 'Poppins', fontWeight: FontWeight.w600, fontSize: 16),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Center(
                     child: TextButton(
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => RegisterScreen(),
-                          ),
+                          MaterialPageRoute(builder: (context) => const RegisterScreen()),
                         );
                       },
-                      child: Text(
+                      child: const Text(
                         'Create a new account',
                         style: TextStyle(
                           decoration: TextDecoration.underline,
@@ -174,12 +228,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 60),
-
+                  const SizedBox(height: 60),
                   Center(
                     child: Column(
                       children: [
-                        Text(
+                        const Text(
                           "Or continue with",
                           style: TextStyle(
                             fontFamily: 'Poppins',
@@ -188,29 +241,29 @@ class _LoginScreenState extends State<LoginScreen> {
                             color: Colors.black,
                           ),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             IconButton(
                               onPressed: () {
-                                // google
+                                // TODO: Implement Google sign-in.
                               },
                               icon: Image.asset('assets/google.png', width: 30, height: 30),
-                              iconSize: 30, 
+                              iconSize: 30,
                             ),
-                            SizedBox(width: 3),
+                            const SizedBox(width: 3),
                             IconButton(
                               onPressed: () {
-                                // fb
+                                // TODO: Implement Facebook sign-in.
                               },
                               icon: Image.asset('assets/facebook.png', width: 30, height: 30),
                               iconSize: 30,
                             ),
-                            SizedBox(width: 2),
+                            const SizedBox(width: 2),
                             IconButton(
                               onPressed: () {
-                                // apple
+                                // TODO: Implement Apple sign-in.
                               },
                               icon: Image.asset('assets/apple.png', width: 32, height: 32),
                               iconSize: 32,
@@ -220,26 +273,42 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 30),
+                  const SizedBox(height: 30),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+          // Loading overlay: shows when isLoading is true.
+          if (isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.3),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+        ],
       ),
     );
   }
 }
 
+// Reusable custom text field widget that accepts a [controller].
 class CustomTextField extends StatelessWidget {
-  const CustomTextField({super.key, required this.hintText, this.borderColor = const Color(0xFFE8F0FE)});
+  const CustomTextField({
+    super.key,
+    required this.hintText,
+    this.borderColor = const Color(0xFFE8F0FE),
+    this.controller,
+  });
 
   final String hintText;
   final Color borderColor;
+  final TextEditingController? controller;
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: controller,
       decoration: InputDecoration(
         hintText: hintText,
         filled: true,
@@ -254,7 +323,7 @@ class CustomTextField extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Color(0xFF87027B)),
+          borderSide: const BorderSide(color: Color(0xFF87027B)),
         ),
       ),
     );
