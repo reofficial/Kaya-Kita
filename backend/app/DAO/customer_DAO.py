@@ -1,5 +1,5 @@
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from app.classes import Customer
+from app.classes import Customer, CustomerUpdate
 from typing import List, Optional
 
 class CustomerDAO:
@@ -16,8 +16,9 @@ class CustomerDAO:
         customers = await customers_cursor.to_list(length=None)
         return [Customer(**customer) for customer in customers]
     
-    async def update_customer(self, username: str, customer: Customer) -> None:
-        await self.collection.update_one({"username": username}, {"$set": customer.model_dump()})
+    async def update_customer(self, updateDetails: CustomerUpdate) -> None:
+        #update the customer associated with the email
+        await self.collection.update_one({"email": updateDetails.email}, {"$set": updateDetails.model_dump()})
     
     async def delete_customer(self, username: str) -> None:
         await self.collection.delete_one({"username": username})

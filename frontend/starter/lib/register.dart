@@ -9,10 +9,10 @@ class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  State<RegisterScreen> createState() => RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class RegisterScreenState extends State<RegisterScreen> {
   // Controllers for the text fields
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -40,6 +40,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
       hasSpecialChar = RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(value);
     });
   }
+
+  Map<String, bool> validatePasswordFlags(String value) {
+  return {
+    'hasMinLength': value.length >= 6,
+    'hasUpperCase': RegExp(r'[A-Z]').hasMatch(value),
+    'hasNumber': RegExp(r'[0-9]').hasMatch(value),
+    'hasSpecialChar': RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(value),
+  };
+}
 
   // Basic email validation using regex
   bool isValidEmail(String email) {
