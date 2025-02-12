@@ -1,25 +1,45 @@
 import 'package:flutter/material.dart';
+// import 'package:starter/draftpersonalinfo.dart';
+import 'package:provider/provider.dart';
+import 'providers/profile_provider.dart';
+
 import 'dart:developer';
 import 'entrance.dart';
 
-class PersonalInfoScreen extends StatelessWidget {
-  // Receive the email and password from the registration screen.
+class PersonalInfoScreen extends StatefulWidget {
+  const PersonalInfoScreen({
+    super.key,
+    required this.email,
+    required this.password,
+  });
+
   final String email;
   final String password;
 
-  const PersonalInfoScreen({super.key, required this.email, required this.password});
+  @override
+  State<PersonalInfoScreen> createState() => _PersonalInfoScreenState();
+}
 
+class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
+  final _firstNameController = TextEditingController();
+  final _middleInitialController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _mobileNumberController = TextEditingController();
+  final _addressController = TextEditingController();
+
+  // Receive the email and password from the registration screen.
   @override
   Widget build(BuildContext context) {
     // Log the received email and password (for debugging purposes)
-    log("Entered PersonalInfoScreen with email: $email and password: $password"); 
+    log("Entered PersonalInfoScreen with email: ${widget.email} and password: ${widget.password}");
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text(
           'Personal Information',
-          style: TextStyle(color: Color(0xFF000000), fontWeight: FontWeight.bold),
+          style:
+              TextStyle(color: Color(0xFF000000), fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
         elevation: 0,
@@ -63,24 +83,54 @@ class PersonalInfoScreen extends StatelessWidget {
                       const SizedBox(height: 10),
                       // The following fields collect additional user details.
                       // You can also display the passed email/password if needed.
-                      CustomTextField(hintText: "First Name"),
+                      CustomTextField(
+                        hintText: "First Name",
+                        controller: _firstNameController,
+                      ),
                       const SizedBox(height: 10),
-                      CustomTextField(hintText: "Middle Initial"),
+                      CustomTextField(
+                        hintText: "Middle Initial",
+                        controller: _middleInitialController,
+                      ),
                       const SizedBox(height: 10),
-                      CustomTextField(hintText: "Last Name"),
+                      CustomTextField(
+                        hintText: "Last Name",
+                        controller: _lastNameController,
+                      ),
                       const SizedBox(height: 10),
-                      CustomTextField(hintText: "Mobile Number"),
+                      CustomTextField(
+                        hintText: "Mobile Number",
+                        controller: _mobileNumberController,
+                      ),
                       const SizedBox(height: 10),
-                      CustomTextField(hintText: "Address"),
+                      CustomTextField(
+                        hintText: "Address",
+                        controller: _addressController,
+                      ),
                       const SizedBox(height: 30),
                       Center(
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF87027B),
-                            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 40, vertical: 15),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5)),
                           ),
                           onPressed: () {
+                            // * create profile locally
+                            Provider.of<ProfileDataProvider>(
+                              context,
+                              listen: false,
+                            ).initProfileData(
+                              _firstNameController.text,
+                              _middleInitialController.text,
+                              _lastNameController.text,
+                              _mobileNumberController.text,
+                              _addressController.text,
+                            );
+
+                            // * go to next page
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -113,14 +163,22 @@ class PersonalInfoScreen extends StatelessWidget {
 
 // Reusable custom text field widget for PersonalInfoScreen.
 class CustomTextField extends StatelessWidget {
-  final String hintText;
-  final Color borderColor;
+  const CustomTextField({
+    super.key,
+    required this.hintText,
+    this.controller,
+    this.borderColor = const Color(0xFFE8F0FE),
+  });
 
-  const CustomTextField({super.key, required this.hintText, this.borderColor = const Color(0xFFE8F0FE)});
+  final String hintText;
+  final TextEditingController? controller;
+  final Color borderColor;
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      key: key,
+      controller: controller,
       decoration: InputDecoration(
         hintText: hintText,
         filled: true,
