@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+// import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
 import 'dart:developer';
-import 'package:http/http.dart' as http;
+// import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import '/providers/profile_provider.dart'; // Adjust import as needed
 
@@ -33,10 +33,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> fetchCustomerDetails() async {
     final String email = Provider.of<UserProvider>(context, listen: false).email;
-    final String apiUrl = "${dotenv.env['BACKEND_URL']}/customers";
 
     try {
-      final response = await http.get(Uri.parse(apiUrl));
+      final response = await ApiService.getCustomers();
 
       if (response.statusCode == 200) {
         List<dynamic> customers = json.decode(response.body);
