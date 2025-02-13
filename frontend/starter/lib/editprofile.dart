@@ -7,6 +7,7 @@ import 'api_service.dart';
 import 'package:provider/provider.dart';
 import '/providers/profile_provider.dart'; // Adjust import as needed
 
+String originalEmail = "";
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
 
@@ -68,6 +69,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 matchedCustomer['middle_initial'] ?? '';
             lastnameController.text = matchedCustomer['last_name'] ?? '';
             emailController.text = matchedCustomer['email'] ?? '';
+            // Save email as a global variable for retrieval later
+            originalEmail = matchedCustomer['email'] ?? '';
             mobileController.text = matchedCustomer['contact_number'] ?? '';
             addressController.text = matchedCustomer['address'] ?? '';
 
@@ -90,6 +93,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> handleUpdate() async {
     try {
       Map<String, dynamic> updateDetails = {
+        'current_email': originalEmail,
         'first_name': firstnameController.text,
         'middle_initial': middleinitialController.text,
         'last_name': lastnameController.text,

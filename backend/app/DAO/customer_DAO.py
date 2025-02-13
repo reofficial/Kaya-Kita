@@ -18,7 +18,8 @@ class CustomerDAO:
     
     async def update_customer(self, updateDetails: CustomerUpdate) -> None:
         #update the customer associated with the email
-        await self.collection.update_one({"email": updateDetails.email}, {"$set": updateDetails.model_dump()})
+        print(updateDetails.model_dump())
+        await self.collection.update_one({"email": updateDetails.current_email}, {"$set": updateDetails.model_dump(exclude={"current_email"})})
     
     async def delete_customer(self, username: str) -> None:
         await self.collection.delete_one({"username": username})

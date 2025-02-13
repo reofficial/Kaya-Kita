@@ -20,6 +20,7 @@ class LoginInfo(BaseModel):
     password:str
 
 class CustomerUpdate(BaseModel):
+    current_email:str
     first_name: str
     middle_initial: str
     last_name: str
