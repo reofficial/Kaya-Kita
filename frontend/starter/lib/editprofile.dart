@@ -1,8 +1,73 @@
 import 'package:flutter/material.dart';
+// import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'dart:convert';
 import 'dart:developer';
+// import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import '/providers/profile_provider.dart'; // Adjust import as needed
 
-class EditProfileScreen extends StatelessWidget {
+class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
+
+  @override
+  _EditProfileScreenState createState() => _EditProfileScreenState();
+}
+
+class _EditProfileScreenState extends State<EditProfileScreen> {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController firstnameController = TextEditingController();
+  final TextEditingController middleinitialController = TextEditingController();
+  final TextEditingController lastnameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController mobileController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
+  //final TextEditingController countryController = TextEditingController();
+
+  Map<String, dynamic>? customerData;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchCustomerDetails();
+  }
+
+  Future<void> fetchCustomerDetails() async {
+    final String email = Provider.of<UserProvider>(context, listen: false).email;
+
+    try {
+      final response = await ApiService.getCustomers();
+
+      if (response.statusCode == 200) {
+        List<dynamic> customers = json.decode(response.body);
+        Map<String, dynamic>? matchedCustomer = customers.firstWhere(
+          (customer) => customer['email'] == email,
+          orElse: () => null,
+        );
+
+        if (matchedCustomer != null) {
+          setState(() {
+            customerData = matchedCustomer;
+            firstnameController.text = matchedCustomer['first_name'] ?? '';
+            middleinitialController.text = matchedCustomer['middle_initial'] ?? '';
+            lastnameController.text = matchedCustomer['last_name'] ?? '';
+            emailController.text = matchedCustomer['email'] ?? '';
+            mobileController.text = matchedCustomer['contact_number'] ?? '';
+            addressController.text = matchedCustomer['address'] ?? '';
+
+            // Format the full name as "First M. Last"
+            String firstName = firstnameController.text;
+            String middleInitial = middleinitialController.text.isNotEmpty ? "${middleinitialController.text}." : "";
+            String lastName = lastnameController.text;
+
+            nameController.text = "$firstName $middleInitial $lastName".trim();
+          });
+        }
+
+      }
+    } catch (e) {
+      log("Error fetching customer data: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,23 +153,23 @@ class EditProfileScreen extends StatelessWidget {
                   SizedBox(height: 20),
                   CustomText(text: "Name"),
                   SizedBox(height: 10),
-                  CustomTextField(hintText: "Name"),
+                  CustomTextField(controller: nameController, hintText: "Name"),
                   SizedBox(height: 12),
                   CustomText(text: "Email"),
                   SizedBox(height: 10),
-                  CustomTextField(hintText: "Email"),
+                  CustomTextField(controller: emailController, hintText: "Email"),
                   SizedBox(height: 12),
-                  CustomText(text: "Mobile Address"),
+                  CustomText(text: "Mobile Number"),
                   SizedBox(height: 10),
-                  CustomTextField(hintText: "Mobile Address"),
+                  CustomTextField(controller: mobileController, hintText: "Mobile Number"),
                   SizedBox(height: 12),
                   CustomText(text: "Address"),
                   SizedBox(height: 10),
-                  CustomTextField(hintText: "Address"),
-                  SizedBox(height: 12),
-                  CustomText(text: "Country/Region"),
-                  SizedBox(height: 10),
-                  CustomTextField(hintText: "Country/Region"),
+                  CustomTextField(controller: addressController, hintText: "Address"),
+                  // SizedBox(height: 12),
+                  // CustomText(text: "Country/Region"),
+                  // SizedBox(height: 10),
+                  // CustomTextField(hintText: "Country/Region"),
                   SizedBox(height: 20),
                   Center(
                     child: ElevatedButton(
@@ -177,21 +242,28 @@ class CustomText extends StatelessWidget {
 }
 
 class CustomTextField extends StatelessWidget {
-  const CustomTextField({super.key, required this.hintText, this.borderColor = const Color(0xFFE8F0FE)});
+  const CustomTextField({
+    super.key,
+    required this.hintText,
+    this.borderColor = const Color(0xFFE8F0FE),
+    required this.controller, // Controller for prefilled data
+  });
 
   final String hintText;
   final Color borderColor;
+  final TextEditingController controller;
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: controller, // Bind the controller
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: TextStyle(
-            fontSize: 14,
-            fontFamily: 'Roboto', 
-            color: Colors.black87.withAlpha(95),
-          ),
+          fontSize: 14,
+          fontFamily: 'Roboto',
+          color: Colors.black87.withAlpha(95),
+        ),
         filled: true,
         fillColor: borderColor.withAlpha((0.2 * 255).toInt()),
         contentPadding: EdgeInsets.only(top: 1.0, bottom: 1.0, left: 10.0),
@@ -211,3 +283,4 @@ class CustomTextField extends StatelessWidget {
     );
   }
 }
+

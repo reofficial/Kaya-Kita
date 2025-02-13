@@ -46,5 +46,9 @@ class ApiService {
     return response;
   }
 
-
+  static Future<http.Response> getCustomers() async {
+    final url = Uri.parse('$baseUrl/customers');
+    final response = await _client.get(url);
+    return response;
+  }
 }

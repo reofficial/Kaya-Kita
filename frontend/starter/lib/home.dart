@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:starter/editprofile.dart';
+import 'package:starter/editprofile.dart';
 import 'package:starter/main.dart';
 
 class HomeScreen extends StatefulWidget {
