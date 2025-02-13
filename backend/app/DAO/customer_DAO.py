@@ -44,6 +44,8 @@ class CustomerDAO:
         while await self.find_by_username(username):
             username = f"{username}{counter}"
             counter += 1
+        #remove spaces
+        username = username.replace(" ", "")
         return username
     
     async def find_by_contact_number(self, contact_number: str) -> Optional[Customer]:
