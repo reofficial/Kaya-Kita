@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '/providers/profile_provider.dart'; // Adjust import as needed
 
 String originalEmail = "";
+
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
 
@@ -16,7 +17,7 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  final TextEditingController nameController = TextEditingController();
+  //final TextEditingController nameController = TextEditingController();
   final TextEditingController firstnameController = TextEditingController();
   final TextEditingController middleinitialController = TextEditingController();
   final TextEditingController lastnameController = TextEditingController();
@@ -27,7 +28,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   void dispose() {
-    nameController.dispose();
+    //nameController.dispose();
     firstnameController.dispose();
     middleinitialController.dispose();
     lastnameController.dispose();
@@ -74,6 +75,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             mobileController.text = matchedCustomer['contact_number'] ?? '';
             addressController.text = matchedCustomer['address'] ?? '';
 
+            /*
             // Format the full name as "First M. Last"
             String firstName = firstnameController.text;
             String middleInitial = middleinitialController.text.isNotEmpty
@@ -82,6 +84,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             String lastName = lastnameController.text;
 
             nameController.text = "$firstName $middleInitial $lastName".trim();
+            */
           });
         }
       }
@@ -105,6 +108,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       final response = await ApiService.updateCustomer(updateDetails);
 
       if (response.statusCode == 200) {
+        // update provider email
+        Provider.of<UserProvider>(context, listen: false)
+            .setEmail(emailController.text);
+        // show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Profile updated successfully.")),
         );
@@ -197,7 +204,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   SizedBox(height: 20),
                   CustomText(text: "Name"),
                   SizedBox(height: 10),
-                  CustomTextField(controller: nameController, hintText: "Name"),
+                  CustomTextField(
+                    controller: firstnameController,
+                    hintText: "First Name",
+                  ),
+                  SizedBox(height: 10),
+                  CustomTextField(
+                    controller: middleinitialController,
+                    hintText: "Middle Initial",
+                  ),
+                  SizedBox(height: 10),
+                  CustomTextField(
+                    controller: lastnameController,
+                    hintText: "Last Name",
+                  ),
                   SizedBox(height: 12),
                   CustomText(text: "Email"),
                   SizedBox(height: 10),
