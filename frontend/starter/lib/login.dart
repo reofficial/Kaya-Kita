@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'dart:developer';
+
 import 'entrance.dart';
 import 'home.dart';
 import 'register.dart';
 import 'onboarding.dart';
+
 import 'api_service.dart';
+
+import 'package:provider/provider.dart';
+import '/providers/profile_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -46,6 +51,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
       // Assuming a 200 status code indicates a successful login.
       if (response.statusCode == 200) {
+        Provider.of<UserProvider>(context, listen: false)
+            .setEmail(emailController.text);
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const EntranceScreen()),
@@ -73,7 +80,8 @@ class _LoginScreenState extends State<LoginScreen> {
       appBar: AppBar(
         title: const Text(
           'Log-in',
-          style: TextStyle(color: Color(0xFF000000), fontWeight: FontWeight.bold),
+          style:
+              TextStyle(color: Color(0xFF000000), fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
         elevation: 0,
@@ -138,7 +146,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     decoration: InputDecoration(
                       hintText: "Password",
                       filled: true,
-                      fillColor: Color(0xFFE8F0FE).withAlpha((0.2 * 255).toInt()),
+                      fillColor:
+                          Color(0xFFE8F0FE).withAlpha((0.2 * 255).toInt()),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: const BorderSide(color: Color(0xFFE8F0FE)),
@@ -153,7 +162,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          obscurePassword ? Icons.visibility_off : Icons.visibility,
+                          obscurePassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
                         ),
                         onPressed: () {
                           setState(() {
@@ -170,7 +181,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const HomeScreen()),
+                          MaterialPageRoute(
+                              builder: (context) => const HomeScreen()),
                         );
                       },
                       child: const Text(
@@ -190,12 +202,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF87027B),
-                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5),
                         ),
                       ),
-                      onPressed: handleLogin, // Use the API call on button press.
+                      onPressed:
+                          handleLogin, // Use the API call on button press.
                       child: const Text(
                         "Sign in",
                         style: TextStyle(
@@ -213,7 +227,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                          MaterialPageRoute(
+                              builder: (context) => const RegisterScreen()),
                         );
                       },
                       child: const Text(
@@ -249,7 +264,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               onPressed: () {
                                 // TODO: Implement Google sign-in.
                               },
-                              icon: Image.asset('assets/google.png', width: 30, height: 30),
+                              icon: Image.asset('assets/google.png',
+                                  width: 30, height: 30),
                               iconSize: 30,
                             ),
                             const SizedBox(width: 3),
@@ -257,7 +273,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               onPressed: () {
                                 // TODO: Implement Facebook sign-in.
                               },
-                              icon: Image.asset('assets/facebook.png', width: 30, height: 30),
+                              icon: Image.asset('assets/facebook.png',
+                                  width: 30, height: 30),
                               iconSize: 30,
                             ),
                             const SizedBox(width: 2),
@@ -265,7 +282,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               onPressed: () {
                                 // TODO: Implement Apple sign-in.
                               },
-                              icon: Image.asset('assets/apple.png', width: 32, height: 32),
+                              icon: Image.asset('assets/apple.png',
+                                  width: 32, height: 32),
                               iconSize: 32,
                             ),
                           ],

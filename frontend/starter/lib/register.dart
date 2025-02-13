@@ -16,19 +16,28 @@ class RegisterScreenState extends State<RegisterScreen> {
   // Controllers for the text fields
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
+  }
 
   // UI state and error messages
   bool obscurePassword = true;
   bool obscureConfirmPassword = true;
   String? passwordError;
   String? emailError;
-  
+
   bool hasMinLength = false;
   bool hasUpperCase = false;
   bool hasNumber = false;
   bool hasSpecialChar = false;
-  
+
   bool isLoading = false; // Used for displaying the loading overlay
 
   // Validate the password and update criteria flags
@@ -42,17 +51,18 @@ class RegisterScreenState extends State<RegisterScreen> {
   }
 
   Map<String, bool> validatePasswordFlags(String value) {
-  return {
-    'hasMinLength': value.length >= 6,
-    'hasUpperCase': RegExp(r'[A-Z]').hasMatch(value),
-    'hasNumber': RegExp(r'[0-9]').hasMatch(value),
-    'hasSpecialChar': RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(value),
-  };
-}
+    return {
+      'hasMinLength': value.length >= 6,
+      'hasUpperCase': RegExp(r'[A-Z]').hasMatch(value),
+      'hasNumber': RegExp(r'[0-9]').hasMatch(value),
+      'hasSpecialChar': RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(value),
+    };
+  }
 
   // Basic email validation using regex
   bool isValidEmail(String email) {
-    return RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(email);
+    return RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+        .hasMatch(email);
   }
 
   // This function handles registration:
@@ -61,13 +71,17 @@ class RegisterScreenState extends State<RegisterScreen> {
   // 3. On success, it navigates to PersonalInfoScreen, carrying over email and password.
   Future<void> onRegister() async {
     setState(() {
-      emailError = isValidEmail(emailController.text) ? null : "Invalid email format";
+      emailError =
+          isValidEmail(emailController.text) ? null : "Invalid email format";
 
       if (passwordController.text.isEmpty) {
         passwordError = "Password cannot be empty";
       } else if (passwordController.text != confirmPasswordController.text) {
         passwordError = "Passwords do not match";
-      } else if (!hasMinLength || !hasUpperCase || !hasNumber || !hasSpecialChar) {
+      } else if (!hasMinLength ||
+          !hasUpperCase ||
+          !hasNumber ||
+          !hasSpecialChar) {
         passwordError = "Password does not meet all requirements";
       } else {
         passwordError = null;
@@ -76,7 +90,8 @@ class RegisterScreenState extends State<RegisterScreen> {
 
     if (emailError == null && passwordError == null) {
       setState(() {
-        isLoading = true; // Show loading indicator while API call is in progress
+        isLoading =
+            true; // Show loading indicator while API call is in progress
       });
 
       try {
@@ -90,7 +105,7 @@ class RegisterScreenState extends State<RegisterScreen> {
 
         if (response.statusCode == 201) {
           // Navigate to PersonalInfoScreen and pass email and password
-          Provider.of<UserProvider>(context, listen: false).setEmail(emailController.text);
+          /* // commented out to make Navigator push call the button instead
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -100,6 +115,7 @@ class RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
           );
+          */
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("Registration failed: ${response.body}")),
@@ -121,7 +137,8 @@ class RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Register', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        title: const Text('Register',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
@@ -142,7 +159,10 @@ class RegisterScreenState extends State<RegisterScreen> {
                   const Center(
                     child: Text(
                       'Create Account',
-                      style: TextStyle(color: Color(0xFF87027B), fontSize: 30, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          color: Color(0xFF87027B),
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -152,9 +172,11 @@ class RegisterScreenState extends State<RegisterScreen> {
                       hintText: "Email",
                       filled: true,
                       fillColor: Colors.grey[200],
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
                       errorText: emailError,
-                      errorStyle: const TextStyle(fontSize: 14, color: Colors.red),
+                      errorStyle:
+                          const TextStyle(fontSize: 14, color: Colors.red),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -166,9 +188,12 @@ class RegisterScreenState extends State<RegisterScreen> {
                       hintText: "Password",
                       filled: true,
                       fillColor: Colors.grey[200],
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
                       suffixIcon: IconButton(
-                        icon: Icon(obscurePassword ? Icons.visibility_off : Icons.visibility),
+                        icon: Icon(obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility),
                         onPressed: () {
                           setState(() {
                             obscurePassword = !obscurePassword;
@@ -176,17 +201,25 @@ class RegisterScreenState extends State<RegisterScreen> {
                         },
                       ),
                       errorText: passwordError,
-                      errorStyle: const TextStyle(fontSize: 14, color: Colors.red),
+                      errorStyle:
+                          const TextStyle(fontSize: 14, color: Colors.red),
                     ),
                   ),
                   const SizedBox(height: 10),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      PasswordRequirement(text: "At least 6 characters", satisfied: hasMinLength),
-                      PasswordRequirement(text: "At least one uppercase letter", satisfied: hasUpperCase),
-                      PasswordRequirement(text: "At least one number", satisfied: hasNumber),
-                      PasswordRequirement(text: "At least one special character", satisfied: hasSpecialChar),
+                      PasswordRequirement(
+                          text: "At least 6 characters",
+                          satisfied: hasMinLength),
+                      PasswordRequirement(
+                          text: "At least one uppercase letter",
+                          satisfied: hasUpperCase),
+                      PasswordRequirement(
+                          text: "At least one number", satisfied: hasNumber),
+                      PasswordRequirement(
+                          text: "At least one special character",
+                          satisfied: hasSpecialChar),
                     ],
                   ),
                   const SizedBox(height: 10),
@@ -197,9 +230,12 @@ class RegisterScreenState extends State<RegisterScreen> {
                       hintText: "Confirm Password",
                       filled: true,
                       fillColor: Colors.grey[200],
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
                       suffixIcon: IconButton(
-                        icon: Icon(obscureConfirmPassword ? Icons.visibility_off : Icons.visibility),
+                        icon: Icon(obscureConfirmPassword
+                            ? Icons.visibility_off
+                            : Icons.visibility),
                         onPressed: () {
                           setState(() {
                             obscureConfirmPassword = !obscureConfirmPassword;
@@ -211,18 +247,48 @@ class RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 30),
                   Center(
                     child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF87027B)),
-                      onPressed: onRegister,
-                      child: const Text("Continue", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF87027B)),
+                      onPressed: () async {
+                        // try to register email and password
+                        onRegister;
+                        if (emailError == null && passwordError == null) {
+                          // set provider email
+                          Provider.of<UserProvider>(context, listen: false)
+                              .setEmail(emailController.text);
+                          // go to next page
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PersonalInfoScreen(
+                                email: emailController.text,
+                                password: passwordController.text,
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                      child: const Text("Continue",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16)),
                     ),
                   ),
                   const SizedBox(height: 10),
                   Center(
                     child: TextButton(
-                      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())),
+                      onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => LoginScreen())),
                       child: const Text(
                         'Already have an account?',
-                        style: TextStyle(decoration: TextDecoration.underline, fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black),
+                        style: TextStyle(
+                            decoration: TextDecoration.underline,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black),
                       ),
                     ),
                   ),
@@ -232,7 +298,11 @@ class RegisterScreenState extends State<RegisterScreen> {
                       children: [
                         const Text(
                           "Or continue with",
-                          style: TextStyle(fontFamily: 'Poppins', fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+                          style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black),
                         ),
                         const SizedBox(height: 10),
                         Row(
@@ -242,7 +312,8 @@ class RegisterScreenState extends State<RegisterScreen> {
                               onPressed: () {
                                 // TODO: Implement Google sign-in
                               },
-                              icon: Image.asset('assets/google.png', width: 30, height: 30),
+                              icon: Image.asset('assets/google.png',
+                                  width: 30, height: 30),
                               iconSize: 30,
                             ),
                             const SizedBox(width: 3),
@@ -250,7 +321,8 @@ class RegisterScreenState extends State<RegisterScreen> {
                               onPressed: () {
                                 // TODO: Implement Facebook sign-in
                               },
-                              icon: Image.asset('assets/facebook.png', width: 30, height: 30),
+                              icon: Image.asset('assets/facebook.png',
+                                  width: 30, height: 30),
                               iconSize: 30,
                             ),
                             const SizedBox(width: 2),
@@ -258,7 +330,8 @@ class RegisterScreenState extends State<RegisterScreen> {
                               onPressed: () {
                                 // TODO: Implement Apple sign-in
                               },
-                              icon: Image.asset('assets/apple.png', width: 32, height: 32),
+                              icon: Image.asset('assets/apple.png',
+                                  width: 32, height: 32),
                               iconSize: 32,
                             ),
                           ],
@@ -290,7 +363,8 @@ class PasswordRequirement extends StatelessWidget {
   final String text;
   final bool satisfied;
 
-  const PasswordRequirement({super.key, required this.text, required this.satisfied});
+  const PasswordRequirement(
+      {super.key, required this.text, required this.satisfied});
 
   @override
   Widget build(BuildContext context) {
@@ -301,7 +375,9 @@ class PasswordRequirement extends StatelessWidget {
           Icon(satisfied ? Icons.check_circle : Icons.circle,
               color: satisfied ? Colors.green : Colors.grey, size: 16),
           const SizedBox(width: 5),
-          Text(text, style: TextStyle(color: satisfied ? Colors.green : Colors.grey, fontSize: 14)),
+          Text(text,
+              style: TextStyle(
+                  color: satisfied ? Colors.green : Colors.grey, fontSize: 14)),
         ],
       ),
     );
