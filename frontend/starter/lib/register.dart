@@ -90,8 +90,7 @@ class RegisterScreenState extends State<RegisterScreen> {
 
     if (emailError == null && passwordError == null) {
       setState(() {
-        isLoading =
-            true; // Show loading indicator while API call is in progress
+        isLoading = true; // Show loading indicator while API call is in progress
       });
 
       try {
@@ -104,8 +103,11 @@ class RegisterScreenState extends State<RegisterScreen> {
         // ------------------
 
         if (response.statusCode == 201) {
-          // Navigate to PersonalInfoScreen and pass email and password
-          /* // commented out to make Navigator push call the button instead
+          // Set the email in the provider
+          Provider.of<UserProvider>(context, listen: false)
+              .setEmail(emailController.text);
+          
+          // Navigate to PersonalInfoScreen and pass email and password          
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -115,7 +117,6 @@ class RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
           );
-          */
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("Registration failed: ${response.body}")),
@@ -131,7 +132,7 @@ class RegisterScreenState extends State<RegisterScreen> {
         });
       }
     }
-  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -251,7 +252,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                           backgroundColor: const Color(0xFF87027B)),
                       onPressed: () async {
                         // try to register email and password
-                        onRegister;
+                        await onRegister();
                         if (emailError == null && passwordError == null) {
                           // set provider email
                           Provider.of<UserProvider>(context, listen: false)
