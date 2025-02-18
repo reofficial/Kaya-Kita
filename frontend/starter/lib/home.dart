@@ -35,8 +35,10 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
 
       endDrawer: Drawer(
-        width: 200,
-        child: Column(
+        key: Key('homeDrawer'),
+        width: MediaQuery.of(context).size.width * 0.5,
+        child: ListView(
+          padding: EdgeInsets.zero,
           children: [
             SizedBox(
               height: 88,
@@ -46,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 decoration: BoxDecoration(),
                 child: Row(
                   children: [
-                    Image.asset('assets/logofull.png'),
+                    Image.asset('assets/logofull.png', key: Key('logo full')),
                     Spacer(),
                     IconButton(
                       icon: Icon(Icons.account_circle, size: 40),
