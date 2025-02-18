@@ -15,6 +15,9 @@ class JobListingDAO:
         job_listings = await job_listings_cursor.to_list(length=None)
         return [JobListing(**job_listing) for job_listing in job_listings]
     
+    async def check_if_info_has_content(self, job_listing: JobListing):
+        return bool(job_listing.job_title or job_listing.description or job_listing.location or job_listing.salary)
+    
     async def update_job_listing(self, updateDetails: JobListing):
         ...
     

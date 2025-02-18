@@ -64,7 +64,11 @@ async def get_job_listings():
 
 @app.get("/job-listings/post", response_model=JobListing)
 async def create_job_listing(job_listing: JobListing):
-    return await job_listing_dao.create_job_listing(job_listing)
+    if await job_listing_dao.check_if_info_has_content(job_listing):
+        await job_listing_dao.create_job_listing(job_listing)
+        return JSONResponse(status_code=201, content={"message": "Job listing created successfully"})
+    else:
+        raise HTTPException(status_code=400, detail="Incomplete job listing")
 
 #Test function
 @app.get("/hello")
