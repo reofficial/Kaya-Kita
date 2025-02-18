@@ -62,6 +62,10 @@ async def update_customer(updateDetails: CustomerUpdate):
 async def get_job_listings():
     return await job_listing_dao.read_job_listings()
 
+@app.get("/job-listings/post", response_model=JobListing)
+async def create_job_listing(job_listing: JobListing):
+    return await job_listing_dao.create_job_listing(job_listing)
+
 #Test function
 @app.get("/hello")
 async def hello():
