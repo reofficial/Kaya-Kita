@@ -27,3 +27,11 @@ class CustomerUpdate(BaseModel):
     email: str
     contact_number: str
     address: str
+
+# The following are classes that concerns job listings
+
+class JobListing(BaseModel):
+    job_title: str
+    description: str
+    location: str
+    salary: float
