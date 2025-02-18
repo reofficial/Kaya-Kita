@@ -69,70 +69,72 @@ class RegisterScreenState extends State<RegisterScreen> {
   // 1. It validates the form fields.
   // 2. It calls the API to register the user.
   // 3. On success, it navigates to PersonalInfoScreen, carrying over email and password.
-  Future<void> onRegister() async {
-    setState(() {
-      emailError =
-          isValidEmail(emailController.text) ? null : "Invalid email format";
+ Future<void> onRegister() async {
+  setState(() {
+    emailError =
+        isValidEmail(emailController.text) ? null : "Invalid email format";
 
-      if (passwordController.text.isEmpty) {
-        passwordError = "Password cannot be empty";
-      } else if (passwordController.text != confirmPasswordController.text) {
-        passwordError = "Passwords do not match";
-      } else if (!hasMinLength ||
-          !hasUpperCase ||
-          !hasNumber ||
-          !hasSpecialChar) {
-        passwordError = "Password does not meet all requirements";
-      } else {
-        passwordError = null;
-      }
+    if (passwordController.text.isEmpty) {
+      passwordError = "Password cannot be empty";
+    } else if (passwordController.text != confirmPasswordController.text) {
+      passwordError = "Passwords do not match";
+    } else if (!hasMinLength || !hasUpperCase || !hasNumber || !hasSpecialChar) {
+      passwordError = "Password does not meet all requirements";
+    } else {
+      passwordError = null;
+    }
+  });
+
+  if (emailError == null && passwordError == null) {
+    setState(() {
+      isLoading = true; // Show loading indicator while API call is in progress
     });
 
-    if (emailError == null && passwordError == null) {
-      setState(() {
-        isLoading = true; // Show loading indicator while API call is in progress
-      });
+    try {
+      // --- API CALL ---
+      final response = await ApiService.registerUser(
+        emailController.text,
+        passwordController.text,
+      );
+      // ------------------
 
-      try {
-        // --- API CALL ---
-        // This method sends a POST request to your backend for registration.
-        final response = await ApiService.registerUser(
-          emailController.text,
-          passwordController.text,
-        );
-        // ------------------
-
-        if (response.statusCode == 201) {
-          // Set the email in the provider
-          Provider.of<UserProvider>(context, listen: false)
-              .setEmail(emailController.text);
-          
-          // Navigate to PersonalInfoScreen and pass email and password          
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PersonalInfoScreen(
-                email: emailController.text,
-                password: passwordController.text,
-              ),
+      if (response.statusCode == 201) {
+        // Set the email in the provider
+        Provider.of<UserProvider>(context, listen: false)
+            .setEmail(emailController.text);
+        
+        // Navigate to PersonalInfoScreen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PersonalInfoScreen(
+              email: emailController.text,
+              password: passwordController.text,
             ),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Registration failed: ${response.body}")),
-          );
-        }
-      } catch (error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("An error occurred: $error")),
+          ),
         );
-      } finally {
+      } else if (response.statusCode == 409) {
+        // 409 Conflict - Email already exists
         setState(() {
-          isLoading = false; // Hide loading indicator after API call completes
+          emailError = "Email already exists. Please use a different one.";
         });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Registration failed: ${response.body}")),
+        );
       }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("An error occurred: $error")),
+      );
+    } finally {
+      setState(() {
+        isLoading = false; // Hide loading indicator after API call completes
+      });
     }
+  }
 }
+
 
   @override
   Widget build(BuildContext context) {
