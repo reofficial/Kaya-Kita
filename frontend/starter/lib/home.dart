@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:starter/editprofile.dart';
 import 'package:starter/main.dart';
+import 'package:starter/newpost.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,6 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: CustomTextField(hintText: 'Find services near your area' ,),
@@ -34,11 +36,58 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
 
+      bottomNavigationBar: BottomAppBar(
+
+        color: Colors.white,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            BottomBarButton(
+              icon: Icons.home, 
+              label: 'Home', 
+              onPressed: () {
+
+              }
+            ),
+            BottomBarButton(
+              icon: Icons.discount, 
+              label: 'Promos', 
+              onPressed: () {
+
+              }
+            ),
+            IconButton(
+              icon: Icon(Icons.add_circle, size: 50, color: Color(0xFF87027B)),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const NewPostScreen()),
+                );
+              } 
+            ),
+            BottomBarButton(
+              icon: Icons.list_alt, 
+              label: 'Orders', 
+              onPressed: () {
+
+              }
+            ),
+            BottomBarButton(
+              icon: Icons.chat, 
+              label: 'Chat', 
+              onPressed: () {
+
+              }
+            ),
+          ],
+        ),
+      ),
+
       endDrawer: Drawer(
         key: Key('homeDrawer'),
         width: MediaQuery.of(context).size.width * 0.5,
         child: ListView(
-          padding: EdgeInsets.zero,
+          padding: EdgeInsets.only(left: 10, right: 10),
           children: [
             SizedBox(
               height: 88,
@@ -75,10 +124,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            CustomButton(title: 'Edit Profile', icon: Icons.person, screen: EditProfileScreen()),
-            CustomButton(title: 'Security', icon: Icons.shield, screen: null),
-            CustomButton(title: 'Notifications', icon: Icons.notifications, screen: null),
-            CustomButton(title: 'Privacy', icon: Icons.lock, screen: null),
+            SidebarButton(title: 'Edit Profile', icon: Icons.person, screen: EditProfileScreen()),
+            SidebarButton(title: 'Security', icon: Icons.shield, screen: null),
+            SidebarButton(title: 'Notifications', icon: Icons.notifications, screen: null),
+            SidebarButton(title: 'Privacy', icon: Icons.lock, screen: null),
 
             Align(
               alignment: Alignment.centerLeft,
@@ -94,9 +143,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            CustomButton(title: 'My Subscription', icon: Icons.business_center, screen: null),
-            CustomButton(title: 'Help & Support', icon: Icons.help, screen: null),
-            CustomButton(title: 'Terms and Policies', icon: Icons.policy, screen: null),
+            SidebarButton(title: 'My Subscription', icon: Icons.business_center, screen: null),
+            SidebarButton(title: 'Help & Support', icon: Icons.help, screen: null),
+            SidebarButton(title: 'Terms and Policies', icon: Icons.policy, screen: null),
 
             Align(
               alignment: Alignment.centerLeft,
@@ -112,8 +161,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            CustomButton(title: 'Free up space', icon: Icons.delete, screen: null),
-            CustomButton(title: 'Data Saver', icon: Icons.moving, screen: null),
+            SidebarButton(title: 'Free up space', icon: Icons.delete, screen: null),
+            SidebarButton(title: 'Data Saver', icon: Icons.moving, screen: null),
 
             Align(
               alignment: Alignment.centerLeft,
@@ -129,19 +178,26 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            CustomButton(title: 'Report a problem', icon: Icons.flag, screen: null),
-            CustomButton(title: 'Add account', icon: Icons.people, screen: null),
-            CustomButton(title: 'Log out', icon: Icons.logout, screen: MyApp()),
+            SidebarButton(title: 'Report a problem', icon: Icons.flag, screen: null),
+            SidebarButton(title: 'Add account', icon: Icons.people, screen: null),
+            SidebarButton(title: 'Log out', icon: Icons.logout, screen: MyApp()),
           ],
         ),
       ),
 
-      body: Center(
-        child: Text(
-          "(rest of Home Page to follow)",
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(10),
+        scrollDirection: Axis.vertical,
+        child: Column(
+          children: [
+            Text("[WALLET INFO]", style: TextStyle(color: Colors.grey, fontSize: 24, fontWeight: FontWeight.bold)),
+            Text("[JOB SQUARES]", style: TextStyle(color: Colors.grey, fontSize: 24, fontWeight: FontWeight.bold)),
+            Text("[PROMOS]", style: TextStyle(color: Colors.grey, fontSize: 24, fontWeight: FontWeight.bold)),
+
+            Text("Discover job listings", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          ]
         ),
-      ),
+      )
     );
   }
 }
@@ -185,8 +241,8 @@ class CustomTextField extends StatelessWidget {
   }
 }
 
-class CustomButton extends StatelessWidget {
-  const CustomButton({super.key, required this.title, 
+class SidebarButton extends StatelessWidget {
+  const SidebarButton({super.key, required this.title, 
                       required this.icon, required this.screen,
                       this.color = const Color.fromARGB(255, 223, 223, 223)});
 
@@ -228,6 +284,33 @@ class CustomButton extends StatelessWidget {
             );
           }
         },
+      ),
+    );
+  }
+}
+
+class BottomBarButton extends StatelessWidget {
+  const BottomBarButton({super.key, required this.icon, required this.label, required this.onPressed});
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onPressed,
+      child: Column(
+        mainAxisSize: MainAxisSize.min, 
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: Colors.grey, size: 30),
+          SizedBox(height: 4), 
+          Text(
+            label,
+            style: TextStyle(color: Colors.grey, fontSize: 12),
+          ),
+        ],
       ),
     );
   }
