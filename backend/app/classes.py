@@ -1,7 +1,7 @@
 from re import L
 from pydantic import BaseModel
 
-class Customer(BaseModel):
+class Profile(BaseModel):
     email: str
     password: str
     first_name: str
@@ -10,6 +10,7 @@ class Customer(BaseModel):
     username: str
     address: str
     contact_number: str
+    
 
 class InitialInfo(BaseModel):
     email: str
@@ -19,7 +20,7 @@ class LoginInfo(BaseModel):
     email:str
     password:str
 
-class CustomerUpdate(BaseModel):
+class ProfileUpdate(BaseModel):
     current_email:str
     first_name: str
     middle_initial: str
