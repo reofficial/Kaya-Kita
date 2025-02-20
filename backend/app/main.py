@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException, status
 from fastapi.responses import JSONResponse
 from motor.motor_asyncio import AsyncIOMotorClient
 from typing import List
-from app.classes import Customer, InitialInfo, JobListing, LoginInfo, CustomerUpdate
+from app.classes import Profile, InitialInfo, JobListing, LoginInfo, ProfileUpdate
 from app.DAO.customer_DAO import CustomerDAO
 from app.DAO.job_listing_DAO import JobListingDAO
 
@@ -24,12 +24,12 @@ customer_dao = CustomerDAO(database)
 job_listing_dao = JobListingDAO(database)
 
 # The following concerns customers
-@app.get("/customers", response_model=List[Customer])
+@app.get("/customers", response_model=List[Profile])
 async def get_customers():
     return await customer_dao.get_all_customers()
 
 @app.post("/customers/register", status_code=status.HTTP_201_CREATED)
-async def create_customer(customer: Customer):
+async def create_customer(customer: Profile):
     #check if contact number is already in use
     if await customer_dao.find_by_contact_number(customer.contact_number):
         raise HTTPException(status_code=409, detail="Contact number is already in use.")
@@ -53,9 +53,12 @@ async def login(info: LoginInfo):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     
 @app.post("/customers/update", status_code=status.HTTP_200_OK)
-async def update_customer(updateDetails: CustomerUpdate):
+async def update_customer(updateDetails: ProfileUpdate):
     await customer_dao.update_customer(updateDetails)
     return JSONResponse(status_code=200, content={"message": "Customer updated successfully"})
+
+#The following concerns officials
+
 
 #The following concerns job listings
 @app.get("/job-listings", response_model=List[JobListing])
