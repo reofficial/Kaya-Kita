@@ -107,8 +107,9 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text("Services", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-
+            SizedBox(height: 20),
             SizedBox(height: 150, child: _buildBarChart()),
+            SizedBox(height: 20),
 
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -133,22 +134,44 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _statCard(String title, String value, IconData icon) {
     return Expanded(
       child: Container(
-        margin: const EdgeInsets.all(5),
-        padding: const EdgeInsets.all(10),
+        margin: const EdgeInsets.all(2),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         decoration: BoxDecoration(
           color: const Color(0xFF000E53),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Column(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Icon(icon, color: Colors.white),
-            Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
-            Text(title, style: const TextStyle(fontSize: 14, color: Colors.white)),
+            // Icon and Title (Left Side, Centered)
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: Colors.white, size: 24),
+                const SizedBox(height: 4),
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 14, color: Colors.white),
+                ),
+              ],
+            ),
+            // Number (Right Side, Bigger Font, Centered Vertically)
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 24, // Bigger font for emphasis
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
           ],
         ),
       ),
     );
   }
+
+
 
   Widget _buildBarChart() {
   return BarChart(
@@ -164,6 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)), 
+        topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,

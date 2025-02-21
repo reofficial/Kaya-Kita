@@ -39,10 +39,13 @@ class _JobListingCardState extends State<JobListingCard> {
   }
 
   void updateStatus(String newStatus) {
+    if (widget.job.status == 'Accepted' || widget.job.status == 'Denied') return;
     setState(() {
-      status = newStatus;
+      widget.job.status = newStatus; // Persist the status in the JobListing object
     });
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -138,14 +141,14 @@ class _JobListingCardState extends State<JobListingCard> {
               ],
             ),
             const SizedBox(height: 8),
-            status == 'Accepted' || status == 'Denied'
+            widget.job.status == 'Accepted' || widget.job.status == 'Denied'
                 ? Center(
                     child: Text(
-                      status,
+                      widget.job.status,
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: status == 'Accepted' ? Color(0xFF00880C) : Color(0xFF8D0010),
+                        color: widget.job.status == 'Accepted' ? Color(0xFF00880C) : Color(0xFF8D0010),
                       ),
                     ),
                   )
