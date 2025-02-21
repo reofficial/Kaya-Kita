@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'jobinfo.dart';
 
 class NewPostScreen extends StatefulWidget {
   const NewPostScreen({super.key});
@@ -90,7 +91,12 @@ class _NewPostScreenState extends State<NewPostScreen> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => JobInfoScreen()),
+                  );
+                },
                 child: const Text('Post', style: TextStyle(color: Colors.white, fontSize: 16)),
               ),
             ),
