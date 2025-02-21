@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'jobinfo.dart';
+import 'package:flutter/services.dart';
 
 class NewPostScreen extends StatefulWidget {
   const NewPostScreen({super.key});
@@ -10,13 +11,15 @@ class NewPostScreen extends StatefulWidget {
 
 class _NewPostScreenState extends State<NewPostScreen> {
   String? selectedCategory;
-  String? selectedRate;
+  TextEditingController rateController = TextEditingController();
+  String selectedRateType = 'Monthly';
   String? selectedDuration;
   String? selectedLocation;
 
   final List<String> categories = ['Rider', 'Driver', 'Barber', 'Laundry', 'Other'];
   final List<String> durations = ['Short-term', 'Long-term', 'Flexible'];
-  final List<String> locations = ['Makati', 'Taguig', 'Pasay'];
+  final List<String> locations = ['Makati City', 'Taguig City', 'Pasay City'];
+  final List<String> rateTypes = ['Hourly', 'Daily', 'Weekly', 'Monthly'];
   
   @override
   Widget build(BuildContext context) {
@@ -31,76 +34,78 @@ class _NewPostScreenState extends State<NewPostScreen> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16), 
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const CircleAvatar(
-                  backgroundImage: AssetImage('assets/kamala.png'),
-                  radius: 25,
-                ),
-                const SizedBox(width: 10),
-                const Text(
-                  'Kamala Harris',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-                ),
-              ],
-            ),
-            const SizedBox(height: 15),
-            _buildTextField('Write your header here.', 50),
-            const SizedBox(height: 10),
-            _buildTextField('Write your post or question here.', 120),
-            const SizedBox(height: 10),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildDropdown('Add Category', categories, selectedCategory, (value) => setState(() => selectedCategory = value), width: 180),
-                _buildDropdown('Add Ideal Rate', categories, selectedRate, (value) => setState(() => selectedRate = value), width: 180), 
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildDropdown('Add Duration', durations, selectedDuration, (value) => setState(() => selectedDuration = value), width: 180),
-                _buildDropdown('Add Location', locations, selectedLocation, (value) => setState(() => selectedLocation = value), width: 180), 
-              ],
-            ),
-
-
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                const Icon(Icons.add_photo_alternate, color: Colors.black),
-                const SizedBox(width: 5),
-                const Text('Add media', style: TextStyle(color: Colors.black)),
-              ],
-            ),
-            const SizedBox(height: 15),
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.purple,
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+      body: SingleChildScrollView(
+        child:Padding(
+          padding: const EdgeInsets.all(16), 
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const CircleAvatar(
+                    backgroundImage: AssetImage('assets/kamala.png'),
+                    radius: 25,
                   ),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => JobInfoScreen()),
-                  );
-                },
-                child: const Text('Post', style: TextStyle(color: Colors.white, fontSize: 16)),
+                  const SizedBox(width: 10),
+                  const Text(
+                    'Kamala Harris',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                  ),
+                ],
               ),
-            ),
-          ],
+              const SizedBox(height: 15),
+              _buildTextField('Write your header here.', 50),
+              const SizedBox(height: 10),
+              _buildTextField('Write your post or question here.', 120),
+              const SizedBox(height: 10),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildDropdown('Add Category', categories, selectedCategory, (value) => setState(() => selectedCategory = value), width: 180),
+                  _buildRateDropdown() 
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildDropdown('Add Duration', durations, selectedDuration, (value) => setState(() => selectedDuration = value), width: 180),
+                  _buildDropdown('Add Location', locations, selectedLocation, (value) => setState(() => selectedLocation = value), width: 180), 
+                ],
+              ),
+
+
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  const Icon(Icons.add_photo_alternate, color: Colors.black),
+                  const SizedBox(width: 5),
+                  const Text('Add media', style: TextStyle(color: Colors.black)),
+                ],
+              ),
+              const SizedBox(height: 15),
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.purple,
+                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => JobInfoScreen()),
+                    );
+                  },
+                  child: const Text('Post', style: TextStyle(color: Colors.white, fontSize: 16)),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -141,6 +146,42 @@ class _NewPostScreenState extends State<NewPostScreen> {
         onChanged: onChanged,
         isExpanded: true,
         underline: const SizedBox(),
+      ),
+    );
+  }
+
+    Widget _buildRateDropdown() {
+    return Expanded( 
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          children: [
+            Expanded( 
+              child: TextField(
+                controller: rateController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration: const InputDecoration(
+                  hintText: 'Enter rate',
+                  border: InputBorder.none,
+                ),
+              ),
+            ),
+            const Text(' / ', style: TextStyle(fontSize: 16)),
+            DropdownButton<String>(
+              value: selectedRateType,
+              items: ['Hourly', 'Daily', 'Weekly', 'Monthly']
+                  .map((rate) => DropdownMenuItem(value: rate, child: Text(rate)))
+                  .toList(),
+              onChanged: (value) => setState(() => selectedRateType = value ?? 'Monthly'),
+              underline: const SizedBox(),
+            ),
+          ],
+        ),
       ),
     );
   }

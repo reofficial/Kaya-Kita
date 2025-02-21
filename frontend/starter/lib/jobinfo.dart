@@ -18,7 +18,7 @@ class JobInfoScreen extends StatelessWidget {
                     clipper: CurvedAppBar(),
                     child: Container(
                       height: 185, 
-                      color: Colors.green,
+                      color: Color(0xFF00880C),
                       child: AppBar(
                         title: Text('Job Information'),
                         backgroundColor: Colors.transparent,
@@ -58,12 +58,21 @@ class JobInfoScreen extends StatelessWidget {
                               //SizedBox(height: 30), 
                               Container(
                                 width: double.infinity,
-                                child: Text(
-                                  'Personal Chef Wanted',
-                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                  textAlign: TextAlign.left,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween, 
+                                  children: [
+                                    Text(
+                                      'Personal Chef Wanted',
+                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                    ),
+                                    Text(
+                                      '#2048', //add ticketing system
+                                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF87027B)),
+                                    ),
+                                  ],
                                 ),
                               ),
+
                               SizedBox(height: 8),
                               Container(
                                 padding: EdgeInsets.all(12),
@@ -85,10 +94,10 @@ class JobInfoScreen extends StatelessWidget {
                                     SizedBox(height: 8),
                                     Text(
                                       'Ideal Rate: 30,000/month',
-                                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.green),
+                                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF00880C)),
                                     ),
                                     Text(
-                                      'Duration: 1 month',
+                                      'Duration: Short-term',
                                       style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                                     ),
                                     Text(
@@ -109,7 +118,9 @@ class JobInfoScreen extends StatelessWidget {
                                   ),
                                 ),
                               ),
+                              SizedBox(height: 30),
                               Divider(),
+                              SizedBox(height: 8),
                               Text(
                                 'Contact Me!',
                                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -161,7 +172,7 @@ class JobInfoScreen extends StatelessWidget {
                             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           SizedBox(width: 6),
-                          Icon(Icons.verified, color: Colors.purple, size: 20),
+                          Icon(Icons.verified, color: Color(0xFF87027B), size: 20),
                         ],
                       ),
                     ),
@@ -176,14 +187,16 @@ class JobInfoScreen extends StatelessWidget {
                         ElevatedButton(
                           onPressed: () {},
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
+                            backgroundColor: Color(0xFF870202),
+                            foregroundColor: Colors.white,
                           ),
                           child: Text('Delete Post'),
                         ),
                         ElevatedButton(
                           onPressed: () {},
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.purple,
+                            backgroundColor: Color(0xFF87027B),
+                            foregroundColor: Colors.white,
                           ),
                           child: Text('Edit Post'),
                         ),
