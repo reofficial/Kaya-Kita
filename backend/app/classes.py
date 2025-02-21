@@ -32,7 +32,10 @@ class ProfileUpdate(BaseModel):
 # The following are classes that concerns job listings
 
 class JobListing(BaseModel):
-    job_title: str
+    tag: list[str]          #list of tags for the job (e.g. catering, housework, construction, etc.)
+    job_title: str          
     description: str
     location: str
-    salary: float
+    salary: float           
+    salary_frequency: str   #sample: salary = 10. salary_frequency = "hourly". therefore 10/hour is the salary
+    duration: str           #extra job information
