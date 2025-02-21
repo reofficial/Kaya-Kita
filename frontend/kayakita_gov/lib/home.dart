@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kayakita_gov/editprofile.dart';
-import 'package:kayakita_gov/main.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,10 +18,12 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: CustomTextField(hintText: 'Find services near your area' ,),
-        backgroundColor: Color(0xFF000E53),
+        title: const Text(
+          "U.P. Campus, Quezon City",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: const Color(0xFF000E53),
         elevation: 0,
-
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.account_circle, size: 40, color: Color(0xFFE8F0FE)),
@@ -34,199 +35,145 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
 
-      endDrawer: Drawer(
-        width: 200,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Good day, Rowena!", 
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+
+            const Text("Inbox", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 5),
+
+            Column(
+              children: [
+                _inboxButton("Job Listings"),
+                _inboxButton("Disputes"),
+                _inboxButton("Certification"),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            _servicesCard(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _inboxButton(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.grey[300],
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+          ),
+          onPressed: () {},
+          child: Text(title, style: const TextStyle(fontSize: 16, color: Colors.black)),
+        ),
+      ),
+    );
+  }
+
+  Widget _servicesCard() {
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text("Services", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+
+            SizedBox(height: 150, child: _buildBarChart()),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _statCard("Ongoing", "3", Icons.flash_on),
+                _statCard("Scheduled", "5", Icons.calendar_today),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _statCard("Completed", "38", Icons.check_circle),
+                _statCard("Total Bookings", "46", Icons.list_alt),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _statCard(String title, String value, IconData icon) {
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.all(5),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: const Color(0xFF000E53),
+          borderRadius: BorderRadius.circular(8),
+        ),
         child: Column(
           children: [
-            SizedBox(
-              height: 88,
-              child:
-              DrawerHeader(
-                padding: EdgeInsets.only(bottom: 5, left: 10, right: 10),
-                decoration: BoxDecoration(),
-                child: Row(
-                  children: [
-                    Image.asset('assets/logofull.png'),
-                    Spacer(),
-                    IconButton(
-                      icon: Icon(Icons.account_circle, size: 40),
-                      onPressed: () {
-                        _scaffoldKey.currentState?.closeEndDrawer();
-                      },
-                    )
-                  ]
-                )
-              ),
-            ),
-
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: EdgeInsets.only(left:10, bottom: 5, top: 10) ,
-                child: Text(
-                  'Account', 
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontFamily: 'Roboto',
-                    fontWeight: FontWeight.bold 
-                  ),
-                ),
-              ),
-            ),
-            CustomButton(title: 'Edit Profile', icon: Icons.person, screen: EditProfileScreen()),
-            CustomButton(title: 'Security', icon: Icons.shield, screen: null),
-            CustomButton(title: 'Notifications', icon: Icons.notifications, screen: null),
-            CustomButton(title: 'Privacy', icon: Icons.lock, screen: null),
-
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: EdgeInsets.only(left:10, bottom: 5, top: 10) ,
-                child: Text(
-                  'Support & About', 
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontFamily: 'Roboto',
-                    fontWeight: FontWeight.bold 
-                  ),
-                ),
-              ),
-            ),
-            CustomButton(title: 'My Subscription', icon: Icons.business_center, screen: null),
-            CustomButton(title: 'Help & Support', icon: Icons.help, screen: null),
-            CustomButton(title: 'Terms and Policies', icon: Icons.policy, screen: null),
-
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: EdgeInsets.only(left:10, bottom: 5, top: 10) ,
-                child: Text(
-                  'Cache & Cellular', 
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontFamily: 'Roboto',
-                    fontWeight: FontWeight.bold 
-                  ),
-                ),
-              ),
-            ),
-            CustomButton(title: 'Free up space', icon: Icons.delete, screen: null),
-            CustomButton(title: 'Data Saver', icon: Icons.moving, screen: null),
-
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: EdgeInsets.only(left:10, bottom: 5, top: 10) ,
-                child: Text(
-                  'Actions', 
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontFamily: 'Roboto',
-                    fontWeight: FontWeight.bold 
-                  ),
-                ),
-              ),
-            ),
-            CustomButton(title: 'Report a problem', icon: Icons.flag, screen: null),
-            CustomButton(title: 'Add account', icon: Icons.people, screen: null),
-            CustomButton(title: 'Log out', icon: Icons.logout, screen: MyApp()),
+            Icon(icon, color: Colors.white),
+            Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+            Text(title, style: const TextStyle(fontSize: 14, color: Colors.white)),
           ],
-        ),
-      ),
-
-      body: Center(
-        child: Text(
-          "(rest of Home Page to follow)",
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
       ),
     );
   }
-}
 
-class CustomTextField extends StatelessWidget {
-  const CustomTextField({super.key, required this.hintText, this.borderColor = const Color(0xFFE8F0FE)});
-
-  final String hintText;
-  final Color borderColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 37,
-      child: TextField(
-        decoration: InputDecoration(
-          prefixIcon: Icon(Icons.search),
-          hintText: hintText,
-          hintStyle: TextStyle(
-            fontSize: 12.0,
-            fontFamily: 'Roboto', 
-            color: Colors.black87.withAlpha(95),
-          ),
-          filled: true,
-          fillColor: borderColor,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(100),
-            borderSide: BorderSide(color: borderColor),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(100),
-            borderSide: BorderSide(color: borderColor),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(100),
-            borderSide: BorderSide(color: Color(0xFF000E53)),
+  Widget _buildBarChart() {
+  return BarChart(
+    BarChartData(
+      titlesData: FlTitlesData(
+        leftTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,  
+            reservedSize: 40,  
+            getTitlesWidget: (double value, TitleMeta meta) {
+              return Text(value.toInt().toString(), style: const TextStyle(fontSize: 14));
+            },
           ),
         ),
-      )
-    );
-  }
-}
-
-class CustomButton extends StatelessWidget {
-  const CustomButton({super.key, required this.title, 
-                      required this.icon, required this.screen,
-                      this.color = const Color.fromARGB(255, 223, 223, 223)});
-
-  final String title;
-  final IconData icon;
-  final Widget? screen;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 35,
-      width: 180,
-      child:
-      ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          padding: EdgeInsets.only(left: 5),
-          backgroundColor: const Color.fromARGB(255, 223, 223, 223),
-          shape: BeveledRectangleBorder(
-            borderRadius: BorderRadius.circular(1)
-          )
+        rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)), 
+        bottomTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            getTitlesWidget: (double value, TitleMeta meta) {
+              const days = ["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"];
+              return Text(days[value.toInt()], style: const TextStyle(fontSize: 12));
+            },
+          ),
         ),
-        child: Row(
-          children: [
-            Icon(icon, color: Colors.black),
-            SizedBox(width: 10),
-            Text(
-              title, 
-              style: TextStyle(fontSize: 14, color: Colors.black, fontWeight: FontWeight.bold),)
-          ],
-        ),
-        onPressed: () {
-          if (screen != null) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => screen!,
-              ),
-            );
-          }
-        },
       ),
+      borderData: FlBorderData(show: false),
+      barGroups: _getBarGroups(),
+    ),
+  );
+}
+
+
+  List<BarChartGroupData> _getBarGroups() {
+    final data = [30, 25, 40, 55, 50, 60, 45]; 
+    return List.generate(
+      7,
+      (index) => BarChartGroupData(x: index, barRods: [
+        BarChartRodData(toY: data[index].toDouble(), color: index == 6 ? Colors.pink : Color(0xFF87027B), width: 30, borderRadius: BorderRadius.zero,),
+      ]),
     );
   }
 }

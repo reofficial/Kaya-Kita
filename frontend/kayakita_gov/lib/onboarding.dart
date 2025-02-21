@@ -65,7 +65,7 @@ class OnboardingScreen extends StatelessWidget {
           ),
           // Seal, Divider, and Buttons
           Positioned(
-            bottom: MediaQuery.of(context).size.height * 0.03,
+            bottom: MediaQuery.of(context).size.height * 0.01,
             left: 0,
             right: 0,
             child: Center(
@@ -73,6 +73,7 @@ class OnboardingScreen extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   // Seal Image
+                  SizedBox(height: 20),
                   Image.asset(
                     'assets/philcoatofarms.png',
                     width: 80,
@@ -97,7 +98,7 @@ class OnboardingScreen extends StatelessWidget {
                       );
                     },
                     child: Text(
-                      'Register',
+                      'Log-in',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -117,7 +118,7 @@ class OnboardingScreen extends StatelessWidget {
                       );
                     },
                     child: Text(
-                      'Log in',
+                      'Create account',
                       style: TextStyle(
                         decoration: TextDecoration.underline,
                         fontFamily: 'Roboto',
