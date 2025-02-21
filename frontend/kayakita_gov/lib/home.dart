@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'joblistings.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,8 +21,13 @@ class _HomeScreenState extends State<HomeScreen> {
         automaticallyImplyLeading: false,
         title: const Text(
           "U.P. Campus, Quezon City",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 16, 
+            fontWeight: FontWeight.bold, 
+            color: Colors.white, 
+          ),
         ),
+
         backgroundColor: const Color(0xFF000E53),
         elevation: 0,
         actions: <Widget>[
@@ -65,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _inboxButton(String title) {
+    Widget _inboxButton(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: SizedBox(
@@ -76,12 +82,20 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.symmetric(vertical: 12),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
           ),
-          onPressed: () {},
+          onPressed: () {
+            if (title == "Job Listings") {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => JobListingsScreen()),
+              );
+            }
+          },
           child: Text(title, style: const TextStyle(fontSize: 16, color: Colors.black)),
         ),
       ),
     );
   }
+
 
   Widget _servicesCard() {
     return Card(
