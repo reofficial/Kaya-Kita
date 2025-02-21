@@ -68,6 +68,7 @@ flutter:
     - assets/google.png
     - assets/facebook.png
     - assets/apple.png
+    - assets/kamala.png
     - .env
 
   #   - images/a_dot_ham.jpeg
