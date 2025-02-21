@@ -17,7 +17,7 @@ class JobInfoScreen extends StatelessWidget {
                   ClipPath(
                     clipper: CurvedAppBar(),
                     child: Container(
-                      height: 140, 
+                      height: 185, 
                       color: Colors.green,
                       child: AppBar(
                         title: Text('Job Information'),
@@ -29,9 +29,9 @@ class JobInfoScreen extends StatelessWidget {
                   ),
                   Positioned(
                     top: 90, 
-                    left: MediaQuery.of(context).size.width / 2 - 40,
+                    left: MediaQuery.of(context).size.width / 2 - 60,
                     child: CircleAvatar(
-                      radius: 40,
+                      radius: 60,
                       backgroundImage: AssetImage('assets/kamala.png'),
                       backgroundColor: Colors.white,
                     ),
@@ -39,105 +39,158 @@ class JobInfoScreen extends StatelessWidget {
                 ],
               ),
               Expanded(
-                child: Center(
-                  child: Card(
-                    margin: EdgeInsets.all(16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                child: Stack(
+                  clipBehavior: Clip.none, 
+                  children: [
+                    Align(
+                      alignment: Alignment.topCenter,
+                      child: Card(
+                        margin: EdgeInsets.only(top: 60, left: 16, right: 16), 
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              //SizedBox(height: 30), 
+                              Container(
+                                width: double.infinity,
+                                child: Text(
+                                  'Personal Chef Wanted',
+                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                  textAlign: TextAlign.left,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Container(
+                                padding: EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.grey[500]!,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Hello, I am looking for a personal chef to prepare breakfast, lunch, and dinner, as well as school lunches for my kids.',
+                                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      'Ideal Rate: 30,000/month',
+                                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.green),
+                                    ),
+                                    Text(
+                                      'Duration: 1 month',
+                                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                                    ),
+                                    Text(
+                                      'Location: Makati City',
+                                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(height: 12),
+                              Align(
+                                alignment: Alignment.bottomRight,
+                                child: Padding(
+                                  padding: EdgeInsets.only(top: 0, right: 8),
+                                  child: Text(
+                                    'Submitted on 6 Dec, 2024 - 4:56 PM',
+                                    style: TextStyle(fontSize: 12, color: Colors.pink, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                              Divider(),
+                              Text(
+                                'Contact Me!',
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(height: 8),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(Icons.email, color: Colors.grey),
+                                      SizedBox(width: 8),
+                                      Text('kdharris@up.edu.ph'),
+                                    ],
+                                  ),
+                                  SizedBox(height: 6), 
+
+                                  Row(
+                                    children: [
+                                      Icon(Icons.location_on, color: Colors.grey),
+                                      SizedBox(width: 8),
+                                      Text('UP Diliman, Quezon City'),
+                                    ],
+                                  ),
+                                  SizedBox(height: 6),
+
+                                  Row(
+                                    children: [
+                                      Icon(Icons.check_circle, color: Colors.grey),
+                                      SizedBox(width: 8),
+                                      Text('Booked 48 services so far'),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
+                    Positioned(
+                      top: 28, 
+                      left: MediaQuery.of(context).size.width / 2 - 70,
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          SizedBox(height: 10),
                           Text(
                             'Kamala Harris',
                             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                           ),
+                          SizedBox(width: 6),
                           Icon(Icons.verified, color: Colors.purple, size: 20),
-                          Divider(),
-                          Text(
-                            'Personal Chef Wanted',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(height: 8),
-                          Container(
-                            padding: EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[100],
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Hello, I am looking for a personal chef to prepare breakfast, lunch, and dinner, as well as school lunches for my kids.',
-                                  style: TextStyle(fontSize: 14),
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  'Ideal Rate: 30,000/month',
-                                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.red),
-                                ),
-                                Text(
-                                  'Duration: 1 month',
-                                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                                ),
-                                Text(
-                                  'Location: Makati City',
-                                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: 12),
-                          Text(
-                            'Submitted on 6 Dec, 2024 - 4:56 PM',
-                            style: TextStyle(fontSize: 12, color: Colors.grey),
-                          ),
-                          Divider(),
-                          Text(
-                            'Contact Me!',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(height: 8),
-                          ListTile(
-                            leading: Icon(Icons.email, color: Colors.grey),
-                            title: Text('kdharris@up.edu.ph'),
-                          ),
-                          ListTile(
-                            leading: Icon(Icons.location_on, color: Colors.grey),
-                            title: Text('UP Diliman, Quezon City'),
-                          ),
-                          ListTile(
-                            leading: Icon(Icons.check_circle, color: Colors.grey),
-                            title: Text('Booked 48 services so far'),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              ElevatedButton(
-                                onPressed: () {},
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red,
-                                ),
-                                child: Text('Delete Post'),
-                              ),
-                              ElevatedButton(
-                                onPressed: () {},
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.purple,
-                                ),
-                                child: Text('Edit Post'),
-                              ),
-                            ],
-                          ),
                         ],
                       ),
                     ),
+                    
+                  Positioned(
+                    bottom: 60, 
+                    left: 0,
+                    right: 0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {},
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                          ),
+                          child: Text('Delete Post'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {},
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.purple,
+                          ),
+                          child: Text('Edit Post'),
+                        ),
+                      ],
+                    ),
                   ),
+                  ],
                 ),
               ),
             ],
@@ -154,14 +207,14 @@ class CurvedAppBar extends CustomClipper<Path> {
     Path path = Path();
 
     double startX = 0;
-    double startY = size.height;
-    double curveStartX = size.width * 0.35;
-    double curveEndX = size.width * 0.65;
+    double startY = size.height * 0.75;
+    double curveStartX = size.width * 0.32;
+    double curveEndX = size.width * 0.68;
     double endX = size.width;
     double controlX = size.width * 0.5; 
-    double controlY = size.height * 0.3; 
+    double controlY = size.height * 0.2; 
 
-    double roundness = size.width * 0.085; 
+    double roundness = size.width * 0.07; 
 
     path.lineTo(startX, startY);
     path.lineTo(curveStartX - roundness, startY);
