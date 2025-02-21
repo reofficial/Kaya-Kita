@@ -163,7 +163,7 @@ class CurvedAppBar extends CustomClipper<Path> {
 
     double roundness = size.width * 0.085; 
 
-    path.lineTo(0, startY);
+    path.lineTo(startX, startY);
     path.lineTo(curveStartX - roundness, startY);
 
     path.quadraticBezierTo(
