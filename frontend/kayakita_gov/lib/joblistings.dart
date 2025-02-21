@@ -65,7 +65,43 @@ class _JobListingCardState extends State<JobListingCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.job.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  widget.job.title,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(width: 3),
+              OutlinedButton(
+                onPressed: () {
+                },
+                style: OutlinedButton.styleFrom(
+                  // backgroundColor: const Color(0xFF87027B), 
+                  // foregroundColor: Colors.white,
+                  side: const BorderSide(color: Color(0xFF87027B)), 
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min, 
+                  children: [
+                    const Text(
+                      "View",
+                      style: TextStyle(color: Color(0xFF87027B), fontSize: 14, fontWeight: FontWeight.bold),
+                    ),
+                    //const SizedBox(width: 2), 
+                    const Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xFF87027B)),
+                  ],
+                ),
+              ),
+
+            ],
+          ),
+
+
             const SizedBox(height: 4),
             Text(widget.job.description, style: TextStyle(color: Colors.grey[800])),
             const SizedBox(height: 8),
@@ -74,7 +110,7 @@ class _JobListingCardState extends State<JobListingCard> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text("Customer:", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                Text(widget.job.customer, style: const TextStyle(color: Colors.purple, fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(widget.job.customer, style: const TextStyle(color: Color(0xFF87027B), fontWeight: FontWeight.bold, fontSize: 16)),
               ],
             ),
             const Divider(),
