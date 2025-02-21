@@ -134,7 +134,7 @@ async def update_worker(updateDetails: ProfileUpdate):
 async def get_job_listings():
     return await job_listing_dao.read_job_listings()
 
-@app.get("/job-listings/post", response_model=JobListing)
+@app.post("/job-listings/post", response_model=JobListing)
 async def create_job_listing(job_listing: JobListing):
     if await job_listing_dao.check_if_info_has_content(job_listing):
         await job_listing_dao.create_job_listing(job_listing)
