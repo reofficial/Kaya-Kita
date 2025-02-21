@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'viewpost.dart';
 
 class JobListing {
   final String title;
@@ -41,7 +42,7 @@ class _JobListingCardState extends State<JobListingCard> {
   void updateStatus(String newStatus) {
     if (widget.job.status == 'Accepted' || widget.job.status == 'Denied') return;
     setState(() {
-      widget.job.status = newStatus; // Persist the status in the JobListing object
+      widget.job.status = newStatus; 
     });
   }
 
@@ -80,6 +81,12 @@ class _JobListingCardState extends State<JobListingCard> {
               const SizedBox(width: 3),
               OutlinedButton(
                 onPressed: () {
+                  Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ViewPostScreen(), //add a ticket key
+                  ),
+                );
                 },
                 style: OutlinedButton.styleFrom(
                   // backgroundColor: const Color(0xFF87027B), 
