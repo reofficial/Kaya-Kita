@@ -79,35 +79,35 @@ class _JobListingCardState extends State<JobListingCard> {
                 ),
               ),
               const SizedBox(width: 3),
-              OutlinedButton(
-                onPressed: () {
-                  Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ViewPostScreen(), //add a ticket key
-                  ),
-                );
-                },
-                style: OutlinedButton.styleFrom(
-                  // backgroundColor: const Color(0xFF87027B), 
-                  // foregroundColor: Colors.white,
-                  side: const BorderSide(color: Color(0xFF87027B)), 
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min, 
-                  children: [
-                    const Text(
-                      "View",
-                      style: TextStyle(color: Color(0xFF87027B), fontSize: 14, fontWeight: FontWeight.bold),
+              if (widget.job.status == 'Accepted')
+                OutlinedButton(
+                  onPressed: () {
+                    Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ViewPostScreen(), //add a ticket key
                     ),
-                    //const SizedBox(width: 2), 
-                    const Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xFF87027B)),
-                  ],
+                  );
+                  },
+                  style: OutlinedButton.styleFrom(
+                    // backgroundColor: const Color(0xFF87027B), 
+                    // foregroundColor: Colors.white,
+                    side: const BorderSide(color: Color(0xFF87027B)), 
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min, 
+                    children: [
+                      const Text(
+                        "View",
+                        style: TextStyle(color: Color(0xFF87027B), fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+                      //const SizedBox(width: 2), 
+                      const Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xFF87027B)),
+                    ],
+                  ),
                 ),
-              ),
-
             ],
           ),
 
