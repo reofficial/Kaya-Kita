@@ -43,33 +43,63 @@ void main() {
     expect(find.byType(Drawer), findsOneWidget);
   });
 
-  // testWidgets('Verify Home page drawer buttons', (WidgetTester tester) async {
-  //   await tester.pumpWidget(MaterialApp(home: homepage.HomeScreen()));
-  //   await tester.pump(Duration(milliseconds: 200));
+  group ('Home page drawer tests: ', () {
+    testWidgets('Verify Account section', (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(home: homepage.HomeScreen()));
+      await tester.pump(Duration(milliseconds: 200));
 
-  //   await tester.tap(find.byIcon(Icons.account_circle));
-  //   await tester.pumpAndSettle(); 
+      await tester.tap(find.byIcon(Icons.account_circle));
+      await tester.pumpAndSettle(); 
 
-  //   expect(find.text('Account'), findsOneWidget);
-  //   expect(find.text('Edit Profile'), findsOneWidget);
-  //   expect(find.text('Security'), findsOneWidget);
-  //   expect(find.text('Notifications'), findsOneWidget);
-  //   expect(find.text('Privacy'), findsOneWidget);
+      expect(find.textContaining('Account'), findsOneWidget);
 
-  //   expect(find.text('Support & About'), findsOneWidget);
-  //   expect(find.text('My Subscription'), findsOneWidget);
-  //   expect(find.text('Help & Support'), findsOneWidget);
-  //   expect(find.text('Terms and Policies'), findsOneWidget);
+      expect(find.widgetWithText(ElevatedButton,'Edit Profile'), findsOneWidget);
+      expect(find.widgetWithText(ElevatedButton,'Security'), findsOneWidget);
+      expect(find.widgetWithText(ElevatedButton,'Notifications'), findsOneWidget);
+      expect(find.widgetWithText(ElevatedButton,'Privacy'), findsOneWidget);
+    });
 
-  //   expect(find.text('Cache & Cellular'), findsOneWidget);
-  //   expect(find.text('Free up space'), findsOneWidget);
-  //   expect(find.text('Data Saver'), findsOneWidget);
+    testWidgets('Verify Support & About section', (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(home: homepage.HomeScreen()));
+      await tester.pump(Duration(milliseconds: 200));
 
-  //   expect(find.text('Actions'), findsOneWidget);
-  //   expect(find.text('Report a problem'), findsOneWidget);
-  //   expect(find.text('Add account'), findsOneWidget);
-  //   expect(find.text('Log out'), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.account_circle));
+      await tester.pumpAndSettle(); 
 
-  // });
+      expect(find.textContaining('Support & About'), findsOneWidget);
+
+      expect(find.widgetWithText(ElevatedButton,'My Subscription'), findsOneWidget);
+      expect(find.widgetWithText(ElevatedButton,'Help & Support'), findsOneWidget);
+      expect(find.widgetWithText(ElevatedButton,'Terms and Policies'), findsOneWidget);
+    });
+
+    testWidgets('Verify Cache & Cellular section', (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(home: homepage.HomeScreen()));
+      await tester.pump(Duration(milliseconds: 200));
+
+      await tester.tap(find.byIcon(Icons.account_circle));
+      await tester.pumpAndSettle(); 
+
+      expect(find.textContaining('Cache & Cellular'), findsOneWidget);
+
+      expect(find.widgetWithText(ElevatedButton,'Free up space'), findsOneWidget);
+      expect(find.widgetWithText(ElevatedButton,'Data Saver'), findsOneWidget);
+    });
+
+    testWidgets('Verify Actions section', (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(home: homepage.HomeScreen()));
+      await tester.pump(Duration(milliseconds: 200));
+
+      await tester.tap(find.byIcon(Icons.account_circle));
+      await tester.pumpAndSettle(); 
+
+      expect(find.textContaining('Actions'), findsOneWidget);
+
+      expect(find.widgetWithText(ElevatedButton,'Report a problem'), findsOneWidget);
+      expect(find.widgetWithText(ElevatedButton,'Add account'), findsOneWidget);
+      expect(find.widgetWithText(ElevatedButton,'Log out'), findsOneWidget);
+    });
+
+  });
 
 }

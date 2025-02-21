@@ -86,8 +86,8 @@ class _HomeScreenState extends State<HomeScreen> {
       endDrawer: Drawer(
         key: Key('homeDrawer'),
         width: MediaQuery.of(context).size.width * 0.5,
-        child: ListView(
-          padding: EdgeInsets.only(left: 10, right: 10),
+        child: Column(
+
           children: [
             SizedBox(
               height: 88,
@@ -110,77 +110,85 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: EdgeInsets.only(left:10, bottom: 5, top: 10) ,
-                child: Text(
-                  'Account', 
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontFamily: 'Roboto',
-                    fontWeight: FontWeight.bold 
-                  ),
-                ),
-              ),
-            ),
-            SidebarButton(title: 'Edit Profile', icon: Icons.person, screen: EditProfileScreen()),
-            SidebarButton(title: 'Security', icon: Icons.shield, screen: null),
-            SidebarButton(title: 'Notifications', icon: Icons.notifications, screen: null),
-            SidebarButton(title: 'Privacy', icon: Icons.lock, screen: null),
+            Expanded(
+              child: SingleChildScrollView(    
+                child: Column(  
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: EdgeInsets.only(left:10, bottom: 5, top: 10) ,
+                        child: Text(
+                          'Account', 
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontFamily: 'Roboto',
+                            fontWeight: FontWeight.bold 
+                          ),
+                        ),
+                      ),
+                    ),
+                    SidebarButton(title: 'Edit Profile', icon: Icons.person, screen: EditProfileScreen()),
+                    SidebarButton(title: 'Security', icon: Icons.shield, screen: null),
+                    SidebarButton(title: 'Notifications', icon: Icons.notifications, screen: null),
+                    SidebarButton(title: 'Privacy', icon: Icons.lock, screen: null),
 
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: EdgeInsets.only(left:10, bottom: 5, top: 10) ,
-                child: Text(
-                  'Support & About', 
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontFamily: 'Roboto',
-                    fontWeight: FontWeight.bold 
-                  ),
-                ),
-              ),
-            ),
-            SidebarButton(title: 'My Subscription', icon: Icons.business_center, screen: null),
-            SidebarButton(title: 'Help & Support', icon: Icons.help, screen: null),
-            SidebarButton(title: 'Terms and Policies', icon: Icons.policy, screen: null),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: EdgeInsets.only(left:10, bottom: 5, top: 10) ,
+                        child: Text(
+                          'Support & About', 
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontFamily: 'Roboto',
+                            fontWeight: FontWeight.bold 
+                          ),
+                        ),
+                      ),
+                    ),
+                    SidebarButton(title: 'My Subscription', icon: Icons.business_center, screen: null),
+                    SidebarButton(title: 'Help & Support', icon: Icons.help, screen: null),
+                    SidebarButton(title: 'Terms and Policies', icon: Icons.policy, screen: null),
 
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: EdgeInsets.only(left:10, bottom: 5, top: 10) ,
-                child: Text(
-                  'Cache & Cellular', 
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontFamily: 'Roboto',
-                    fontWeight: FontWeight.bold 
-                  ),
-                ),
-              ),
-            ),
-            SidebarButton(title: 'Free up space', icon: Icons.delete, screen: null),
-            SidebarButton(title: 'Data Saver', icon: Icons.moving, screen: null),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: EdgeInsets.only(left:10, bottom: 5, top: 10) ,
+                        child: Text(
+                          'Cache & Cellular', 
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontFamily: 'Roboto',
+                            fontWeight: FontWeight.bold 
+                          ),
+                        ),
+                      ),
+                    ),
+                    SidebarButton(title: 'Free up space', icon: Icons.delete, screen: null),
+                    SidebarButton(title: 'Data Saver', icon: Icons.moving, screen: null),
 
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: EdgeInsets.only(left:10, bottom: 5, top: 10) ,
-                child: Text(
-                  'Actions', 
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontFamily: 'Roboto',
-                    fontWeight: FontWeight.bold 
-                  ),
-                ),
-              ),
-            ),
-            SidebarButton(title: 'Report a problem', icon: Icons.flag, screen: null),
-            SidebarButton(title: 'Add account', icon: Icons.people, screen: null),
-            SidebarButton(title: 'Log out', icon: Icons.logout, screen: MyApp()),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: EdgeInsets.only(left:10, bottom: 5, top: 10) ,
+                        child: Text(
+                          'Actions', 
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontFamily: 'Roboto',
+                            fontWeight: FontWeight.bold 
+                          ),
+                        ),
+                      ),
+                    ),
+                    SidebarButton(title: 'Report a problem', icon: Icons.flag, screen: null),
+                    SidebarButton(title: 'Add account', icon: Icons.people, screen: null),
+                    SidebarButton(title: 'Log out', icon: Icons.logout, screen: MyApp()),
+                  ]
+                )
+              ) 
+            )
           ],
         ),
       ),
