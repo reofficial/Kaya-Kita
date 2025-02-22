@@ -21,7 +21,22 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        return data.map((item) => item as Map<String, dynamic>).toList();
+        return data
+            .map((item) => {
+                  'tags': (item['tag'] as List<dynamic>?)
+                          ?.map((tag) => tag?.toString() ?? 'N/A')
+                          .toList() ??
+                      [],
+                  'title': item['job_title']?.toString() ?? 'No Title',
+                  'description':
+                      item['description']?.toString() ?? 'No Description',
+                  'location': item['location']?.toString() ?? 'No Location',
+                  'salary': item['salary'] is int ? item['salary'] : 0,
+                  'salaryFrequency':
+                      item['salary_frequency']?.toString() ?? 'N/A',
+                  'duration': item['duration']?.toString() ?? 'N/A',
+                })
+            .toList();
       } else {
         throw Exception('Failed to load jobs (Status: ${response.statusCode})');
       }
@@ -78,10 +93,13 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
                 itemBuilder: (context, index) {
                   final job = jobs[index];
                   return JobListing(
-                    title: job['job_title'] ?? 'No Title',
-                    description: job['description'] ?? 'No Description',
-                    location: job['location'] ?? 'No Location',
+                    tags: job['tags'] ?? [],
+                    title: job['title'],
+                    description: job['description'],
+                    location: job['location'],
                     salary: job['salary'] ?? 0,
+                    salaryFrequency: job['salaryFrequency'],
+                    duration: job['duration'],
                   );
                 },
               ),
@@ -118,16 +136,22 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
 class JobListing extends StatelessWidget {
   const JobListing({
     super.key,
+    required this.tags,
     required this.title,
     required this.description,
     required this.location,
     required this.salary,
+    required this.salaryFrequency,
+    required this.duration,
   });
 
+  final List<String> tags;
   final String title;
   final String description;
   final String location;
-  final double salary;
+  final int salary;
+  final String salaryFrequency;
+  final String duration;
 
   @override
   Widget build(BuildContext context) {
@@ -166,6 +190,21 @@ class JobListing extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
+                  if (tags.isNotEmpty)
+                    Wrap(
+                      spacing: 6,
+                      children: tags
+                          .map((tag) => Chip(
+                                label: Text(tag,
+                                    style:
+                                        const TextStyle(color: Colors.white)),
+                                backgroundColor: Colors.deepPurpleAccent,
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 4),
+                              ))
+                          .toList(),
+                    ),
+                  const SizedBox(height: 4),
                   Text(
                     location,
                     style: const TextStyle(
@@ -176,10 +215,18 @@ class JobListing extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Salary: PHP $salary',
+                    'Salary: PHP ${salary.toString()} / $salaryFrequency',
                     style: const TextStyle(
                       fontSize: 14,
                       color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Duration: $duration',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.white70,
                     ),
                   ),
                 ],
