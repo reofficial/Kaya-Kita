@@ -67,4 +67,10 @@ class ApiService {
     final response = await _client.get(url);
     return response;
   }
+
+  static Future<http.Response> getJobListings() async {
+    final url = Uri.parse('$baseUrl/job-listings');
+    final response = await _client.get(url);
+    return response;
+  }
 }
