@@ -73,4 +73,16 @@ class ApiService {
     final response = await _client.get(url);
     return response;
   }
+
+  static Future<http.Response> postJobListing(Map<String, dynamic> jobListing) async {
+    final url = Uri.parse('$baseUrl/job-listings/post');
+    
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(jobListing),
+    );
+
+    return response;
+  }
 }
