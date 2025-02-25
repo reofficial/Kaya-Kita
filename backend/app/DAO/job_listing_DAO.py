@@ -27,8 +27,16 @@ class JobListingDAO:
     async def check_if_info_has_content(self, job_listing: JobListing):
         return bool(job_listing.job_title or job_listing.description or job_listing.location or job_listing.salary)
     
-    async def update_job_listing(self, updateDetails: JobListing):
-        ...
+    async def update_job_listing(self, job_listing: JobListing):
+        job_data = job_listing.model_dump()
+        job_id = job_data.pop("job_id")
+
+        result = await self.collection.update_one(
+            {"id": job_id},
+            {"$set": job_data}
+        )
+
+        return result.modified_count > 0 #returns true if we updated something
     
     async def delete_job_listing(self, job_title: str):
         ...
