@@ -27,13 +27,13 @@ class ApiService {
     return response;
   }
 
-  static Future<http.Response> createCustomer(
-      Map<String, dynamic> customer) async {
+  static Future<http.Response> createOfficial(
+      Map<String, dynamic> official) async {
     final url = Uri.parse('$baseUrl/officials/register');
     final response = await _client.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(customer),
+      body: jsonEncode(official),
     );
 
     return response;
@@ -50,7 +50,7 @@ class ApiService {
     return response;
   }
 
-  static Future<http.Response> updateCustomer(
+  static Future<http.Response> updateOfficial(
       Map<String, dynamic> updateDetails) async {
     final url = Uri.parse('$baseUrl/officials/update');
     final response = await _client.post(
@@ -62,7 +62,7 @@ class ApiService {
     return response;
   }
 
-  static Future<http.Response> getofficials() async {
+  static Future<http.Response> getOfficials() async {
     final url = Uri.parse('$baseUrl/officials');
     final response = await _client.get(url);
     return response;
