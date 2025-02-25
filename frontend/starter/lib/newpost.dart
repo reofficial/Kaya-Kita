@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'jobinfo.dart';
 import 'package:flutter/services.dart';
+
+import 'package:starter/api_service.dart';
 
 class NewPostScreen extends StatefulWidget {
   const NewPostScreen({super.key});
@@ -10,17 +11,65 @@ class NewPostScreen extends StatefulWidget {
 }
 
 class _NewPostScreenState extends State<NewPostScreen> {
-  String? selectedCategory;
+  TextEditingController titleController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
   TextEditingController rateController = TextEditingController();
+
+  String? selectedCategory;
   String selectedRateType = 'Monthly';
   String? selectedDuration;
   String? selectedLocation;
 
-  final List<String> categories = ['Business', 'Construction', 'Education', 'Entertainment', 'Health', 'Housework', 'Food', 'Technology', 'Transport', 'Others'];
+  @override
+  void dispose() {
+    titleController.dispose();
+    descriptionController.dispose();
+    rateController.dispose();
+    super.dispose();
+  }
+
+  final List<String> categories = [
+    'Business',
+    'Construction',
+    'Education',
+    'Entertainment',
+    'Health',
+    'Housework',
+    'Food',
+    'Technology',
+    'Transport',
+    'Others'
+  ];
   final List<String> durations = ['Short-term', 'Long-term', 'Flexible'];
   final List<String> locations = ['Makati City', 'Taguig City', 'Pasay City'];
   final List<String> rateTypes = ['Hourly', 'Daily', 'Weekly', 'Monthly'];
-  
+
+  Future<void> handlePost() async {
+    try {
+      Map<String, dynamic> jobListing = {
+        'tag': [selectedCategory],
+        'job_title': titleController.text,
+        'description': descriptionController.text,
+        'location': selectedLocation,
+        'salary': rateController.text,
+        'salary_frequency': selectedRateType,
+        'duration': selectedDuration,
+      };
+
+      final response = await ApiService.postJobListing(jobListing);
+
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Job Listing posted successfully.")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error posting Job Listing: $e")),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,8 +84,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
         ),
       ),
       body: SingleChildScrollView(
-        child:Padding(
-          padding: const EdgeInsets.all(16), 
+        child: Padding(
+          padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,38 +99,55 @@ class _NewPostScreenState extends State<NewPostScreen> {
                   const SizedBox(width: 10),
                   const Text(
                     'Kamala Harris',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black),
                   ),
                 ],
               ),
               const SizedBox(height: 15),
-              _buildTextField('Write your header here.', 50, isRequired: true),
+              _buildTextField(
+                'Write your header here.',
+                50,
+                titleController,
+                isRequired: true,
+              ),
               const SizedBox(height: 10),
-              _buildTextField('Write your post or question here.', 120, isRequired: true),
+              _buildTextField(
+                'Write your post or question here.',
+                120,
+                descriptionController,
+                isRequired: true,
+              ),
               const SizedBox(height: 10),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildDropdown('Add Category', categories, selectedCategory, (value) => setState(() => selectedCategory = value), width: 180, isRequired: true),
-                  _buildRateDropdown(isRequired: true) 
+                  _buildDropdown('Add Category', categories, selectedCategory,
+                      (value) => setState(() => selectedCategory = value),
+                      width: 180, isRequired: true),
+                  _buildRateDropdown(isRequired: true)
                 ],
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildDropdown('Add Duration', durations, selectedDuration, (value) => setState(() => selectedDuration = value), width: 180, isRequired: true),
-                  _buildDropdown('Add Location', locations, selectedLocation, (value) => setState(() => selectedLocation = value), width: 180, isRequired: true), 
+                  _buildDropdown('Add Duration', durations, selectedDuration,
+                      (value) => setState(() => selectedDuration = value),
+                      width: 180, isRequired: true),
+                  _buildDropdown('Add Location', locations, selectedLocation,
+                      (value) => setState(() => selectedLocation = value),
+                      width: 180, isRequired: true),
                 ],
               ),
-
-
               const SizedBox(height: 10),
               Row(
                 children: [
                   const Icon(Icons.add_photo_alternate, color: Colors.black),
                   const SizedBox(width: 5),
-                  const Text('Add media', style: TextStyle(color: Colors.black)),
+                  const Text('Add media',
+                      style: TextStyle(color: Colors.black)),
                 ],
               ),
               const SizedBox(height: 15),
@@ -90,15 +156,18 @@ class _NewPostScreenState extends State<NewPostScreen> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.purple,
-                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 10),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   onPressed: () {
-                    if (selectedCategory == null || 
-                        selectedDuration == null || 
-                        selectedLocation == null || 
+                    if (selectedCategory == null ||
+                        selectedDuration == null ||
+                        selectedLocation == null ||
+                        titleController.text.isEmpty ||
+                        descriptionController.text.isEmpty ||
                         rateController.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -107,13 +176,18 @@ class _NewPostScreenState extends State<NewPostScreen> {
                         ),
                       );
                     } else {
+                      handlePost();
+                      /*
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => JobInfoScreen()),
+                        MaterialPageRoute(
+                            builder: (context) => JobInfoScreen()),
                       );
+                      */
                     }
                   },
-                  child: const Text('Post', style: TextStyle(color: Colors.white, fontSize: 16)),
+                  child: const Text('Post',
+                      style: TextStyle(color: Colors.white, fontSize: 16)),
                 ),
               ),
             ],
@@ -123,9 +197,9 @@ class _NewPostScreenState extends State<NewPostScreen> {
     );
   }
 
-    Widget _buildTextField(String hint, double height, {bool isRequired = false}) {
-    TextEditingController controller = TextEditingController();
-
+  Widget _buildTextField(
+      String hint, double height, TextEditingController controller,
+      {bool isRequired = false}) {
     return Container(
       height: height,
       decoration: BoxDecoration(
@@ -139,8 +213,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: TextField(
-                controller: controller,  
-                maxLines: null,          
+                controller: controller,
+                maxLines: null,
                 keyboardType: TextInputType.multiline,
                 textAlignVertical: TextAlignVertical.top,
                 decoration: InputDecoration(
@@ -154,17 +228,17 @@ class _NewPostScreenState extends State<NewPostScreen> {
           if (isRequired)
             Padding(
               padding: const EdgeInsets.only(right: 10, top: 10),
-              child: Text('*', style: TextStyle(color: Colors.red, fontSize: 16)),
+              child:
+                  Text('*', style: TextStyle(color: Colors.red, fontSize: 16)),
             ),
         ],
       ),
     );
   }
 
-
-
-
-  Widget _buildDropdown(String hint, List<String> items, String? selectedValue, ValueChanged<String?> onChanged, {double width = 150, bool isRequired = false}) {
+  Widget _buildDropdown(String hint, List<String> items, String? selectedValue,
+      ValueChanged<String?> onChanged,
+      {double width = 150, bool isRequired = false}) {
     return Container(
       width: width,
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -178,7 +252,10 @@ class _NewPostScreenState extends State<NewPostScreen> {
             child: DropdownButton<String>(
               hint: Text(hint),
               value: selectedValue,
-              items: items.map((item) => DropdownMenuItem(value: item, child: Text(item))).toList(),
+              items: items
+                  .map((item) =>
+                      DropdownMenuItem(value: item, child: Text(item)))
+                  .toList(),
               onChanged: onChanged,
               isExpanded: true,
               underline: const SizedBox(),
@@ -187,14 +264,15 @@ class _NewPostScreenState extends State<NewPostScreen> {
           if (isRequired)
             const Padding(
               padding: EdgeInsets.only(left: 5),
-              child: Text('*', style: TextStyle(color: Colors.red, fontSize: 16)),
+              child:
+                  Text('*', style: TextStyle(color: Colors.red, fontSize: 16)),
             ),
         ],
       ),
     );
   }
 
-    Widget _buildRateDropdown({bool isRequired = false}) {
+  Widget _buildRateDropdown({bool isRequired = false}) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -222,15 +300,19 @@ class _NewPostScreenState extends State<NewPostScreen> {
                   DropdownButton<String>(
                     value: selectedRateType,
                     items: ['Hourly', 'Daily', 'Weekly', 'Monthly']
-                        .map((rate) => DropdownMenuItem(value: rate, child: Text(rate)))
+                        .map((rate) =>
+                            DropdownMenuItem(value: rate, child: Text(rate)))
                         .toList(),
-                    onChanged: (value) => setState(() => selectedRateType = value ?? 'Monthly'),
+                    onChanged: (value) =>
+                        setState(() => selectedRateType = value ?? 'Monthly'),
                     underline: const SizedBox(),
                   ),
                   if (isRequired)
                     const Padding(
-                      padding: EdgeInsets.only(left: 5), // Space between dropdown and *
-                      child: Text('*', style: TextStyle(color: Colors.red, fontSize: 16)),
+                      padding: EdgeInsets.only(
+                          left: 5), // Space between dropdown and *
+                      child: Text('*',
+                          style: TextStyle(color: Colors.red, fontSize: 16)),
                     ),
                 ],
               ),
