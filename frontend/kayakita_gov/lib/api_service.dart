@@ -17,7 +17,7 @@ class ApiService {
 
   static Future<http.Response> registerUser(
       String email, String password) async {
-    final url = Uri.parse('$baseUrl/customers/email');
+    final url = Uri.parse('$baseUrl/officials/email');
     final response = await _client.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -29,7 +29,7 @@ class ApiService {
 
   static Future<http.Response> createCustomer(
       Map<String, dynamic> customer) async {
-    final url = Uri.parse('$baseUrl/customers/register');
+    final url = Uri.parse('$baseUrl/officials/register');
     final response = await _client.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -40,7 +40,7 @@ class ApiService {
   }
 
   static Future<http.Response> loginUser(String email, String password) async {
-    final url = Uri.parse('$baseUrl/customers/login');
+    final url = Uri.parse('$baseUrl/officials/login');
     final response = await _client.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -52,7 +52,7 @@ class ApiService {
 
   static Future<http.Response> updateCustomer(
       Map<String, dynamic> updateDetails) async {
-    final url = Uri.parse('$baseUrl/customers/update');
+    final url = Uri.parse('$baseUrl/officials/update');
     final response = await _client.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -62,9 +62,51 @@ class ApiService {
     return response;
   }
 
-  static Future<http.Response> getCustomers() async {
-    final url = Uri.parse('$baseUrl/customers');
+  static Future<http.Response> getofficials() async {
+    final url = Uri.parse('$baseUrl/officials');
     final response = await _client.get(url);
+    return response;
+  }
+
+  static Future<http.Response> getJobListings() async {
+    final url = Uri.parse('$baseUrl/job-listings');
+    final response = await _client.get(url);
+    return response;
+  }
+
+  static Future<http.Response> getJobListing(int jobId) async {
+    final url = Uri.parse('$baseUrl/job-listings/job-id/$jobId');
+    final response = await _client.get(url);
+    return response;
+  }
+
+  static Future<http.Response> postJobListing(
+      Map<String, dynamic> jobListing) async {
+    final url = Uri.parse('$baseUrl/job-listings/post');
+    final response = await _client.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(jobListing),
+    );
+
+    return response;
+  }
+
+  static Future<http.Response> updateJobListing(
+      Map<String, dynamic> updateDetails) async {
+    final url = Uri.parse('$baseUrl/job-listings/update');
+    final response = await _client.put(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(updateDetails),
+    );
+
+    return response;
+  }
+
+  static Future<http.Response> deleteJobListing(int jobId) async {
+    final url = Uri.parse('$baseUrl/job-listings/delete/$jobId');
+    final response = await _client.delete(url);
     return response;
   }
 }
