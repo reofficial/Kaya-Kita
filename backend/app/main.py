@@ -39,7 +39,7 @@ async def create_customer(customer: Profile):
         raise HTTPException(status_code=409, detail="Contact number is already in use.")
     else:
         await customer_dao.create_customer(customer)
-        return JSONResponse(status_code=201, content={"message": "Customer created successfully"})
+        return JSONResponse(status_code=201, content={"message": "Customer created successfully", "username": customer.username})
 
 @app.post("/customers/email", status_code=status.HTTP_201_CREATED)
 async def customer_check_email(info: InitialInfo):
@@ -52,7 +52,7 @@ async def customer_check_email(info: InitialInfo):
 async def customer_login(info: LoginInfo):
     customer = await customer_dao.find_by_email(info.email)
     if customer and customer.password == info.password:
-        return JSONResponse(status_code=200, content={"message": "Login successful"})
+        return JSONResponse(status_code=200, content={"message": "Login successful", "username": customer.username})
     else:
         raise HTTPException(status_code=401, detail="Invalid email or password")
     
@@ -73,7 +73,7 @@ async def create_official(official: Profile):
         raise HTTPException(status_code=409, detail="Contact number is already in use.")
     else:
         await official_dao.create_official(official)
-        return JSONResponse(status_code=201, content={"message": "Official created successfully"})
+        return JSONResponse(status_code=201, content={"message": "Official created successfully", "username": official.username})
 
 @app.post("/officials/email", status_code=status.HTTP_201_CREATED)
 async def official_check_email(info: InitialInfo):
@@ -86,7 +86,7 @@ async def official_check_email(info: InitialInfo):
 async def official_login(info: LoginInfo):
     official = await official_dao.find_by_email(info.email)
     if official and official.password == info.password:
-        return JSONResponse(status_code=200, content={"message": "Login successful"})
+        return JSONResponse(status_code=200, content={"message": "Login successful", "username": official.username})
     else:
         raise HTTPException(status_code=401, detail="Invalid email or password")
     
@@ -107,7 +107,7 @@ async def create_worker(worker: Profile):
         raise HTTPException(status_code=409, detail="Contact number is already in use.")
     else:
         await worker_dao.create_worker(worker)
-        return JSONResponse(status_code=201, content={"message": "worker created successfully"})
+        return JSONResponse(status_code=201, content={"message": "worker created successfully", "username": worker.username})
 
 @app.post("/workers/email", status_code=status.HTTP_201_CREATED)
 async def worker_check_email(info: InitialInfo):
@@ -120,7 +120,7 @@ async def worker_check_email(info: InitialInfo):
 async def worker_login(info: LoginInfo):
     worker = await worker_dao.find_by_email(info.email)
     if worker and worker.password == info.password:
-        return JSONResponse(status_code=200, content={"message": "Login successful"})
+        return JSONResponse(status_code=200, content={"message": "Login successful", "username": worker.username})
     else:
         raise HTTPException(status_code=401, detail="Invalid email or password")
     
