@@ -258,7 +258,7 @@ class SidebarButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 35,
-      width: 180,
+      width: MediaQuery.of(context).size.width * 0.45,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
             padding: EdgeInsets.only(left: 5),
