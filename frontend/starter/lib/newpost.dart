@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:convert';
+
 import 'package:starter/api_service.dart';
+import 'jobinfo.dart';
+
 import 'package:provider/provider.dart';
 import 'package:starter/providers/profile_provider.dart';
 
@@ -66,6 +70,13 @@ class _NewPostScreenState extends State<NewPostScreen> {
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Job Listing posted successfully.")),
+        );
+        final int jobId = json.decode(response.body)['job_id'];
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => JobInfoScreen(jobId: jobId),
+          ),
         );
       }
     } catch (e) {

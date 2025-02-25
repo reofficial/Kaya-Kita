@@ -40,7 +40,7 @@ class _JobEditScreenState extends State<JobEditScreen> {
     try {
       final response = await ApiService.getJobListing(widget.jobId);
       if (response.statusCode == 200) {
-        final jobListing = jsonDecode(response.body)[0];
+        final jobListing = json.decode(response.body)[0];
 
         // Validate and set the fetched values
         setState(() {
@@ -249,13 +249,6 @@ class _JobEditScreenState extends State<JobEditScreen> {
                       );
                     } else {
                       handleUpdate();
-                      /*
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => JobInfoScreen()),
-                      );
-                      */
                     }
                   },
                   child: const Text('Post',

@@ -236,22 +236,22 @@ class JobListing extends StatelessWidget {
                     ),
                     // !! the following are hidden details but are accessible here:
                     /*
-                  const SizedBox(height: 4),
-                  Text(
-                    'Duration: $duration',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.white70,
+                    const SizedBox(height: 4),
+                    Text(
+                      'Duration: $duration',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.white70,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Job ID: $jobId',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.white70,
+                    const SizedBox(height: 4),
+                    Text(
+                      'Job ID: $jobId',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.white70,
+                      ),
                     ),
-                  ),
                   */
                   ],
                 ),
