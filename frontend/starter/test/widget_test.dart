@@ -133,7 +133,7 @@ void main() {
         await tester.tap(find.byIcon(Icons.account_circle));
         await tester.pumpAndSettle(); 
 
-        expect(find.widgetWithText(ElevatedButton,'Edit Profile'), findsOneWidget);
+        expect(find.widgetWithText(homepage.SidebarButton,'Edit Profile'), findsOneWidget);
       });
 
       testWidgets('Verify Security button', (WidgetTester tester) async {
@@ -142,7 +142,7 @@ void main() {
         await tester.tap(find.byIcon(Icons.account_circle));
         await tester.pumpAndSettle(); 
 
-        expect(find.widgetWithText(ElevatedButton,'Security'), findsOneWidget);
+        expect(find.widgetWithText(homepage.SidebarButton,'Security'), findsOneWidget);
       });
 
       testWidgets('Verify Notifications button', (WidgetTester tester) async {
@@ -151,7 +151,7 @@ void main() {
         await tester.tap(find.byIcon(Icons.account_circle));
         await tester.pumpAndSettle(); 
 
-        expect(find.widgetWithText(ElevatedButton,'Notifications'), findsOneWidget);
+        expect(find.widgetWithText(homepage.SidebarButton,'Notifications'), findsOneWidget);
       });
 
       testWidgets('Verify Privacy button', (WidgetTester tester) async {
@@ -160,7 +160,7 @@ void main() {
         await tester.tap(find.byIcon(Icons.account_circle));
         await tester.pumpAndSettle(); 
 
-        expect(find.widgetWithText(ElevatedButton,'Privacy'), findsOneWidget);
+        expect(find.widgetWithText(homepage.SidebarButton,'Privacy'), findsOneWidget);
       });
 
 
@@ -179,7 +179,7 @@ void main() {
         await tester.tap(find.byIcon(Icons.account_circle));
         await tester.pumpAndSettle(); 
 
-        expect(find.widgetWithText(ElevatedButton,'My Subscription'), findsOneWidget);
+        expect(find.widgetWithText(homepage.SidebarButton,'My Subscription'), findsOneWidget);
       });
 
       testWidgets('Verify Help & Support button', (WidgetTester tester) async {
@@ -188,7 +188,7 @@ void main() {
         await tester.tap(find.byIcon(Icons.account_circle));
         await tester.pumpAndSettle(); 
 
-        expect(find.widgetWithText(ElevatedButton,'Help & Support'), findsOneWidget);
+        expect(find.widgetWithText(homepage.SidebarButton,'Help & Support'), findsOneWidget);
       });
 
       testWidgets('Verify Terms and Policies button', (WidgetTester tester) async {
@@ -197,7 +197,7 @@ void main() {
         await tester.tap(find.byIcon(Icons.account_circle));
         await tester.pumpAndSettle(); 
 
-        expect(find.widgetWithText(ElevatedButton,'Terms and Policies'), findsOneWidget);
+        expect(find.widgetWithText(homepage.SidebarButton,'Terms and Policies'), findsOneWidget);
       });
 
       testWidgets('Verify Cache & Cellular header', (WidgetTester tester) async {
@@ -207,9 +207,6 @@ void main() {
         await tester.pumpAndSettle(); 
 
         expect(find.textContaining('Cache & Cellular'), findsOneWidget);
-
-        expect(find.widgetWithText(ElevatedButton,'Free up space'), findsOneWidget);
-        expect(find.widgetWithText(ElevatedButton,'Data Saver'), findsOneWidget);
       });
 
       testWidgets('Verify Free up space button', (WidgetTester tester) async {
@@ -218,7 +215,7 @@ void main() {
         await tester.tap(find.byIcon(Icons.account_circle));
         await tester.pumpAndSettle(); 
 
-        expect(find.widgetWithText(ElevatedButton,'Free up space'), findsOneWidget);
+        expect(find.widgetWithText(homepage.SidebarButton,'Free up space'), findsOneWidget);
       });
 
       testWidgets('Verify Data Saver button', (WidgetTester tester) async {
@@ -227,7 +224,7 @@ void main() {
         await tester.tap(find.byIcon(Icons.account_circle));
         await tester.pumpAndSettle(); 
 
-        expect(find.widgetWithText(ElevatedButton,'Data Saver'), findsOneWidget);
+        expect(find.widgetWithText(homepage.SidebarButton,'Data Saver'), findsOneWidget);
       });
 
       testWidgets('Verify Actions header', (WidgetTester tester) async {
@@ -245,7 +242,7 @@ void main() {
         await tester.tap(find.byIcon(Icons.account_circle));
         await tester.pumpAndSettle(); 
 
-        expect(find.widgetWithText(ElevatedButton,'Report a problem'), findsOneWidget);
+        expect(find.widgetWithText(homepage.SidebarButton,'Report a problem'), findsOneWidget);
       });
 
       testWidgets('Verify Add account button', (WidgetTester tester) async {
@@ -254,7 +251,7 @@ void main() {
         await tester.tap(find.byIcon(Icons.account_circle));
         await tester.pumpAndSettle(); 
 
-        expect(find.widgetWithText(ElevatedButton,'Add account'), findsOneWidget);
+        expect(find.widgetWithText(homepage.SidebarButton,'Add account'), findsOneWidget);
       });
 
       testWidgets('Verify Log out button', (WidgetTester tester) async {
@@ -263,7 +260,7 @@ void main() {
         await tester.tap(find.byIcon(Icons.account_circle));
         await tester.pumpAndSettle(); 
 
-        expect(find.widgetWithText(ElevatedButton,'Log out'), findsOneWidget);
+        expect(find.widgetWithText(homepage.SidebarButton,'Log out'), findsOneWidget);
       });
     });
   });
