@@ -70,6 +70,10 @@ flutter:
     - assets/apple.png
     - assets/kamala.png
     - assets/promos.png
+    - assets/Technology.png
+    - assets/Business.png
+    - assets/Entertainment.png
+    - assets/Default.png
     - .env
 
   #   - images/a_dot_ham.jpeg

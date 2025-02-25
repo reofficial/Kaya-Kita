@@ -19,7 +19,6 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
   Future<List<Map<String, dynamic>>> fetchJobListings() async {
     try {
       final response = await ApiService.getJobListings();
-
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         return data
@@ -40,7 +39,8 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
                 })
             .toList();
       } else {
-        throw Exception('Failed to load jobs (Status: ${response.statusCode})');
+        throw Exception(
+            'Failed to load jobs (Status: ${response.statusCode})');
       }
     } catch (e) {
       throw Exception('Error fetching jobs: $e');
@@ -158,101 +158,119 @@ class JobListing extends StatelessWidget {
   final String salaryFrequency;
   final String duration;
 
+  // Helper method to return an image based on the first tag/category.
+  ImageProvider _getCategoryImage() {
+    if (tags.isNotEmpty) {
+      final category = tags.first.toLowerCase();
+      switch (category) {
+        case 'technology':
+          return const AssetImage('assets/Technology.png');
+        case 'business':
+          return const AssetImage('assets/Business.png');
+        case 'construction':
+          return const AssetImage('assets/construction.png');
+        case 'education':
+          return const AssetImage('assets/education.png');
+        case 'entertainment':
+          return const AssetImage('assets/Entertainment.png');
+        // Add other cases as needed...
+        default:
+          return const AssetImage('assets/Default.png');
+      }
+    } else {
+      return const AssetImage('assets/Default.png');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => JobInfoScreen(jobId: jobId)),
-        );
-      },
-      borderRadius: BorderRadius.circular(16), // Match the card's border radius
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        elevation: 4,
+    return Card(
+      clipBehavior: Clip.antiAlias, // Ensures corners are clipped
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      elevation: 4,
+      child: InkWell(
+        onTap: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => JobInfoScreen(jobId: jobId)),
+          );
+        },
         child: Row(
           children: [
-            Container(
+            // Left: image with a fixed size and cover.
+            Image(
+              image: _getCategoryImage(),
               width: 120,
-              height: 100,
-              decoration: const BoxDecoration(
-                borderRadius:
-                    BorderRadius.horizontal(left: Radius.circular(16)),
-                color: Colors.grey,
-              ),
-              child: const Icon(Icons.work, color: Colors.white, size: 40),
+              height: 120,
+              fit: BoxFit.cover,
             ),
             Expanded(
               child: Container(
                 padding: const EdgeInsets.all(12),
-                decoration: const BoxDecoration(
-                  color: Color(0xFF87027B),
-                  borderRadius:
-                      BorderRadius.horizontal(right: Radius.circular(16)),
-                ),
+                color: Colors.white,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Title styled in purple.
                     Text(
                       title,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: Color(0xFF87027B),
                       ),
                     ),
                     const SizedBox(height: 4),
+                    // Category chips styled in purple.
                     if (tags.isNotEmpty)
                       Wrap(
-                        spacing: 1,
+                        spacing: 4,
                         children: tags
                             .map((tag) => Chip(
-                                  label: Text(tag,
-                                      style:
-                                          const TextStyle(color: Colors.white)),
-                                  backgroundColor: Colors.purpleAccent,
-                                  padding: const EdgeInsets.all(0),
+                                  label: Text(
+                                    tag,
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                  backgroundColor:
+                                      const Color(0xFF87027B),
                                 ))
                             .toList(),
                       ),
                     const SizedBox(height: 4),
-                    Text(
-                      location,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white70,
-                      ),
+                    // Location row with icon.
+                    Row(
+                      children: [
+                        const Icon(Icons.location_on,
+                            size: 14, color: Color(0xFF87027B)),
+                        const SizedBox(width: 4),
+                        Text(
+                          location,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 6),
-                    Text(
-                      'Salary: PHP ${salary.toString()} / $salaryFrequency',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.white,
-                      ),
+                    // Salary row with icon.
+                    Row(
+                      children: [
+                        const Icon(Icons.attach_money,
+                            size: 14, color: Color(0xFF87027B)),
+                        const SizedBox(width: 4),
+                        Text(
+                          '$salary / $salaryFrequency',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
                     ),
-                    // !! the following are hidden details but are accessible here:
-                    /*
-                    const SizedBox(height: 4),
-                    Text(
-                      'Duration: $duration',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.white70,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Job ID: $jobId',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.white70,
-                      ),
-                    ),
-                  */
                   ],
                 ),
               ),
