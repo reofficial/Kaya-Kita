@@ -9,6 +9,8 @@ import '/providers/profile_provider.dart'; // Adjust import as needed
 
 String originalEmail = "";
 
+// TODO: THIS SCREEN IS CURRENTLY NOT ACCESSIBLE (remove when updated)
+
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
 
@@ -38,42 +40,42 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
-  Map<String, dynamic>? customerData;
+  Map<String, dynamic>? officialData;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      fetchCustomerDetails();
+      fetchOfficialDetails();
     });
   }
 
-  Future<void> fetchCustomerDetails() async {
+  Future<void> fetchOfficialDetails() async {
     final String email =
         Provider.of<UserProvider>(context, listen: false).email;
 
     try {
-      final response = await ApiService.getCustomers();
+      final response = await ApiService.getOfficials();
 
       if (response.statusCode == 200) {
-        List<dynamic> customers = json.decode(response.body);
-        Map<String, dynamic>? matchedCustomer = customers.firstWhere(
-          (customer) => customer['email'] == email,
+        List<dynamic> officials = json.decode(response.body);
+        Map<String, dynamic>? matchedOfficial = officials.firstWhere(
+          (official) => official['email'] == email,
           orElse: () => null,
         );
 
-        if (matchedCustomer != null) {
+        if (matchedOfficial != null) {
           setState(() {
-            customerData = matchedCustomer;
-            firstnameController.text = matchedCustomer['first_name'] ?? '';
+            officialData = matchedOfficial;
+            firstnameController.text = matchedOfficial['first_name'] ?? '';
             middleinitialController.text =
-                matchedCustomer['middle_initial'] ?? '';
-            lastnameController.text = matchedCustomer['last_name'] ?? '';
-            emailController.text = matchedCustomer['email'] ?? '';
+                matchedOfficial['middle_initial'] ?? '';
+            lastnameController.text = matchedOfficial['last_name'] ?? '';
+            emailController.text = matchedOfficial['email'] ?? '';
             // Save email as a global variable for retrieval later
-            originalEmail = matchedCustomer['email'] ?? '';
-            mobileController.text = matchedCustomer['contact_number'] ?? '';
-            addressController.text = matchedCustomer['address'] ?? '';
+            originalEmail = matchedOfficial['email'] ?? '';
+            mobileController.text = matchedOfficial['contact_number'] ?? '';
+            addressController.text = matchedOfficial['address'] ?? '';
 
             /*
             // Format the full name as "First M. Last"
@@ -89,7 +91,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         }
       }
     } catch (e) {
-      log("Error fetching customer data: $e");
+      log("Error fetching official data: $e");
     }
   }
 
@@ -105,7 +107,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         'address': addressController.text,
       };
 
-      final response = await ApiService.updateCustomer(updateDetails);
+      final response = await ApiService.updateOfficial(updateDetails);
 
       if (response.statusCode == 200) {
         // update provider email
@@ -118,7 +120,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error updating customer data: $e")),
+        SnackBar(content: Text("Error updating official data: $e")),
       );
     }
   }
@@ -130,7 +132,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(
-          'Customer Profile',
+          'Official Profile',
           style: TextStyle(fontSize: 20, color: Color(0xFFE8F0FE)),
         ),
         backgroundColor: Color(0xFF000E53),

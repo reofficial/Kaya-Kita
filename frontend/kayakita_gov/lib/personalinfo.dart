@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:developer';
 import 'entrance.dart';
-import 'api_service.dart'; // Ensure your ApiService has a createCustomer method.
+import 'api_service.dart';
 
 class PersonalInfoScreen extends StatefulWidget {
   // Email and password are received from the registration screen.
@@ -9,10 +9,10 @@ class PersonalInfoScreen extends StatefulWidget {
   final String password;
 
   const PersonalInfoScreen({
-    Key? key,
+    super.key,
     required this.email,
     required this.password,
-  }) : super(key: key);
+  });
 
   @override
   _PersonalInfoScreenState createState() => _PersonalInfoScreenState();
@@ -40,9 +40,9 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
   }
 
   /// This function packs all the collected information into a Map that
-  /// corresponds to your Customer model and performs the POST API call.
+  /// corresponds to your Official model and performs the POST API call.
   Future<void> handleSubmit() async {
-    Map<String, dynamic> customerData = {
+    Map<String, dynamic> officialData = {
       "email": widget.email,
       "password": widget.password,
       "first_name": firstNameController.text,
@@ -53,8 +53,8 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
       "contact_number": mobileNumberController.text,
     };
 
-    // Log the packed customer data.
-    log("Customer Data: $customerData");
+    // Log the packed official data.
+    log("Official Data: $officialData");
 
     // Show loading overlay while the API call is in progress.
     setState(() {
@@ -62,9 +62,9 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
     });
 
     try {
-      // POST API call using the customerData.
-      final response = await ApiService.createCustomer(customerData);
-      
+      // POST API call using the officialData.
+      final response = await ApiService.createOfficial(officialData);
+
       if (response.statusCode == 201) {
         // On success, navigate to the EntranceScreen.
         Navigator.push(
@@ -176,7 +176,8 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF000E53),
-                              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 40, vertical: 15),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(5),
                               ),

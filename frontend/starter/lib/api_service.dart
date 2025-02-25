@@ -83,7 +83,6 @@ class ApiService {
   static Future<http.Response> postJobListing(
       Map<String, dynamic> jobListing) async {
     final url = Uri.parse('$baseUrl/job-listings/post');
-
     final response = await _client.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -96,7 +95,6 @@ class ApiService {
   static Future<http.Response> updateJobListing(
       Map<String, dynamic> updateDetails) async {
     final url = Uri.parse('$baseUrl/job-listings/update');
-
     final response = await _client.put(
       url,
       headers: {'Content-Type': 'application/json'},

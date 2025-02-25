@@ -26,15 +26,16 @@ class JobListingCard extends StatefulWidget {
   const JobListingCard({Key? key, required this.job}) : super(key: key);
 
   @override
-  _JobListingCardState createState() => _JobListingCardState();
+  State<JobListingCard> createState() => _JobListingCardState();
 }
 
 class _JobListingCardState extends State<JobListingCard> {
   void updateStatus(String newStatus) {
-    if (widget.job.status == 'Accepted' || widget.job.status == 'Denied') return;
-    setState(() {
-      widget.job.status = newStatus;
-    });
+    if (!(widget.job.status == 'Accepted' || widget.job.status == 'Denied')) {
+      setState(() {
+        widget.job.status = newStatus;
+      });
+    }
   }
 
   @override
@@ -71,7 +72,8 @@ class _JobListingCardState extends State<JobListingCard> {
                 const SizedBox(width: 8),
                 Text(
                   widget.job.customer,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w500),
                 ),
               ],
             ),
@@ -125,7 +127,10 @@ class _JobListingCardState extends State<JobListingCard> {
                       SizedBox(width: 8),
                       Text(
                         'Accepted',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green),
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green),
                       ),
                     ],
                   ),
@@ -133,7 +138,8 @@ class _JobListingCardState extends State<JobListingCard> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => ViewPostScreen()),
+                        MaterialPageRoute(
+                            builder: (context) => ViewPostScreen()),
                       );
                     },
                     icon: const Icon(Icons.visibility, color: Colors.white),
@@ -141,8 +147,10 @@ class _JobListingCardState extends State<JobListingCard> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF000E53),
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
                     ),
                   ),
                 ],
@@ -156,7 +164,10 @@ class _JobListingCardState extends State<JobListingCard> {
                     SizedBox(width: 8),
                     Text(
                       'Denied',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red),
                     ),
                   ],
                 ),
@@ -170,10 +181,14 @@ class _JobListingCardState extends State<JobListingCard> {
                     style: TextButton.styleFrom(
                       backgroundColor: const Color(0xFF00880C),
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 10),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
                     ),
-                    child: const Text('Accept', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    child: const Text('Accept',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold)),
                   ),
                   const SizedBox(width: 8),
                   TextButton(
@@ -181,10 +196,14 @@ class _JobListingCardState extends State<JobListingCard> {
                     style: TextButton.styleFrom(
                       backgroundColor: const Color(0xFF8D0010),
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 10),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
                     ),
-                    child: const Text('Deny', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    child: const Text('Deny',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:developer';
+import 'dart:convert';
 
 import 'entrance.dart';
 import 'home.dart';
@@ -51,8 +52,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
       // Assuming a 200 status code indicates a successful login.
       if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        final String username = responseData['username'];
         Provider.of<UserProvider>(context, listen: false)
             .setEmail(emailController.text);
+        Provider.of<UserProvider>(context, listen: false).setUsername(username);
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const EntranceScreen()),

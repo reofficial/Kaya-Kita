@@ -21,10 +21,10 @@ class JobInfoScreen extends StatefulWidget {
 }
 
 class _JobInfoScreenState extends State<JobInfoScreen> {
-  late String username; // Declare username here
+  late String username; // username of current user
 
   List<dynamic> tag = [];
-  String authorUsername = '';
+  String authorUsername = ''; // username of post author
   String title = '';
   String description = '';
   String location = '';

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:convert';
+
 import 'package:starter/api_service.dart';
+import 'jobinfo.dart';
+
 import 'package:provider/provider.dart';
 import 'package:starter/providers/profile_provider.dart';
 
@@ -67,6 +71,13 @@ class _NewPostScreenState extends State<NewPostScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Job Listing posted successfully.")),
         );
+        final int jobId = json.decode(response.body)['job_id'];
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => JobInfoScreen(jobId: jobId),
+          ),
+        );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -100,9 +111,11 @@ class _NewPostScreenState extends State<NewPostScreen> {
             children: [
               Row(
                 children: [
+                  // Placeholder for profile picture.
                   const CircleAvatar(
-                    backgroundImage: AssetImage('assets/kamala.png'),
                     radius: 25,
+                    backgroundColor: Colors.grey,
+                    child: Icon(Icons.person, color: Colors.white),
                   ),
                   const SizedBox(width: 10),
                   Text(
@@ -185,13 +198,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
                       );
                     } else {
                       handlePost(username); // Pass username to handlePost
-                      /*
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => JobInfoScreen()),
-                      );
-                      */
                     }
                   },
                   child: const Text('Post',
