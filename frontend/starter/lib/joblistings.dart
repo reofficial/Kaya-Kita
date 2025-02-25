@@ -121,7 +121,7 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
               icon: const Icon(Icons.add_circle,
                   size: 50, color: Color(0xFF87027B)),
               onPressed: () async {
-                await Navigator.push(
+                await Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                       builder: (context) => const NewPostScreen()),
@@ -162,19 +162,9 @@ class JobListing extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-              builder: (context) => JobInfoScreen(
-                    jobId: jobId,
-                    tags: tags,
-                    title: title,
-                    description: description,
-                    location: location,
-                    salary: salary,
-                    salaryFrequency: salaryFrequency,
-                    duration: duration,
-                  )),
+          MaterialPageRoute(builder: (context) => JobInfoScreen(jobId: jobId)),
         );
       },
       borderRadius: BorderRadius.circular(16), // Match the card's border radius

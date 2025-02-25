@@ -1,29 +1,91 @@
 import 'package:flutter/material.dart';
+import 'package:starter/api_service.dart';
+import 'dart:convert';
 
-class JobInfoScreen extends StatelessWidget {
+import 'package:starter/jobedit.dart';
+
+import 'package:provider/provider.dart';
+import 'package:starter/joblistings.dart';
+import 'package:starter/providers/profile_provider.dart';
+
+class JobInfoScreen extends StatefulWidget {
   const JobInfoScreen({
     super.key,
     required this.jobId,
-    required this.tags,
-    required this.title,
-    required this.description,
-    required this.location,
-    required this.salary,
-    required this.salaryFrequency,
-    required this.duration,
   });
 
   final int jobId;
-  final List<String> tags;
-  final String title;
-  final String description;
-  final String location;
-  final double salary;
-  final String salaryFrequency;
-  final String duration;
+
+  @override
+  State<JobInfoScreen> createState() => _JobInfoScreenState();
+}
+
+class _JobInfoScreenState extends State<JobInfoScreen> {
+  late String username; // Declare username here
+
+  List<dynamic> tag = [];
+  String authorUsername = '';
+  String title = '';
+  String description = '';
+  String location = '';
+  double salary = 0.0;
+  String salaryFrequency = '';
+  String duration = '';
+
+  @override
+  void initState() {
+    super.initState();
+    fetchJobListing();
+  }
+
+  Future<void> fetchJobListing() async {
+    try {
+      final response = await ApiService.getJobListing(widget.jobId);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jobListing = json.decode(response.body)[0];
+        setState(() {
+          tag = jobListing['tag'];
+          authorUsername = jobListing['username'];
+          title = jobListing['job_title'];
+          description = jobListing['description'];
+          location = jobListing['location'];
+          salary = jobListing['salary'];
+          salaryFrequency = jobListing['salary_frequency'];
+          duration = jobListing['duration'];
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error fetching Job Listing: $e")),
+      );
+    }
+  }
+
+  Future<void> deleteJobListing() async {
+    try {
+      final response = await ApiService.deleteJobListing(widget.jobId);
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Job Listing deleted successfully.")),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => JobListingsScreen(),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error deleting Job Listing: $e")),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    username = Provider.of<UserProvider>(context, listen: false).username;
+
     return Scaffold(
       backgroundColor: Colors.grey[200],
       body: Stack(
@@ -75,7 +137,6 @@ class JobInfoScreen extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              //SizedBox(height: 30),
                               SizedBox(
                                 width: double.infinity,
                                 child: Row(
@@ -89,7 +150,7 @@ class JobInfoScreen extends StatelessWidget {
                                           fontWeight: FontWeight.bold),
                                     ),
                                     Text(
-                                      'Job #$jobId', //add ticketing system
+                                      'Job #${widget.jobId}',
                                       style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.bold,
@@ -98,7 +159,6 @@ class JobInfoScreen extends StatelessWidget {
                                   ],
                                 ),
                               ),
-
                               SizedBox(height: 8),
                               Container(
                                 padding: EdgeInsets.all(12),
@@ -207,7 +267,7 @@ class JobInfoScreen extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            'Kamala Harris',
+                            authorUsername,
                             style: TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.bold),
                           ),
@@ -224,22 +284,32 @@ class JobInfoScreen extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF870202),
-                              foregroundColor: Colors.white,
+                          if (username == authorUsername) // Add this condition
+                            ElevatedButton(
+                              onPressed: deleteJobListing,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFF870202),
+                                foregroundColor: Colors.white,
+                              ),
+                              child: Text('Delete Post'),
                             ),
-                            child: Text('Delete Post'),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF87027B),
-                              foregroundColor: Colors.white,
+                          if (username == authorUsername) // Add this condition
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        JobEditScreen(jobId: widget.jobId),
+                                  ),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFF87027B),
+                                foregroundColor: Colors.white,
+                              ),
+                              child: Text('Edit Post'),
                             ),
-                            child: Text('Edit Post'),
-                          ),
                         ],
                       ),
                     ),
