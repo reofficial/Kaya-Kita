@@ -17,10 +17,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Handle bottom navigation bar item taps
   void _onItemTapped(int index) {
+  if (index == 2) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const NewPostScreen()),
+    );
+  } else {
     setState(() {
-      _selectedIndex = index; // Update the selected index
+      _selectedIndex = index;
     });
   }
+}
 
   @override
   Widget build(BuildContext context) {
