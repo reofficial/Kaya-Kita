@@ -2,16 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:starter/api_service.dart';
 import 'package:provider/provider.dart';
+import 'package:starter/jobinfo.dart';
 import 'package:starter/providers/profile_provider.dart';
+import 'dart:convert';
 
-class NewPostScreen extends StatefulWidget {
-  const NewPostScreen({super.key});
+class JobEditScreen extends StatefulWidget {
+  const JobEditScreen({
+    super.key,
+    required this.jobId,
+  });
+
+  final int jobId;
 
   @override
-  State<NewPostScreen> createState() => _NewPostScreenState();
+  State<JobEditScreen> createState() => _JobEditScreenState();
 }
 
-class _NewPostScreenState extends State<NewPostScreen> {
+class _JobEditScreenState extends State<JobEditScreen> {
   late String username; // Declare username here
 
   TextEditingController titleController = TextEditingController();
@@ -19,9 +26,61 @@ class _NewPostScreenState extends State<NewPostScreen> {
   TextEditingController rateController = TextEditingController();
 
   String? selectedCategory;
-  String selectedRateType = 'Monthly';
+  String? selectedRateType;
   String? selectedDuration;
   String? selectedLocation;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchJobListing();
+  }
+
+  Future<void> fetchJobListing() async {
+    try {
+      final response = await ApiService.getJobListing(widget.jobId);
+      if (response.statusCode == 200) {
+        final jobListing = jsonDecode(response.body)[0];
+
+        // Validate and set the fetched values
+        setState(() {
+          titleController.text = jobListing['job_title'];
+          descriptionController.text = jobListing['description'];
+          rateController.text = jobListing['salary'].toString();
+
+          // Validate selectedCategory
+          selectedCategory = categories.contains(jobListing['tag'].isNotEmpty)
+              ? jobListing['tag'][0]
+              : null;
+
+          // Validate selectedRateType
+          selectedRateType = rateTypes.contains(jobListing['salary_frequency'])
+              ? jobListing['salary_frequency']
+              : null;
+
+          // Validate selectedDuration
+          selectedDuration = durations.contains(jobListing['duration'])
+              ? jobListing['duration']
+              : null;
+
+          // Validate selectedLocation
+          selectedLocation = locations.contains(jobListing['location'])
+              ? jobListing['location']
+              : null;
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+                  Text("Failed to fetch job listing: ${response.statusCode}")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error fetching job listing: $e")),
+      );
+    }
+  }
 
   @override
   void dispose() {
@@ -47,10 +106,11 @@ class _NewPostScreenState extends State<NewPostScreen> {
   final List<String> locations = ['Makati City', 'Taguig City', 'Pasay City'];
   final List<String> rateTypes = ['Hourly', 'Daily', 'Weekly', 'Monthly'];
 
-  // Pass username as a parameter to handlePost
-  Future<void> handlePost(String username) async {
+  Future<void> handleUpdate() async {
     try {
       Map<String, dynamic> jobListing = {
+        'job_id': widget.jobId,
+        'username': username,
         'tag': [selectedCategory],
         'job_title': titleController.text,
         'description': descriptionController.text,
@@ -58,26 +118,30 @@ class _NewPostScreenState extends State<NewPostScreen> {
         'salary': rateController.text,
         'salary_frequency': selectedRateType,
         'duration': selectedDuration,
-        'username': username,
       };
 
-      final response = await ApiService.postJobListing(jobListing);
+      final response = await ApiService.updateJobListing(jobListing);
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Job Listing posted successfully.")),
+          const SnackBar(content: Text("Job Listing updated successfully.")),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => JobInfoScreen(jobId: widget.jobId),
+          ),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error posting Job Listing: $e")),
+        SnackBar(content: Text("Error updating Job Listing: $e")),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Access the Provider here
     username = Provider.of<UserProvider>(context, listen: false).username;
 
     return Scaffold(
@@ -184,7 +248,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                         ),
                       );
                     } else {
-                      handlePost(username); // Pass username to handlePost
+                      handleUpdate();
                       /*
                       Navigator.push(
                         context,

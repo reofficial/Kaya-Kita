@@ -1,5 +1,5 @@
-from re import L
 from pydantic import BaseModel
+from typing import List, Optional
 
 class Profile(BaseModel):
     email: str
@@ -32,6 +32,8 @@ class ProfileUpdate(BaseModel):
 # The following are classes that concerns job listings
 
 class JobListing(BaseModel):
+    job_id: Optional[int] = None
+    username: Optional[str] = None
     tag: list[str]          #list of tags for the job (e.g. catering, housework, construction, etc.)
     job_title: str          
     description: str

@@ -73,4 +73,42 @@ class ApiService {
     final response = await _client.get(url);
     return response;
   }
+
+  static Future<http.Response> getJobListing(int jobId) async {
+    final url = Uri.parse('$baseUrl/job-listings/job-id/$jobId');
+    final response = await _client.get(url);
+    return response;
+  }
+
+  static Future<http.Response> postJobListing(
+      Map<String, dynamic> jobListing) async {
+    final url = Uri.parse('$baseUrl/job-listings/post');
+
+    final response = await _client.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(jobListing),
+    );
+
+    return response;
+  }
+
+  static Future<http.Response> updateJobListing(
+      Map<String, dynamic> updateDetails) async {
+    final url = Uri.parse('$baseUrl/job-listings/update');
+
+    final response = await _client.put(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(updateDetails),
+    );
+
+    return response;
+  }
+
+  static Future<http.Response> deleteJobListing(int jobId) async {
+    final url = Uri.parse('$baseUrl/job-listings/delete/$jobId');
+    final response = await _client.delete(url);
+    return response;
+  }
 }
