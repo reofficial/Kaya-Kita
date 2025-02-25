@@ -137,10 +137,24 @@ async def get_job_listings():
 @app.post("/job-listings/post", response_model=JobListing)
 async def create_job_listing(job_listing: JobListing):
     if await job_listing_dao.check_if_info_has_content(job_listing):
-        await job_listing_dao.create_job_listing(job_listing)
-        return JSONResponse(status_code=201, content={"message": "Job listing created successfully"})
+        created_job = await job_listing_dao.create_job_listing(job_listing)
+        return JSONResponse(status_code=201, content=created_job.model_dump())
     else:
         raise HTTPException(status_code=400, detail="Incomplete job listing")
+    
+@app.put("/job-listings/update", response_model=dict)
+async def update_job_listing(job_listing: JobListing):
+    success = await job_listing_dao.update_job_listing(job_listing)
+    if not success:
+        raise HTTPException(status_code=404, detail="Job listing not found")
+    return {"message": "Job listing updated successfully"}
+
+@app.delete("/job-listings/delete/{job_id}", response_model=dict)
+async def delete_job_listing(job_id: int):
+    success = await job_listing_dao.delete_job_listing(job_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Job listing not found")
+    return {"message": "Job listing deleted successfully"}
 
 #Test function
 @app.get("/hello")
