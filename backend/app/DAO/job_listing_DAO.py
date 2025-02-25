@@ -38,5 +38,6 @@ class JobListingDAO:
 
         return result.modified_count > 0 #returns true if we updated something
     
-    async def delete_job_listing(self, job_title: str):
-        ...
+    async def delete_job_listing(self, job_listing: JobListing):
+        result = await self.collection.delete_one({"id": job_listing.job_id})
+        return result.deleted_count > 0
