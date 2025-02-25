@@ -32,6 +32,7 @@ class ProfileUpdate(BaseModel):
 # The following are classes that concerns job listings
 
 class JobListing(BaseModel):
+    job_id: int
     tag: list[str]          #list of tags for the job (e.g. catering, housework, construction, etc.)
     job_title: str          
     description: str

@@ -8,7 +8,16 @@ class JobListingDAO:
         
     #CRUD Operations
     async def create_job_listing(self, job_listing: JobListing):
-        await self.collection.insert_one(job_listing.model_dump())
+        # Automatically assigns job id
+        last_job = await self.collection.find_one(
+            {}, sort=[("job_id", -1)]
+        )
+        new_id = (last_job["id"] + 1) if last_job else 0
+
+        job_data = job_listing.model_dump()
+        job_data["job_id"] = new_id
+
+        await self.collection.insert_one(job_data)
     
     async def read_job_listings(self):
         job_listings_cursor = self.collection.find()
