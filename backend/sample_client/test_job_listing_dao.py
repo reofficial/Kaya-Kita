@@ -12,7 +12,8 @@ job_listing_data = {
     "location": "Diliman, QC",
     "salary": 20.0,
     "salary_frequency": "hourly",
-    "duration": "3 months"
+    "duration": "3 months",
+    "username": "juandelacruz"
 }
 
 # 1. Create a job listing (POST)
@@ -45,7 +46,13 @@ response = httpx.put(f"{BASE_URL}/job-listings/update", json=updated_data, verif
 print(f"PUT Status: {response.status_code}")
 print(f"Response: {response.json()}")
 
-# 4️. Delete job listing (DELETE)
+# 4. Get job listings by a certain username(GET)
+response = httpx.get(f"{BASE_URL}/job-listings/juandelacruz", verify=False)
+print("\nFetching job listings by username...")
+print(f"GET Status: {response.status_code}")
+print(f"Response: {response.json()}")
+
+# 5. Delete job listing (DELETE)
 print("\nDeleting job listing...")
 response = httpx.delete(f"{BASE_URL}/job-listings/delete/{job_id}", verify=False)
 print(f"DELETE Status: {response.status_code}")

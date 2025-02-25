@@ -134,6 +134,13 @@ async def update_worker(updateDetails: ProfileUpdate):
 async def get_job_listings():
     return await job_listing_dao.read_job_listings()
 
+@app.get("/job-listings/{username}", response_model=List[JobListing])
+async def get_job_listings_by_username(username: str):
+    listings = await job_listing_dao.read_job_listings_by_username(username)
+    if listings is None or len(listings) == 0:
+        raise HTTPException(status_code=404, detail=f"No job listings found for username: {username}")
+    return listings
+
 @app.post("/job-listings/post", response_model=JobListing)
 async def create_job_listing(job_listing: JobListing):
     if await job_listing_dao.check_if_info_has_content(job_listing):
@@ -156,6 +163,8 @@ async def delete_job_listing(job_id: int):
         raise HTTPException(status_code=404, detail="Job listing not found")
     return {"message": "Job listing deleted successfully"}
 
+
+
 #Test function
 @app.get("/hello")
 async def hello():
@@ -164,3 +173,4 @@ async def hello():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+    

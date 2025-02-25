@@ -33,6 +33,7 @@ class ProfileUpdate(BaseModel):
 
 class JobListing(BaseModel):
     job_id: Optional[int] = None
+    username: Optional[str] = None
     tag: list[str]          #list of tags for the job (e.g. catering, housework, construction, etc.)
     job_title: str          
     description: str
