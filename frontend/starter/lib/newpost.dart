@@ -111,9 +111,11 @@ class _NewPostScreenState extends State<NewPostScreen> {
             children: [
               Row(
                 children: [
+                  // Placeholder for profile picture.
                   const CircleAvatar(
-                    backgroundImage: AssetImage('assets/kamala.png'),
                     radius: 25,
+                    backgroundColor: Colors.grey,
+                    child: Icon(Icons.person, color: Colors.white),
                   ),
                   const SizedBox(width: 10),
                   Text(
@@ -196,13 +198,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
                       );
                     } else {
                       handlePost(username); // Pass username to handlePost
-                      /*
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => JobInfoScreen()),
-                      );
-                      */
                     }
                   },
                   child: const Text('Post',
