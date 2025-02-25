@@ -74,10 +74,11 @@ class ApiService {
     return response;
   }
 
-  static Future<http.Response> postJobListing(Map<String, dynamic> jobListing) async {
+  static Future<http.Response> postJobListing(
+      Map<String, dynamic> jobListing) async {
     final url = Uri.parse('$baseUrl/job-listings/post');
-    
-    final response = await http.post(
+
+    final response = await _client.post(
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(jobListing),
@@ -99,13 +100,8 @@ class ApiService {
   }
 
   static Future<http.Response> deleteJobListing(int jobId) async {
-    final url = Uri.parse('$baseUrl/job-listings/delete');
-    final response = await _client.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(jobId),
-    );
-
+    final url = Uri.parse('$baseUrl/job-listings/delete/$jobId');
+    final response = await _client.post(url);
     return response;
   }
 }

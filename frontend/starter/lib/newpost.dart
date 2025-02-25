@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:starter/api_service.dart';
+import 'package:provider/provider.dart';
+import 'package:starter/providers/profile_provider.dart';
 
 class NewPostScreen extends StatefulWidget {
   const NewPostScreen({super.key});
@@ -11,6 +12,8 @@ class NewPostScreen extends StatefulWidget {
 }
 
 class _NewPostScreenState extends State<NewPostScreen> {
+  late String username; // Declare username here
+
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController rateController = TextEditingController();
@@ -44,7 +47,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
   final List<String> locations = ['Makati City', 'Taguig City', 'Pasay City'];
   final List<String> rateTypes = ['Hourly', 'Daily', 'Weekly', 'Monthly'];
 
-  Future<void> handlePost() async {
+  // Pass username as a parameter to handlePost
+  Future<void> handlePost(String username) async {
     try {
       Map<String, dynamic> jobListing = {
         'tag': [selectedCategory],
@@ -54,13 +58,14 @@ class _NewPostScreenState extends State<NewPostScreen> {
         'salary': rateController.text,
         'salary_frequency': selectedRateType,
         'duration': selectedDuration,
+        'username': username,
       };
 
       final response = await ApiService.postJobListing(jobListing);
 
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Job Listing posted successfully.")),
+          const SnackBar(content: Text("Job Listing posted successfully.")),
         );
       }
     } catch (e) {
@@ -72,6 +77,9 @@ class _NewPostScreenState extends State<NewPostScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Access the Provider here
+    username = Provider.of<UserProvider>(context, listen: false).username;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -97,9 +105,9 @@ class _NewPostScreenState extends State<NewPostScreen> {
                     radius: 25,
                   ),
                   const SizedBox(width: 10),
-                  const Text(
-                    'Kamala Harris',
-                    style: TextStyle(
+                  Text(
+                    'Posting as $username:',
+                    style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: Colors.black),
@@ -170,13 +178,13 @@ class _NewPostScreenState extends State<NewPostScreen> {
                         descriptionController.text.isEmpty ||
                         rateController.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                           content: Text('Please fill in all required fields'),
                           backgroundColor: Colors.red,
                         ),
                       );
                     } else {
-                      handlePost();
+                      handlePost(username); // Pass username to handlePost
                       /*
                       Navigator.push(
                         context,
@@ -220,7 +228,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                 decoration: InputDecoration(
                   hintText: hint,
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.only(top: 10),
+                  contentPadding: const EdgeInsets.only(top: 10),
                 ),
               ),
             ),
@@ -228,8 +236,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
           if (isRequired)
             Padding(
               padding: const EdgeInsets.only(right: 10, top: 10),
-              child:
-                  Text('*', style: TextStyle(color: Colors.red, fontSize: 16)),
+              child: const Text('*',
+                  style: TextStyle(color: Colors.red, fontSize: 16)),
             ),
         ],
       ),
