@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:starter/api_service.dart';
 
 void main() {
-  final int last_post = 4;
+  final int lastPost = 9;
 
   setUpAll(() async {
     // Load the environment variables for testing
@@ -29,7 +29,10 @@ void main() {
 
       expect(response.statusCode, 201);
 
-      await ApiService.deleteJobListing(last_post); 
+      await ApiService.deleteJobListing(lastPost); 
+      await ApiService.deleteJobListing(10); 
+      await ApiService.deleteJobListing(11); 
+      await ApiService.deleteJobListing(12); 
     });
 
     test('Job listing post with incomplete details returns 422', () async {
@@ -48,11 +51,15 @@ void main() {
 
       expect(response.statusCode, 422); 
 
-      await ApiService.deleteJobListing(last_post); 
+      await ApiService.deleteJobListing(lastPost); 
+
+      await ApiService.deleteJobListing(10); 
+      await ApiService.deleteJobListing(11); 
+      await ApiService.deleteJobListing(12); 
     });
 
     test('Verify deletion of posted job listing', () async {
-
+    
       final Map<String, dynamic> newPostDetails = {
         'username': 'testuser',
         'tag': ['Education'], 
@@ -66,10 +73,15 @@ void main() {
 
       await ApiService.postJobListing(newPostDetails);
 
-      final response = await ApiService.deleteJobListing(last_post);  
+      final response = await ApiService.deleteJobListing(lastPost);  
 
       final responseBody = jsonDecode(response.body);
       expect(responseBody['message'], 'Job listing deleted successfully');
+
+      await ApiService.deleteJobListing(10); 
+      await ApiService.deleteJobListing(11); 
+      await ApiService.deleteJobListing(12); 
     });
+    
   });
 }

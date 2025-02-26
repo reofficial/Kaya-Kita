@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:starter/home.dart' as homepage;
+import 'package:starter/jobinfo.dart' as jobinfopage;
+import 'package:starter/joblistings.dart' as joblistpage;
 import 'package:starter/login.dart' as loginpage;
 import 'package:starter/register.dart' as regpage;
 import 'package:starter/main.dart'; 
@@ -100,12 +102,30 @@ void main() {
     });
   });
 
-  group ('Home screen: ', () {
+  group ('Home screen:', () {
     testWidgets('User can type in Home page search bar', (WidgetTester tester) async {
       await tester.pumpWidget(const MaterialApp(home: homepage.HomeScreen()));
 
       await tester.enterText(find.byType(homepage.CustomTextField).first, 'searchquery');
       expect(find.text('searchquery'), findsOneWidget);
+    });
+
+    testWidgets('Verify wallet section', (WidgetTester tester) async {
+      await tester.pumpWidget(const MaterialApp(home: homepage.HomeScreen()));
+
+      expect(find.widgetWithText(Container, 'Wallet'), findsOneWidget);
+    });
+
+    testWidgets('Verify promos image', (WidgetTester tester) async {
+      await tester.pumpWidget(const MaterialApp(home: homepage.HomeScreen()));
+
+      expect(find.image(AssetImage('assets/promos.png')), findsOneWidget);
+    });
+
+    testWidgets('Verify promos submit entry button', (WidgetTester tester) async {
+      await tester.pumpWidget(const MaterialApp(home: homepage.HomeScreen()));
+
+      expect(find.widgetWithText(TextButton, 'Submit entry'), findsOneWidget);
     });
 
     testWidgets('User can open Home page drawer', (WidgetTester tester) async {
@@ -117,7 +137,46 @@ void main() {
       expect(find.byType(Drawer), findsOneWidget);
     });
 
-    group ('Home screen drawer: ', () {
+    // CAN BE CHANGED THROUGHOUT DEVELOPMENT
+    group ('Home screen explore section:', () {
+      testWidgets('Verify Rider icon', (WidgetTester tester) async {
+        await tester.pumpWidget(const MaterialApp(home: homepage.HomeScreen()));
+        
+        expect(find.byIcon(Icons.motorcycle), findsOneWidget);
+      });
+
+      testWidgets('Verify Driver icon', (WidgetTester tester) async {
+        await tester.pumpWidget(const MaterialApp(home: homepage.HomeScreen()));
+        
+        expect(find.byIcon(Icons.directions_car), findsOneWidget);
+      });
+
+      testWidgets('Verify PasaBuy icon', (WidgetTester tester) async {
+        await tester.pumpWidget(const MaterialApp(home: homepage.HomeScreen()));
+        
+        expect(find.byIcon(Icons.food_bank), findsOneWidget);
+      });
+
+      testWidgets('Verify Pabili icon', (WidgetTester tester) async {
+        await tester.pumpWidget(const MaterialApp(home: homepage.HomeScreen()));
+        
+        expect(find.byIcon(Icons.shopping_cart), findsOneWidget);
+      });
+
+      testWidgets('Verify Laundry icon', (WidgetTester tester) async {
+        await tester.pumpWidget(const MaterialApp(home: homepage.HomeScreen()));
+        
+        expect(find.byIcon(Icons.local_laundry_service), findsOneWidget);
+      });
+
+      testWidgets('Verify More icon', (WidgetTester tester) async {
+        await tester.pumpWidget(const MaterialApp(home: homepage.HomeScreen()));
+        
+        expect(find.byIcon(Icons.more_horiz), findsOneWidget);
+      });
+    });
+
+    group ('Home screen drawer:', () {
       testWidgets('Verify Account header', (WidgetTester tester) async {
         await tester.pumpWidget(MaterialApp(home: homepage.HomeScreen()));
         await tester.pump(Duration(milliseconds: 200));
@@ -264,4 +323,14 @@ void main() {
       });
     });
   });
+
+  group ('Job Listings screen:', () {
+
+    testWidgets('Verify add post icon button', (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(home: joblistpage.JobListingsScreen()));
+
+      expect(find.widgetWithIcon(IconButton, Icons.add_circle), findsOneWidget);
+    });
+  });
+
 }
