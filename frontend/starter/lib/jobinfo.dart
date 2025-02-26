@@ -273,7 +273,7 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
                                           children: [
                                             Icon(Icons.phone, color: Colors.grey),
                                             SizedBox(width: 8),
-                                            Text(contactDetails!['contact_no'] ?? ''),
+                                            Text(contactDetails!['contact_number'] ?? ''),
                                           ],
                                         ),
                                         SizedBox(height: 6),
@@ -281,7 +281,7 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
                                           children: [
                                             Icon(Icons.location_on, color: Colors.grey),
                                             SizedBox(width: 8),
-                                            Text(contactDetails!['location'] ?? ''),
+                                            Text(location),
                                           ],
                                         ),
                                       ],

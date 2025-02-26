@@ -114,7 +114,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                   // Placeholder for profile picture.
                   const CircleAvatar(
                     radius: 25,
-                    backgroundColor: Colors.grey,
+                    backgroundColor: Colors.purple,
                     child: Icon(Icons.person, color: Colors.white),
                   ),
                   const SizedBox(width: 10),
