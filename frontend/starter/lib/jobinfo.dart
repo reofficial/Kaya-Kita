@@ -31,6 +31,9 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
   String salaryFrequency = '';
   String duration = '';
 
+  // Holds the customer/contact details fetched by matching username.
+  Map<String, dynamic>? contactDetails;
+
   @override
   void initState() {
     super.initState();
@@ -52,10 +55,34 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
           salaryFrequency = jobListing['salary_frequency'];
           duration = jobListing['duration'];
         });
+        // Now fetch contact details for the job listing author.
+        await fetchContactDetails();
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error fetching Job Listing: $e")),
+      );
+    }
+  }
+
+  Future<void> fetchContactDetails() async {
+    try {
+      final response = await ApiService.getCustomers();
+      if (response.statusCode == 200) {
+        final List<dynamic> customers = json.decode(response.body);
+        final matchingCustomer = customers.firstWhere(
+          (customer) => customer['username'] == authorUsername,
+          orElse: () => null,
+        );
+        if (matchingCustomer != null) {
+          setState(() {
+            contactDetails = matchingCustomer;
+          });
+        }
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error fetching contact details: $e")),
       );
     }
   }
@@ -114,7 +141,7 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
                     left: MediaQuery.of(context).size.width / 2 - 60,
                     child: CircleAvatar(
                       radius: 60,
-                      // Replacing the Kamala asset with a placeholder icon
+                      // Placeholder icon
                       child: Icon(Icons.person, size: 60),
                       backgroundColor: Colors.white,
                     ),
@@ -161,7 +188,7 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
                                 ),
                               ),
                               SizedBox(height: 8),
-                              // Wrap the description text box in a SizedBox to enforce a constant width
+                              // Constant width for the description box
                               SizedBox(
                                 width: 300,
                                 child: Container(
@@ -209,70 +236,62 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
                                 ),
                               ),
                               SizedBox(height: 12),
-                              // The "Submitted on" text is commented out for potential future use.
-                              /*
-                              Align(
-                                alignment: Alignment.bottomRight,
-                                child: Padding(
-                                  padding: EdgeInsets.only(top: 0, right: 8),
-                                  child: Text(
-                                    'Submitted on 6 Dec, 2024 - 4:56 PM',
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.pink,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ),
-                              */
-                              SizedBox(height: 30),
                               Divider(),
                               SizedBox(height: 8),
-                              // The "Contact Me!" section is commented out for potential future use.
-                              /*
-                              Text(
-                                'Contact Me!',
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(height: 8),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Icon(Icons.email, color: Colors.grey),
-                                      SizedBox(width: 8),
-                                      Text('kdharris@up.edu.ph'),
-                                    ],
-                                  ),
-                                  SizedBox(height: 6),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.location_on,
-                                          color: Colors.grey),
-                                      SizedBox(width: 8),
-                                      Text('UP Diliman, Quezon City'),
-                                    ],
-                                  ),
-                                  SizedBox(height: 6),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.check_circle,
-                                          color: Colors.grey),
-                                      SizedBox(width: 8),
-                                      Text('Booked 48 services so far'),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              */
+                              // Display contact details fetched from the API.
+                              contactDetails != null
+                                  ? Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Contact Details',
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        SizedBox(height: 8),
+                                        Row(
+                                          children: [
+                                            Icon(Icons.person, color: Colors.grey),
+                                            SizedBox(width: 8),
+                                            Text(contactDetails!['name'] ??
+                                                contactDetails!['username'] ??
+                                                ''),
+                                          ],
+                                        ),
+                                        SizedBox(height: 6),
+                                        Row(
+                                          children: [
+                                            Icon(Icons.email, color: Colors.grey),
+                                            SizedBox(width: 8),
+                                            Text(contactDetails!['email'] ?? ''),
+                                          ],
+                                        ),
+                                        SizedBox(height: 6),
+                                        Row(
+                                          children: [
+                                            Icon(Icons.phone, color: Colors.grey),
+                                            SizedBox(width: 8),
+                                            Text(contactDetails!['contact_no'] ?? ''),
+                                          ],
+                                        ),
+                                        SizedBox(height: 6),
+                                        Row(
+                                          children: [
+                                            Icon(Icons.location_on, color: Colors.grey),
+                                            SizedBox(width: 8),
+                                            Text(contactDetails!['location'] ?? ''),
+                                          ],
+                                        ),
+                                      ],
+                                    )
+                                  : Text('No contact details available'),
                             ],
                           ),
                         ),
                       ),
                     ),
-                    // Center the username and verified icon
                     Positioned(
                       top: 28,
                       left: 0,
@@ -359,13 +378,25 @@ class CurvedAppBar extends CustomClipper<Path> {
     path.lineTo(curveStartX - roundness, startY);
 
     path.quadraticBezierTo(
-        curveStartX - roundness / 2, startY, curveStartX, startY - roundness / 2);
+      curveStartX - roundness / 2, 
+      startY, 
+      curveStartX, 
+      startY - roundness / 2,
+    );
 
     path.quadraticBezierTo(
-        controlX, controlY, curveEndX, startY - roundness / 2);
+      controlX, 
+      controlY, 
+      curveEndX, 
+      startY - roundness / 2,
+    );
 
     path.quadraticBezierTo(
-        curveEndX + roundness / 2, startY, curveEndX + roundness, startY);
+      curveEndX + roundness / 2, 
+      startY, 
+      curveEndX + roundness, 
+      startY,
+    );
 
     path.lineTo(endX, startY);
     path.lineTo(endX, 0);
