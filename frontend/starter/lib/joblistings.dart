@@ -158,7 +158,6 @@ class JobListing extends StatelessWidget {
   final String salaryFrequency;
   final String duration;
 
-  // Helper method to return an image based on the first tag/category.
   ImageProvider _getCategoryImage() {
     if (tags.isNotEmpty) {
       final category = tags.first.toLowerCase();
@@ -167,13 +166,20 @@ class JobListing extends StatelessWidget {
           return const AssetImage('assets/Technology.png');
         case 'business':
           return const AssetImage('assets/Business.png');
-        case 'construction':
-          return const AssetImage('assets/construction.png');
-        case 'education':
-          return const AssetImage('assets/education.png');
         case 'entertainment':
           return const AssetImage('assets/Entertainment.png');
-        // Add other cases as needed...
+        case 'construction':
+          return const AssetImage('assets/Construction.png');
+        case 'education':
+          return const AssetImage('assets/Education.png');
+        case 'health':
+          return const AssetImage('assets/Health.png');
+        case 'housework':
+          return const AssetImage('assets/Housework.png');
+        case 'food':
+          return const AssetImage('assets/Food.png');
+        case 'transport':
+          return const AssetImage('assets/Transport.png');
         default:
           return const AssetImage('assets/Default.png');
       }
@@ -185,7 +191,7 @@ class JobListing extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      clipBehavior: Clip.antiAlias, // Ensures corners are clipped
+      clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -200,7 +206,6 @@ class JobListing extends StatelessWidget {
         },
         child: Row(
           children: [
-            // Left: image with a fixed size and cover.
             Image(
               image: _getCategoryImage(),
               width: 120,
@@ -214,7 +219,6 @@ class JobListing extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Title styled in purple.
                     Text(
                       title,
                       style: const TextStyle(
@@ -224,7 +228,6 @@ class JobListing extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    // Category chips styled in purple.
                     if (tags.isNotEmpty)
                       Wrap(
                         spacing: 4,
@@ -234,13 +237,11 @@ class JobListing extends StatelessWidget {
                                     tag,
                                     style: const TextStyle(color: Colors.white),
                                   ),
-                                  backgroundColor:
-                                      const Color(0xFF87027B),
+                                  backgroundColor: const Color(0xFF87027B),
                                 ))
                             .toList(),
                       ),
                     const SizedBox(height: 4),
-                    // Location row with icon.
                     Row(
                       children: [
                         const Icon(Icons.location_on,
@@ -256,7 +257,6 @@ class JobListing extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 6),
-                    // Salary row with icon.
                     Row(
                       children: [
                         const Icon(Icons.attach_money,
