@@ -133,6 +133,15 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
                         backgroundColor: Colors.transparent,
                         elevation: 0,
                         toolbarHeight: 80,
+                        leading: IconButton(
+                          icon: Icon(Icons.arrow_back, color: Colors.white),
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => JobListingsScreen()),
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ),
