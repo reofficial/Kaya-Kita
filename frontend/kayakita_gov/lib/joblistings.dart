@@ -1,6 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'api_service.dart'; // Ensure the correct import path
 import 'viewpost.dart';
 
+// Updated JobListing model with a factory constructor
 class JobListing {
   final String title;
   final String description;
@@ -19,6 +22,79 @@ class JobListing {
     required this.rate,
     required this.status,
   });
+
+  factory JobListing.fromJson(Map<String, dynamic> json) {
+    return JobListing(
+      title: json['job_title'] ?? 'No Title',
+      description: json['description'] ?? 'No Description',
+      customer: json['customer'] ?? 'Unknown', // Adjust based on your API response
+      address: json['location'] ?? 'No Address',
+      postedDate: json['posted_date'] ?? 'N/A',
+      rate: json['salary'] != null && json['salary_frequency'] != null
+          ? '${json['salary']}/${json['salary_frequency']}'
+          : 'N/A',
+      status: json['status'] ?? '',
+    );
+  }
+}
+
+class JobListingsScreen extends StatefulWidget {
+  const JobListingsScreen({Key? key}) : super(key: key);
+
+  @override
+  State<JobListingsScreen> createState() => _JobListingsScreenState();
+}
+
+class _JobListingsScreenState extends State<JobListingsScreen> {
+  late Future<List<JobListing>> _jobListingsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _jobListingsFuture = fetchJobListings();
+  }
+
+  Future<List<JobListing>> fetchJobListings() async {
+    final response = await ApiService.getJobListings();
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      return data.map((item) => JobListing.fromJson(item)).toList();
+    } else {
+      throw Exception('Failed to load job listings');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey.shade200,
+      appBar: AppBar(
+        title: const Text('Job Listings', style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color(0xFF000E53),
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: FutureBuilder<List<JobListing>>(
+        future: _jobListingsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text("No job listings available."));
+          } else {
+            final jobListings = snapshot.data!;
+            return ListView.builder(
+              itemCount: jobListings.length,
+              itemBuilder: (context, index) {
+                return JobListingCard(job: jobListings[index]);
+              },
+            );
+          }
+        },
+      ),
+    );
+  }
 }
 
 class JobListingCard extends StatefulWidget {
@@ -49,7 +125,6 @@ class _JobListingCardState extends State<JobListingCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Title
             Text(
               widget.job.title,
               style: const TextStyle(
@@ -59,26 +134,22 @@ class _JobListingCardState extends State<JobListingCard> {
               ),
             ),
             const SizedBox(height: 8),
-            // Description
             Text(
               widget.job.description,
               style: TextStyle(fontSize: 16, color: Colors.grey[800]),
             ),
             const SizedBox(height: 16),
-            // Customer info with icon
             Row(
               children: [
                 const Icon(Icons.person, color: Color(0xFF000E53)),
                 const SizedBox(width: 8),
                 Text(
                   widget.job.customer,
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w500),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            // Address info with icon
             Row(
               children: [
                 const Icon(Icons.location_on, color: Colors.redAccent),
@@ -92,7 +163,6 @@ class _JobListingCardState extends State<JobListingCard> {
               ],
             ),
             const SizedBox(height: 8),
-            // Posted date with icon
             Row(
               children: [
                 const Icon(Icons.calendar_today, color: Colors.green),
@@ -104,7 +174,6 @@ class _JobListingCardState extends State<JobListingCard> {
               ],
             ),
             const SizedBox(height: 8),
-            // Rate info with icon
             Row(
               children: [
                 const Icon(Icons.attach_money, color: Colors.amber),
@@ -116,7 +185,7 @@ class _JobListingCardState extends State<JobListingCard> {
               ],
             ),
             const SizedBox(height: 16),
-            // Status and actions section
+            // Actions based on job status
             if (widget.job.status == 'Accepted')
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -136,6 +205,7 @@ class _JobListingCardState extends State<JobListingCard> {
                   ),
                   ElevatedButton.icon(
                     onPressed: () {
+                      // Navigate to the detailed view or job info screen
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -147,8 +217,7 @@ class _JobListingCardState extends State<JobListingCard> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF000E53),
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8)),
                     ),
@@ -181,14 +250,12 @@ class _JobListingCardState extends State<JobListingCard> {
                     style: TextButton.styleFrom(
                       backgroundColor: const Color(0xFF00880C),
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8)),
                     ),
                     child: const Text('Accept',
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold)),
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   ),
                   const SizedBox(width: 8),
                   TextButton(
@@ -196,84 +263,17 @@ class _JobListingCardState extends State<JobListingCard> {
                     style: TextButton.styleFrom(
                       backgroundColor: const Color(0xFF8D0010),
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8)),
                     ),
                     child: const Text('Deny',
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold)),
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class JobListingsScreen extends StatelessWidget {
-  JobListingsScreen({Key? key}) : super(key: key);
-
-  final List<JobListing> jobListings = [
-    JobListing(
-      title: 'Florist for Wedding Reception',
-      description: 'Experienced florist needed for a wedding reception.',
-      customer: 'Donald Trump',
-      address: 'University Hotel, U.P. Campus',
-      postedDate: 'October 5, 2024 - 12:01 PM',
-      rate: '₱10,000/Monthly',
-      status: '',
-    ),
-    JobListing(
-      title: 'Joe Biden Event',
-      description: 'High profile event requiring special arrangements.',
-      customer: 'Joe Biden',
-      address: 'University Health Service, U.P. Campus',
-      postedDate: 'October 6, 2024 - 8:27 PM',
-      rate: '₱150/Hourly',
-      status: '',
-    ),
-    JobListing(
-      title: 'Personal Chef Wanted',
-      description: 'Looking for a personal chef for my kids.',
-      customer: 'Kamala Harris',
-      address: '45 Juan Luna Street, U.P. Campus',
-      postedDate: 'October 1, 2024 - 11:11 PM',
-      rate: '₱30,000/Monthly',
-      status: 'Accepted',
-    ),
-    JobListing(
-      title: 'Joe Biden Special Request',
-      description: 'Exclusive request with high compensation.',
-      customer: 'Joe Biden',
-      address: 'University Hotel, U.P. Campus',
-      postedDate: 'September 21, 2024 - 5:21 PM',
-      rate: '₱1,000,000/Daily',
-      status: 'Denied',
-    ),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade200,
-      appBar: AppBar(
-        title: const Text(
-          'Job Listings',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: const Color(0xFF000E53),
-        iconTheme: const IconThemeData(color: Colors.white),
-        elevation: 0,
-      ),
-      body: ListView.builder(
-        itemCount: jobListings.length,
-        itemBuilder: (context, index) {
-          return JobListingCard(job: jobListings[index]);
-        },
       ),
     );
   }
