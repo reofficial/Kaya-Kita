@@ -3,7 +3,6 @@ import 'package:starter/api_service.dart';
 import 'dart:convert';
 
 import 'package:starter/jobedit.dart';
-
 import 'package:provider/provider.dart';
 import 'package:starter/joblistings.dart';
 import 'package:starter/providers/profile_provider.dart';
@@ -102,16 +101,11 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
                       height: 185,
                       color: Color(0xFF00880C),
                       child: AppBar(
+                        centerTitle: true,
                         title: Text('Job Information'),
                         backgroundColor: Colors.transparent,
                         elevation: 0,
                         toolbarHeight: 80,
-                        // leading: IconButton(
-                        //   icon: Icon(Icons.arrow_back),
-                        //   onPressed: () {
-                        //     Navigator.pop(context); // Goes back to the previous screen
-                        //   },
-                        // )
                       ),
                     ),
                   ),
@@ -120,7 +114,8 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
                     left: MediaQuery.of(context).size.width / 2 - 60,
                     child: CircleAvatar(
                       radius: 60,
-                      backgroundImage: AssetImage('assets/kamala.png'),
+                      // Replacing the Kamala asset with a placeholder icon
+                      child: Icon(Icons.person, size: 60),
                       backgroundColor: Colors.white,
                     ),
                   ),
@@ -166,49 +161,56 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
                                 ),
                               ),
                               SizedBox(height: 8),
-                              Container(
-                                padding: EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[300],
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: Colors.grey[500]!,
-                                    width: 1.5,
+                              // Wrap the description text box in a SizedBox to enforce a constant width
+                              SizedBox(
+                                width: 300,
+                                child: Container(
+                                  padding: EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[300],
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: Colors.grey[500]!,
+                                      width: 1.5,
+                                    ),
                                   ),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      description,
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    SizedBox(height: 8),
-                                    Text(
-                                      'Ideal Rate: $salary/$salaryFrequency',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xFF00880C)),
-                                    ),
-                                    Text(
-                                      'Duration: $duration',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    Text(
-                                      'Location: $location',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ],
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        description,
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        'Ideal Rate: $salary/$salaryFrequency',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xFF00880C)),
+                                      ),
+                                      Text(
+                                        'Duration: $duration',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Text(
+                                        'Location: $location',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                               SizedBox(height: 12),
+                              // The "Submitted on" text is commented out for potential future use.
+                              /*
                               Align(
                                 alignment: Alignment.bottomRight,
                                 child: Padding(
@@ -222,9 +224,12 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
                                   ),
                                 ),
                               ),
+                              */
                               SizedBox(height: 30),
                               Divider(),
                               SizedBox(height: 8),
+                              // The "Contact Me!" section is commented out for potential future use.
+                              /*
                               Text(
                                 'Contact Me!',
                                 style: TextStyle(
@@ -261,26 +266,31 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
                                   ),
                                 ],
                               ),
+                              */
                             ],
                           ),
                         ),
                       ),
                     ),
+                    // Center the username and verified icon
                     Positioned(
                       top: 28,
-                      left: MediaQuery.of(context).size.width / 2 - 70,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            authorUsername,
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(width: 6),
-                          Icon(Icons.verified,
-                              color: Color(0xFF87027B), size: 20),
-                        ],
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              authorUsername,
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(width: 6),
+                            Icon(Icons.verified,
+                                color: Color(0xFF87027B), size: 20),
+                          ],
+                        ),
                       ),
                     ),
                     Positioned(
@@ -290,7 +300,7 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          if (username == authorUsername) // Add this condition
+                          if (username == authorUsername)
                             ElevatedButton(
                               onPressed: deleteJobListing,
                               style: ElevatedButton.styleFrom(
@@ -299,7 +309,7 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
                               ),
                               child: Text('Delete Post'),
                             ),
-                          if (username == authorUsername) // Add this condition
+                          if (username == authorUsername)
                             ElevatedButton(
                               onPressed: () {
                                 Navigator.pushReplacement(
@@ -348,22 +358,14 @@ class CurvedAppBar extends CustomClipper<Path> {
     path.lineTo(startX, startY);
     path.lineTo(curveStartX - roundness, startY);
 
-    path.quadraticBezierTo(curveStartX - roundness / 2, startY, curveStartX,
-        startY - roundness / 2);
+    path.quadraticBezierTo(
+        curveStartX - roundness / 2, startY, curveStartX, startY - roundness / 2);
 
     path.quadraticBezierTo(
-        // main curve
-        controlX,
-        controlY,
-        curveEndX,
-        startY - roundness / 2);
+        controlX, controlY, curveEndX, startY - roundness / 2);
 
     path.quadraticBezierTo(
-        //trasnition curve
-        curveEndX + roundness / 2,
-        startY,
-        curveEndX + roundness,
-        startY);
+        curveEndX + roundness / 2, startY, curveEndX + roundness, startY);
 
     path.lineTo(endX, startY);
     path.lineTo(endX, 0);
