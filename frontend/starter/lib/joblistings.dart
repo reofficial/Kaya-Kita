@@ -22,6 +22,7 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         return data
+            .where((item) => item['is_hidden'] != true)
             .map((item) => {
                   'job_id': item['job_id'] ?? -1,
                   'tags': (item['tag'] as List<dynamic>?)

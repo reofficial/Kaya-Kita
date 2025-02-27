@@ -4,9 +4,11 @@ import 'dart:convert';
 
 import 'package:starter/api_service.dart';
 import 'jobinfo.dart';
+import 'joblistings.dart';
 
 import 'package:provider/provider.dart';
 import 'package:starter/providers/profile_provider.dart';
+import 'package:starter/utils/profanity_filter.dart';
 
 class NewPostScreen extends StatefulWidget {
   const NewPostScreen({super.key});
@@ -54,6 +56,28 @@ class _NewPostScreenState extends State<NewPostScreen> {
   // Pass username as a parameter to handlePost
   Future<void> handlePost(String username) async {
     try {
+    List<RegExp> profanityPatterns = await loadProfanityPatterns();
+    print(profanityPatterns);
+    bool containsBadWords = containsProfanity(titleController.text, profanityPatterns) ||
+                            containsProfanity(descriptionController.text, profanityPatterns);
+
+    //bool testProfanity = containsProfanity("badword", profanityPatterns);
+    print("Test profanity detection: $containsBadWords");
+
+    
+    // if (containsBadWords) {
+    //   if (mounted) {
+    //     ScaffoldMessenger.of(context).showSnackBar(
+    //       const SnackBar(content: Text("Job Listing contains inappropriate words and was not posted."))
+    //     );
+    //     Navigator.pushReplacement(
+    //       context,
+    //       MaterialPageRoute(builder: (context) => JobListingsScreen()),
+    //     );
+    //   }
+    //   return;
+    // }
+
       Map<String, dynamic> jobListing = {
         'tag': [selectedCategory],
         'job_title': titleController.text,
@@ -63,22 +87,36 @@ class _NewPostScreenState extends State<NewPostScreen> {
         'salary_frequency': selectedRateType,
         'duration': selectedDuration,
         'username': username,
+        'is_hidden': containsBadWords,
       };
 
       final response = await ApiService.postJobListing(jobListing);
 
       if (response.statusCode == 201) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Job Listing posted successfully.")),
-        );
-        final int jobId = json.decode(response.body)['job_id'];
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => JobInfoScreen(jobId: jobId),
-          ),
-        );
+        if (containsBadWords) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Job Listing is under review.")),
+          );
+
+          Future.microtask(() {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => JobListingsScreen()),
+            );
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Job Listing posted successfully.")),
+          );
+
+          final int jobId = json.decode(response.body)['job_id'];
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => JobInfoScreen(jobId: jobId)),
+          );
+        }
       }
+
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error posting Job Listing: $e")),

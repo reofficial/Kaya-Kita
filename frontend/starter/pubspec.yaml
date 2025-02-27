@@ -40,6 +40,8 @@ flutter:
     - assets/Housework.png
     - assets/Food.png
     - assets/Transport.png
+    - assets/badwords.txt
+
     - .env
 
   fonts:
