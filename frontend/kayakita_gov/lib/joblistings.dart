@@ -188,6 +188,11 @@ class _JobListingCardState extends State<JobListingCard> {
           ),
         );
       }
+      else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Job Listing does not exist.")),
+        );
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error deleting Job Listing: $e")),
