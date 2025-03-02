@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, status
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from motor.motor_asyncio import AsyncIOMotorClient
 from typing import List
 from app.classes import Profile, InitialInfo, JobListing, LoginInfo, ProfileUpdate
@@ -173,9 +173,9 @@ async def delete_job_listing(job_id: int):
 
 
 #Test function
-@app.get("/hello")
+@app.get("/")
 async def hello():
-    return {"message": "hello"}
+    return RedirectResponse(url="https://github.com/reofficial/Kaya-Kita")
 
 if __name__ == "__main__":
     import uvicorn
