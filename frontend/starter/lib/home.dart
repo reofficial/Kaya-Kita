@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:starter/jobcategories.dart';
 import 'package:starter/main.dart';
 import 'package:starter/editprofile.dart';
 import 'package:starter/newpost.dart';
@@ -265,22 +266,50 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 20),
                   // Explore Section
                   GridView.count(
                     crossAxisCount: 3,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     children: [
-                      _buildExploreItem("Rider", Icons.motorcycle),
-                      _buildExploreItem("Driver", Icons.directions_car),
-                      _buildExploreItem("PasaBuy", Icons.food_bank),
-                      _buildExploreItem("Pabili", Icons.shopping_cart),
-                      _buildExploreItem("Laundry", Icons.local_laundry_service),
-                      _buildExploreItem("More", Icons.more_horiz),
+                      _buildExploreItem(
+                        "Rider", 
+                        Icons.motorcycle,
+                        () {}
+                      ),
+                      _buildExploreItem(
+                        "Driver", 
+                        Icons.directions_car,
+                        () {}
+                      ),
+                      _buildExploreItem(
+                        "PasaBuy", 
+                        Icons.food_bank,
+                        () {}
+                      ),
+                      _buildExploreItem(
+                        "Pabili", 
+                        Icons.shopping_cart,
+                        () {}
+                      ),
+                      _buildExploreItem(
+                        "Laundry", 
+                        Icons.local_laundry_service,
+                        () {}
+                      ),
+                      _buildExploreItem(
+                        "More", 
+                        Icons.more_horiz,
+                        () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const JobCategoriesScreen()),
+                          );
+                        }
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 5),
                   // Promos Section
                   Container(
                     padding: const EdgeInsets.all(15),
@@ -397,10 +426,24 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildExploreItem(String title, IconData icon) {
+  Widget _buildExploreItem(String title, IconData icon, VoidCallback onPressed) {
     return Column(
       children: [
-        Icon(icon, size: 40, color: Colors.grey[700]),
+        ElevatedButton(
+          onPressed: onPressed,
+          style: ElevatedButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16), // Adjust corner radius
+            ),
+            padding: const EdgeInsets.all(10), // Ensures a square-like shape
+            minimumSize: const Size(40, 40),
+          ),
+          child: Icon(
+            icon, 
+            size: 40, 
+            color: Colors.grey[700]
+          )
+        ),
         const SizedBox(height: 5),
         Text(
           title,
