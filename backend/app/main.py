@@ -143,6 +143,13 @@ async def get_job_listings_by_username(username: str):
         raise HTTPException(status_code=404, detail=f"No job listings found for username: {username}")
     return listings
 
+@app.get("/job-listings/worker/{username}", response_model=List[JobListing])
+async def get_job_listings_by_worker_username(username: str):
+    listings = await job_listing_dao.read_job_listings_by_worker_username(username)
+    if listings is None or len(listings) == 0:
+        raise HTTPException(status_code=404, detail=f"No job listings found for worker username: {username}")
+    return listings
+
 @app.get("/job-listings/job-id/{job_id}", response_model=List[JobListing])
 async def get_job_listing_by_id(job_id: int):
     listing = await job_listing_dao.read_job_listing_by_id(job_id)

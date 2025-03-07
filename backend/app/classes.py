@@ -43,6 +43,7 @@ class JobListing(BaseModel):
     salary: float           
     salary_frequency: str   #sample: salary = 10. salary_frequency = "hourly". therefore 10/hour is the salary
     duration: str           #extra job information
+    worker_username: Optional[str] = None   #the username of the worker assigned to the job
 
 class WorkerReviews(BaseModel):
     review_id: Optional[int] = None

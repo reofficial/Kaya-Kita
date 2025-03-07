@@ -30,6 +30,12 @@ class JobListingDAO:
         job_listings = await job_listings_cursor.to_list(length=None)
         return [JobListing(**job_listing) for job_listing in job_listings]
     
+    async def read_job_listings_by_worker_username(self, username: str):
+        # Fetch all job listings that match the provided username.
+        job_listings_cursor = self.collection.find({"worker_username": username})
+        job_listings = await job_listings_cursor.to_list(length=None)
+        return [JobListing(**job_listing) for job_listing in job_listings]
+    
     async def read_job_listing_by_id(self, job_id: int):
         job_listings_cursor = self.collection.find({"job_id": job_id})
         job_listings = await job_listings_cursor.to_list(length=None)
