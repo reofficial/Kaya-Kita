@@ -187,14 +187,11 @@ async def get_reviews_of_worker(worker_username: str):
 
 @app.post("/reviews/create", response_model=WorkerReviews)
 async def create_review(review: WorkerReviews):
-    await worker_reviews_dao.create_review(review)
-    return {"message": "Review created successfully"}
+    return await worker_reviews_dao.create_review(review)
 
-
-@app.put("/reviews/update", response_model=dict)
+@app.put("/reviews/update", response_model=WorkerReviews)
 async def update_review(review: WorkerReviews):
-    await worker_reviews_dao.update_review(review)
-    return {"message": "Review updated successfully"}
+    return await worker_reviews_dao.update_review(review)
 
 @app.delete("/reviews/delete/{review_id}", response_model=dict)
 async def delete_review(review_id: int):

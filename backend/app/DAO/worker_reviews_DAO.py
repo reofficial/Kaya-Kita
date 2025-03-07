@@ -35,8 +35,10 @@ class WorkerReviewsDAO:
         reviews = await reviews_cursor.to_list(length=None)
         return [WorkerReviews(**review) for review in reviews]
     
-    async def update_review(self, review: WorkerReviews) -> None:
-        await self.collection.update_one({"review_id": review.review_id}, {"$set": review.model_dump(exclude={"review_id"})})
+    async def update_review(self, review: WorkerReviews) -> WorkerReviews:
+        review_data = review.model_dump()
+        await self.collection.update_one({"review_id": review.review_id}, {"$set": review_data})
+        return WorkerReviews(**review_data)
     
     async def delete_review(self, review_id: int) -> None:
         await self.collection.delete_one({"review_id": review_id})
