@@ -45,6 +45,7 @@ class JobListing(BaseModel):
     duration: str           #extra job information
 
 class WorkerReviews(BaseModel):
+    review_id: Optional[int] = None
     worker_username: str
     customer_username: str
     rating: int

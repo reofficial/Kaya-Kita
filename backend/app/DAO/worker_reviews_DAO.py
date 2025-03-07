@@ -1,5 +1,5 @@
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from app.classes import Profile, ProfileUpdate
+from app.classes import WorkerReviews
 from typing import List, Optional
 
 class WorkerDAO:
@@ -7,49 +7,36 @@ class WorkerDAO:
         self.collection = db["WorkerReviews"]
     
     #CRUD operations
-    async def create_worker(self, worker: Profile) -> None:
-        worker.username = await self.build_username(worker.first_name, worker.last_name)
-        await self.collection.insert_one(worker.model_dump())
-    
-    async def read_workers(self) -> List[Profile]:
-        workers_cursor = self.collection.find()
-        workers = await workers_cursor.to_list(length=None)
-        return [Profile(**worker) for worker in workers]
-    
-    async def update_worker(self, updateDetails: ProfileUpdate) -> None:
-        #update the worker associated with the email
-        print(updateDetails.model_dump())
-        await self.collection.update_one({"email": updateDetails.current_email}, {"$set": updateDetails.model_dump(exclude={"current_email"})})
-    
-    async def delete_worker(self, username: str) -> None:
-        await self.collection.delete_one({"username": username})
-    
-    #Helper functions
-    async def get_all_workers(self) -> List[Profile]:
-        workers_cursor = self.collection.find()
-        workers = await workers_cursor.to_list(length=None)
-        return [Profile(**worker) for worker in workers]
+    async def create_review(self, review: WorkerReviews):
+        # Automatically assigns review id
+        last_review = await self.collection.find_one(
+            {}, sort=[("review_id", -1)]
+        )
+        new_id = (last_review["review_id"] + 1) if last_review else 0
 
-    async def find_by_username(self, username: str) -> Optional[Profile]:
-        worker_data = await self.collection.find_one({"username": username})
-        return Profile(**worker_data) if worker_data else None
+        review_data = review.model_dump()
+        review_data["review_id"] = new_id
 
-    async def find_by_email(self, email: str) -> Optional[Profile]:
-        worker_data = await self.collection.find_one({"email": email})
-        return Profile(**worker_data) if worker_data else None
+        await self.collection.insert_one(review_data)
+        return WorkerReviews(**review_data)
     
-    async def build_username(self, first_name: str, last_name: str) -> str:
-        #build initial username, and then test if it already exists. if it exists, then append a number incrementally until a unique username is found
-        username = f"{first_name[0].lower()}{last_name.lower()}"
-        counter = 1
-        while await self.find_by_username(username):
-            username = f"{username}{counter}"
-            counter += 1
-        #remove spaces
-        username = username.replace(" ", "")
-        return username
+    async def read_reviews(self) -> List[WorkerReviews]:
+        reviews_cursor = self.collection.find()
+        reviews = await reviews_cursor.to_list(length=None)
+        return [WorkerReviews(**review) for review in reviews]
     
-    async def find_by_contact_number(self, contact_number: str) -> Optional[Profile]:
-        #check if exact contact number is already in use
-        worker_data = await self.collection.find_one({"contact_number": contact_number})        
-        return Profile(**worker_data) if worker_data else None
+    async def read_reviews_by_customer(self, username: str) -> List[WorkerReviews]:
+        reviews_cursor = self.collection.find({"customer_username": username})
+        reviews = await reviews_cursor.to_list(length=None)
+        return [WorkerReviews(**review) for review in reviews]
+    
+    async def read_reviews_of_worker(self, username: str) -> List[WorkerReviews]:
+        reviews_cursor = self.collection.find({"worker_username": username})
+        reviews = await reviews_cursor.to_list(length=None)
+        return [WorkerReviews(**review) for review in reviews]
+    
+    async def update_review(self, review: WorkerReviews) -> None:
+        await self.collection.update_one({"review_id": review.review_id}, {"$set": review.model_dump(exclude={"review_id"})})
+    
+    async def delete_review(self, review_id: int) -> None:
+        await self.collection.delete_one({"review_id": review_id})
