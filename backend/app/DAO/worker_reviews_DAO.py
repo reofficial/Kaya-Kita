@@ -2,7 +2,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from app.classes import WorkerReviews
 from typing import List, Optional
 
-class WorkerDAO:
+class WorkerReviewsDAO:
     def __init__(self, db: AsyncIOMotorDatabase):
         self.collection = db["WorkerReviews"]
     

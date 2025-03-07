@@ -4,11 +4,12 @@ from fastapi import FastAPI, HTTPException, status
 from fastapi.responses import JSONResponse, RedirectResponse
 from motor.motor_asyncio import AsyncIOMotorClient
 from typing import List
-from app.classes import Profile, InitialInfo, JobListing, LoginInfo, ProfileUpdate
+from app.classes import Profile, InitialInfo, JobListing, LoginInfo, ProfileUpdate, WorkerReviews
 from app.DAO.customer_DAO import CustomerDAO
 from app.DAO.job_listing_DAO import JobListingDAO
 from app.DAO.worker_DAO import WorkerDAO
 from app.DAO.official_DAO import OfficialDAO
+from app.DAO.worker_reviews_DAO import WorkerReviewsDAO
 
 # .\venv\Scripts\Activate
 # uvicorn app.main:app --reload
@@ -26,6 +27,7 @@ customer_dao = CustomerDAO(database)
 official_dao = OfficialDAO(database)
 worker_dao = WorkerDAO(database)
 job_listing_dao = JobListingDAO(database)
+worker_reviews_dao = WorkerReviewsDAO(database)
 
 # The following concerns customers
 @app.get("/customers", response_model=List[Profile])
@@ -170,7 +172,34 @@ async def delete_job_listing(job_id: int):
         raise HTTPException(status_code=404, detail="Job listing not found")
     return {"message": "Job listing deleted successfully"}
 
+#The following concerns worker reviews
+@app.get("/reviews", response_model=List[WorkerReviews])
+async def get_reviews():
+    return await worker_reviews_dao.read_reviews()
 
+@app.get("/reviews/{customer_username}", response_model=List[WorkerReviews])
+async def get_reviews_by_customer(customer_username: str):
+    return await worker_reviews_dao.read_reviews_by_customer(customer_username)
+
+@app.get("/reviews/worker/{worker_username}", response_model=List[WorkerReviews])
+async def get_reviews_of_worker(worker_username: str):
+    return await worker_reviews_dao.read_reviews_of_worker(worker_username)
+
+@app.post("/reviews/create", response_model=WorkerReviews)
+async def create_review(review: WorkerReviews):
+    await worker_reviews_dao.create_review(review)
+    return {"message": "Review created successfully"}
+
+
+@app.put("/reviews/update", response_model=dict)
+async def update_review(review: WorkerReviews):
+    await worker_reviews_dao.update_review(review)
+    return {"message": "Review updated successfully"}
+
+@app.delete("/reviews/delete/{review_id}", response_model=dict)
+async def delete_review(review_id: int):
+    await worker_reviews_dao.delete_review(review_id)
+    return {"message": "Review deleted successfully"}
 
 #Test function
 # @app.get("/")
