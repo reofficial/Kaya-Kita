@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Optional
+from datetime import datetime
 
 class Profile(BaseModel):
     email: str
@@ -42,3 +43,10 @@ class JobListing(BaseModel):
     salary: float           
     salary_frequency: str   #sample: salary = 10. salary_frequency = "hourly". therefore 10/hour is the salary
     duration: str           #extra job information
+
+class WorkerReviews(BaseModel):
+    worker_username: str
+    customer_username: str
+    rating: int
+    review: str
+    created_at: datetime

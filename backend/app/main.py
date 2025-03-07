@@ -173,9 +173,9 @@ async def delete_job_listing(job_id: int):
 
 
 #Test function
-@app.get("/")
-async def hello():
-    return RedirectResponse(url="https://github.com/reofficial/Kaya-Kita")
+# @app.get("/")
+# async def hello():
+#     return RedirectResponse(url="https://github.com/reofficial/Kaya-Kita")
 
 if __name__ == "__main__":
     import uvicorn
