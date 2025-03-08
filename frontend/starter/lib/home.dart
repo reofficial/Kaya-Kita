@@ -4,6 +4,7 @@ import 'package:starter/main.dart';
 import 'package:starter/editprofile.dart';
 import 'package:starter/newpost.dart';
 import 'package:starter/joblistings.dart';
+import 'package:starter/orders.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,6 +23,11 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const NewPostScreen()),
+    );
+  } else if (index == 3) { // If "Orders" is selected
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const OrdersScreen()),
     );
   } else {
     setState(() {
