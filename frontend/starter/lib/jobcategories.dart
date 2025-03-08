@@ -40,39 +40,91 @@ class _JobCategoriesScreenState extends State<JobCategoriesScreen> {
                     crossAxisCount: 4,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
+                    mainAxisSpacing: 15, crossAxisSpacing: 5,
                     children: [
-                      _buildJobCategory(
-                        "Rider", 
-                        Icons.motorcycle,
+                      // can be improved by having a mapping of jobs and icons
+                      _buildJobCategory("Rider", Icons.motorcycle,
                         () {}
                       ),
-                      _buildJobCategory(
-                        "Driver", 
-                        Icons.directions_car,
+                      _buildJobCategory("Driver", Icons.directions_car,
                         () {}
                       ),
-                      _buildJobCategory(
-                        "PasaBuy", 
-                        Icons.food_bank,
+                      _buildJobCategory("PasaBuy", Icons.food_bank,
                         () {}
                       ),
-                      _buildJobCategory(
-                        "Pabili", 
-                        Icons.shopping_cart,
+                      _buildJobCategory("Pabili", Icons.shopping_cart,
                         () {}
                       ),
-                      _buildJobCategory(
-                        "Laundry", 
-                        Icons.local_laundry_service,
+                      _buildJobCategory("Laundry", Icons.local_laundry_service,
                         () {}
                       ),
-                      _buildJobCategory(
-                        "More", 
-                        Icons.more_horiz,
+                      _buildJobCategory("Balloon Artist", Icons.question_mark,
+                        () {}
+                      ),
+                      _buildJobCategory("Home Cleaning", Icons.cleaning_services,
+                        () {}
+                      ),
+                      _buildJobCategory("Aircon Tech", Icons.air,
+                        () {}
+                      ),
+                      _buildJobCategory("Pet Groomer", Icons.shower,
+                        () {}
+                      ),
+                      _buildJobCategory("Masseuse", Icons.bed,
+                        () {}
+                      ),
+                      _buildJobCategory("Photographer", Icons.camera_alt,
+                        () {}
+                      ),
+                      _buildJobCategory("Veterinarian", Icons.pets,
+                        () {}
+                      ),
+                      _buildJobCategory("DJ", Icons.music_note,
+                        () {}
+                      ),
+                      _buildJobCategory("Tutor", Icons.book,
+                        () {}
+                      ),
+                      _buildJobCategory("Hair Stylist", Icons.question_mark,
+                        () {}
+                      ),
+                      _buildJobCategory("Electrician", Icons.electrical_services,
+                        () {}
+                      ),
+                      _buildJobCategory("Graphic Designer", Icons.draw,
+                        () {}
+                      ),
+                      _buildJobCategory("Plumber", Icons.plumbing,
                         () {}
                       ),
                     ],
                   ),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Other services',
+                        style: TextStyle(
+                          color: Color(0xFF000000), 
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20 
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {}, 
+                        child: Text('BUTTON')
+                      )
+                    ],
+                  ),
+
+                  const Text(
+                    'Loyalty',
+                    style: TextStyle(
+                      color: Color(0xFF000000), 
+                      fontSize: 14 
+                    ),
+                  )
                 ]
               )
             )
@@ -101,13 +153,17 @@ class _JobCategoriesScreenState extends State<JobCategoriesScreen> {
           )
         ),
         const SizedBox(height: 5),
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[700],
+        Flexible(
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey[700],
+            ),
+            overflow: TextOverflow.ellipsis, // Avoids text overflow
+            softWrap: true, 
           ),
-        ),
+        )
       ],
     );
   }
