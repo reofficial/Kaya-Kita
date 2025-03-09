@@ -343,8 +343,10 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        JobEditScreen(jobId: widget.jobId),
+                                    builder: (context) => JobEditScreen(
+                                      jobId: widget.jobId,
+                                      isEditMode: true, // Set isEditMode to true
+                                    ),
                                   ),
                                 );
                               },
