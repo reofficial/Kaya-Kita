@@ -10,9 +10,11 @@ class JobEditScreen extends StatefulWidget {
   const JobEditScreen({
     super.key,
     required this.jobId,
+    this.isEditMode = false, // Default to false for new posts
   });
 
   final int jobId;
+  final bool isEditMode;
 
   @override
   State<JobEditScreen> createState() => _JobEditScreenState();
@@ -33,7 +35,9 @@ class _JobEditScreenState extends State<JobEditScreen> {
   @override
   void initState() {
     super.initState();
-    fetchJobListing();
+    if (widget.isEditMode) {
+      fetchJobListing();
+    }
   }
 
   Future<void> fetchJobListing() async {
@@ -48,10 +52,10 @@ class _JobEditScreenState extends State<JobEditScreen> {
           descriptionController.text = jobListing['description'];
           rateController.text = jobListing['salary'].toString();
 
-          // Validate selectedCategory
-          selectedCategory = categories.contains(jobListing['tag'].isNotEmpty)
-              ? jobListing['tag'][0]
-              : null;
+          // Set selectedCategory from the first tag (if available)
+          if (jobListing['tag'] != null && jobListing['tag'].isNotEmpty) {
+            selectedCategory = jobListing['tag'][0];
+          }
 
           // Validate selectedRateType
           selectedRateType = rateTypes.contains(jobListing['salary_frequency'])
@@ -140,6 +144,39 @@ class _JobEditScreenState extends State<JobEditScreen> {
     }
   }
 
+  Future<void> handleCreate() async {
+    try {
+      Map<String, dynamic> jobListing = {
+        'username': username,
+        'tag': [selectedCategory],
+        'job_title': titleController.text,
+        'description': descriptionController.text,
+        'location': selectedLocation,
+        'salary': rateController.text,
+        'salary_frequency': selectedRateType,
+        'duration': selectedDuration,
+      };
+
+      final response = await ApiService.postJobListing(jobListing);
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Job Listing created successfully.")),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => JobInfoScreen(jobId: widget.jobId),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error creating Job Listing: $e")),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     username = Provider.of<UserProvider>(context, listen: false).username;
@@ -147,7 +184,10 @@ class _JobEditScreenState extends State<JobEditScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('New Post', style: TextStyle(color: Colors.black)),
+        title: Text(
+          widget.isEditMode ? 'Edit Post' : 'New Post', // Conditional title
+          style: const TextStyle(color: Colors.black),
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
@@ -165,8 +205,8 @@ class _JobEditScreenState extends State<JobEditScreen> {
               Row(
                 children: [
                   const CircleAvatar(
-                    backgroundImage: AssetImage('assets/kamala.png'),
                     radius: 25,
+                    child: Icon(Icons.person), // Default icon
                   ),
                   const SizedBox(width: 10),
                   Text(
@@ -248,11 +288,13 @@ class _JobEditScreenState extends State<JobEditScreen> {
                         ),
                       );
                     } else {
-                      handleUpdate();
+                      widget.isEditMode ? handleUpdate() : handleCreate(); // Conditional logic
                     }
                   },
-                  child: const Text('Post',
-                      style: TextStyle(color: Colors.white, fontSize: 16)),
+                  child: Text(
+                    widget.isEditMode ? 'Save Changes' : 'Post', // Conditional button text
+                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                  ),
                 ),
               ),
             ],

@@ -22,41 +22,40 @@ class _OrdersScreenState extends State<OrdersScreen> {
   }
 
   Future<List<Map<String, dynamic>>> fetchUserJobs() async {
-  try {
-    final response = await ApiService.getJobListings();
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
+    try {
+      final response = await ApiService.getJobListings();
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
 
-      // Get the logged-in username
-      String currentUsername = Provider.of<UserProvider>(context, listen: false).username;
+        // Get the logged-in username
+        String currentUsername = Provider.of<UserProvider>(context, listen: false).username;
 
-      List<Map<String, dynamic>> userJobs = data
-          .where((job) => job['username'] == currentUsername)
-          .map((job) => {
-                'job_id': job['job_id'],
-                'tags': job['tag'] ?? [],
-                'title': job['job_title'],
-                'description': job['description'],
-                'location': job['location'],
-                'salary': job['salary'],
-                'salaryFrequency': job['salary_frequency'],
-                'duration': job['duration'],
-                'status': (job['is_completed'] != null && job['is_completed'] == true) 
-                            ? "Completed" 
-                            : "Ongoing",
-              })
-          .toList();
+        List<Map<String, dynamic>> userJobs = data
+            .where((job) => job['username'] == currentUsername)
+            .map((job) => {
+                  'job_id': job['job_id'],
+                  'tags': job['tag'] ?? [],
+                  'title': job['job_title'],
+                  'description': job['description'],
+                  'location': job['location'],
+                  'salary': job['salary'],
+                  'salaryFrequency': job['salary_frequency'],
+                  'duration': job['duration'],
+                  'status': (job['is_completed'] != null && job['is_completed'] == true) 
+                              ? "Completed" 
+                              : "Ongoing",
+                })
+            .toList();
 
-      return userJobs;
-    } else {
-      throw Exception("Failed to load jobs (Status: ${response.statusCode})");
+        return userJobs;
+      } else {
+        throw Exception("Failed to load jobs (Status: ${response.statusCode})");
+      }
+    } catch (e) {
+      print("Error fetching jobs: $e");
+      throw Exception("Error fetching jobs: $e");
     }
-  } catch (e) {
-    print("Error fetching jobs: $e");
-    throw Exception("Error fetching jobs: $e");
   }
-}
-
 
   void refreshOrders() {
     setState(() {
@@ -199,7 +198,12 @@ class JobListing extends StatelessWidget {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => JobEditScreen(jobId: jobId)),
+            MaterialPageRoute(
+              builder: (context) => JobEditScreen(
+                jobId: jobId,
+                isEditMode: true, 
+              ),
+            ),
           );
         },
         child: Row(
