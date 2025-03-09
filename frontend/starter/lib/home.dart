@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:starter/jobcategories.dart';
 import 'package:starter/main.dart';
 import 'package:starter/editprofile.dart';
+import 'package:starter/nearbyworkers.dart';
 import 'package:starter/newpost.dart';
 import 'package:starter/joblistings.dart';
 import 'package:starter/orders.dart';
@@ -280,9 +281,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     physics: const NeverScrollableScrollPhysics(),
                     children: [
                       _buildExploreItem(
-                        "Rider", 
+                        "Biker", 
                         Icons.motorcycle,
-                        () {}
+                        () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const NearbyWorkersScreen(jobName: "Biker")
+                            ),
+                          );
+                        }
                       ),
                       _buildExploreItem(
                         "Driver", 

@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:starter/nearbyworkers.dart';
 
 class JobCategoriesScreen extends StatefulWidget {
   const JobCategoriesScreen({super.key});
@@ -10,6 +11,27 @@ class JobCategoriesScreen extends StatefulWidget {
 
 class _JobCategoriesScreenState extends State<JobCategoriesScreen> {
   bool isSwitched = false; 
+
+  final List<Map<String, dynamic>> jobCategories = [
+    {'label': "Biker", 'icon': Icons.motorcycle},
+    {'label': "Driver", 'icon': Icons.directions_car},
+    {'label': "PasaBuy", 'icon': Icons.food_bank},
+    {'label': "Pabili", 'icon': Icons.shopping_cart},
+    {'label': "Laundry", 'icon': Icons.local_laundry_service},
+    {'label': "Balloon Artist", 'icon': Icons.question_mark},
+    {'label': "Home Cleaning", 'icon': Icons.cleaning_services},
+    {'label': "Aircon Tech", 'icon': Icons.air},
+    {'label': "Pet Groomer", 'icon': Icons.shower},
+    {'label': "Masseuse", 'icon': Icons.bed},
+    {'label': "Photographer", 'icon': Icons.camera_alt},
+    {'label': "Veterinarian", 'icon': Icons.pets},
+    {'label': "DJ", 'icon': Icons.music_note},
+    {'label': "Tutor", 'icon': Icons.book},
+    {'label': "Hair Stylist", 'icon': Icons.question_mark},
+    {'label': "Electrician", 'icon': Icons.electrical_services},
+    {'label': "Graphic Designer", 'icon': Icons.draw},
+    {'label': "Plumber", 'icon': Icons.plumbing},
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -38,68 +60,19 @@ class _JobCategoriesScreenState extends State<JobCategoriesScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  GridView.count(
-                    crossAxisCount: 4,
+                  GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 4,
+                      crossAxisSpacing: 5,
+                      mainAxisSpacing: 15,
+                    ),
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    mainAxisSpacing: 15, crossAxisSpacing: 5,
-                    children: [
-                      // can be improved by having a mapping of jobs and icons
-                      _buildJobCategory("Rider", Icons.motorcycle,
-                        () {}
-                      ),
-                      _buildJobCategory("Driver", Icons.directions_car,
-                        () {}
-                      ),
-                      _buildJobCategory("PasaBuy", Icons.food_bank,
-                        () {}
-                      ),
-                      _buildJobCategory("Pabili", Icons.shopping_cart,
-                        () {}
-                      ),
-                      _buildJobCategory("Laundry", Icons.local_laundry_service,
-                        () {}
-                      ),
-                      _buildJobCategory("Balloon Artist", Icons.question_mark,
-                        () {}
-                      ),
-                      _buildJobCategory("Home Cleaning", Icons.cleaning_services,
-                        () {}
-                      ),
-                      _buildJobCategory("Aircon Tech", Icons.air,
-                        () {}
-                      ),
-                      _buildJobCategory("Pet Groomer", Icons.shower,
-                        () {}
-                      ),
-                      _buildJobCategory("Masseuse", Icons.bed,
-                        () {}
-                      ),
-                      _buildJobCategory("Photographer", Icons.camera_alt,
-                        () {}
-                      ),
-                      _buildJobCategory("Veterinarian", Icons.pets,
-                        () {}
-                      ),
-                      _buildJobCategory("DJ", Icons.music_note,
-                        () {}
-                      ),
-                      _buildJobCategory("Tutor", Icons.book,
-                        () {}
-                      ),
-                      _buildJobCategory("Hair Stylist", Icons.question_mark,
-                        () {}
-                      ),
-                      _buildJobCategory("Electrician", Icons.electrical_services,
-                        () {}
-                      ),
-                      _buildJobCategory("Graphic Designer", Icons.draw,
-                        () {}
-                      ),
-                      _buildJobCategory("Plumber", Icons.plumbing,
-                        () {}
-                      ),
-                    ],
+                    itemCount: jobCategories.length,
+                    itemBuilder: (context, index) {
+                      final job = jobCategories[index];
+                      return _buildJobCategory(job['label'], job['icon']);
+                    },
                   ),
 
                   Padding(
@@ -182,11 +155,18 @@ class _JobCategoriesScreenState extends State<JobCategoriesScreen> {
     );
   }
 
-  Widget _buildJobCategory(String title, IconData icon, VoidCallback onPressed) {
+  Widget _buildJobCategory(String title, IconData icon) {
     return Column(
       children: [
         ElevatedButton(
-          onPressed: onPressed,
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => NearbyWorkersScreen(jobName: title)
+              ),
+            );
+          },
           style: ElevatedButton.styleFrom(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16), 
