@@ -9,6 +9,7 @@ class JobCategoriesScreen extends StatefulWidget {
 }
 
 class _JobCategoriesScreenState extends State<JobCategoriesScreen> {
+  bool isSwitched = false; 
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +36,7 @@ class _JobCategoriesScreenState extends State<JobCategoriesScreen> {
             Padding(
               padding: EdgeInsets.all(15),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   GridView.count(
                     crossAxisCount: 4,
@@ -100,31 +102,77 @@ class _JobCategoriesScreenState extends State<JobCategoriesScreen> {
                     ],
                   ),
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Other services',
-                        style: TextStyle(
-                          color: Color(0xFF000000), 
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20 
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children:[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Other services',
+                              style: TextStyle(
+                                color: Color(0xFF000000), 
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20 
+                              ),
+                            ),
+                            _buildSwitch()
+                          ],
                         ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {}, 
-                        child: Text('BUTTON')
-                      )
-                    ],
-                  ),
 
-                  const Text(
-                    'Loyalty',
-                    style: TextStyle(
-                      color: Color(0xFF000000), 
-                      fontSize: 14 
-                    ),
-                  )
+                        const Text(
+                          'Loyalty',
+                          style: TextStyle(
+                            color: Color(0xFF000000), 
+                            fontSize: 14 
+                          ),
+                        ),
+
+                        SizedBox(height: 10),
+                        
+                        Row(
+                          children:[
+                            ElevatedButton(
+                              onPressed: () {},
+                              style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                padding: const EdgeInsets.all(10),
+                                minimumSize: const Size(40, 40),
+                                backgroundColor: const Color.fromARGB(255, 255, 210, 253)
+                              ),
+                              child: Icon(Icons.star, size: 40, color: const Color(0xFF87027B))
+                            ),
+
+                            SizedBox(width: 10),
+
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'KitaClub',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16
+                                  ),
+                                ),
+                                Text(
+                                  'Our new loyalty program',
+                                  style: TextStyle(
+                                    fontSize: 12
+                                  ),
+                                ),
+                              ],
+                            )
+                          ]
+                        )
+                      ]
+                    )
+                  ),
                 ]
               )
             )
@@ -141,9 +189,9 @@ class _JobCategoriesScreenState extends State<JobCategoriesScreen> {
           onPressed: onPressed,
           style: ElevatedButton.styleFrom(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16), // Adjust corner radius
+              borderRadius: BorderRadius.circular(16), 
             ),
-            padding: const EdgeInsets.all(10), // Ensures a square-like shape
+            padding: const EdgeInsets.all(10), 
             minimumSize: const Size(40, 40),
           ),
           child: Icon(
@@ -160,11 +208,71 @@ class _JobCategoriesScreenState extends State<JobCategoriesScreen> {
               fontSize: 12,
               color: Colors.grey[700],
             ),
-            overflow: TextOverflow.ellipsis, // Avoids text overflow
+            overflow: TextOverflow.ellipsis, 
             softWrap: true, 
           ),
         )
       ],
+    );
+  }
+
+  Widget _buildSwitch() {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          isSwitched = !isSwitched;
+        });
+      },
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+        width: 70,
+        height: 40,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: Colors.grey[300],
+        ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5),
+              child: AnimatedAlign(
+                duration: Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                alignment: isSwitched ? Alignment.centerRight : Alignment.centerLeft,
+                child: Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 4,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            
+            Padding (
+              padding: EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Icon(Icons.grid_view_rounded, color: isSwitched ? Colors.grey : const Color.fromARGB(255, 70, 122, 72), size: 24),
+                  Icon(Icons.list, color: isSwitched ? const Color.fromARGB(255, 70, 122, 72): Colors.grey, size: 24),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
