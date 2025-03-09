@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:starter/api_service.dart';
 import 'package:starter/jobedit.dart';
-import 'package:provider/provider.dart';
+import 'package:starter/ratingreview.dart';
 import 'package:starter/providers/profile_provider.dart';
+import 'package:provider/provider.dart';
 import 'dart:convert';
 
 class OrdersScreen extends StatefulWidget {
@@ -104,6 +105,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           salary: job["salary"],
                           salaryFrequency: job["salaryFrequency"],
                           duration: job["duration"],
+                          status: job["status"], // Pass the status
                         ))
                     .toList(),
                 const SizedBox(height: 15),
@@ -122,12 +124,26 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           salary: job["salary"],
                           salaryFrequency: job["salaryFrequency"],
                           duration: job["duration"],
+                          status: job["status"], // Pass the status
                         ))
                     .toList(),
               ],
             ),
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Navigate to the RatingReviewScreen with a dummy jobId
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RatingReviewScreen(jobId: 1), // Use a dummy jobId for testing
+            ),
+          );
+        },
+        backgroundColor: const Color(0xFF87027B),
+        child: const Icon(Icons.star, color: Colors.white),
       ),
     );
   }
@@ -144,6 +160,7 @@ class JobListing extends StatelessWidget {
     required this.salary,
     required this.salaryFrequency,
     required this.duration,
+    required this.status, // Add this parameter
   });
 
   final int jobId;
@@ -154,6 +171,7 @@ class JobListing extends StatelessWidget {
   final double salary;
   final String salaryFrequency;
   final String duration;
+  final String status; // Add this parameter
 
   ImageProvider _getCategoryImage() {
     if (tags.isNotEmpty) {
@@ -201,7 +219,7 @@ class JobListing extends StatelessWidget {
             MaterialPageRoute(
               builder: (context) => JobEditScreen(
                 jobId: jobId,
-                isEditMode: true, 
+                isEditMode: true,
               ),
             ),
           );
