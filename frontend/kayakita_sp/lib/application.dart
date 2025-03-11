@@ -4,8 +4,8 @@ import 'widgets/customappbar.dart';
 import 'widgets/customtextfield.dart';
 
 class ApplicationScreen extends StatefulWidget {
-  final String username;
   final String email;
+  final String password;
   final String firstName;
   final String middleInitial;
   final String lastName;
@@ -15,14 +15,14 @@ class ApplicationScreen extends StatefulWidget {
 
   const ApplicationScreen({
     super.key,
-    required this.username,
     required this.email,
+    required this.password,
     required this.firstName,
     required this.middleInitial,
     required this.lastName,
     required this.contactNumber,
     required this.address,
-    required this.service,
+    required this.service, // TODO: backend handling
   });
 
   @override
@@ -100,7 +100,8 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
                     backgroundColor: Colors.grey.shade300,
                     child: _isUploadingSelfie
                         ? CircularProgressIndicator()
-                        : Icon(Icons.camera_alt, size: 40, color: Colors.black54),
+                        : Icon(Icons.camera_alt,
+                            size: 40, color: Colors.black54),
                   ),
                   Positioned(
                     bottom: 0,
@@ -112,7 +113,8 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: const Text("Take Selfie", style: TextStyle(color: Colors.white)),
+                      child: const Text("Take Selfie",
+                          style: TextStyle(color: Colors.white)),
                     ),
                   ),
                 ],
@@ -128,7 +130,8 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
             const SizedBox(height: 15),
 
             // Upload Status 1
-            Text("Upload Status 1 *", style: TextStyle(fontWeight: FontWeight.bold)),
+            Text("Upload Status 1 *",
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 5),
             GestureDetector(
               onTap: () => _uploadImage("Upload Status 1"),
@@ -137,7 +140,8 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
             const SizedBox(height: 15),
 
             // Upload Status 2
-            Text("Upload Status 2", style: TextStyle(fontWeight: FontWeight.bold)),
+            Text("Upload Status 2",
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 5),
             GestureDetector(
               onTap: () => _uploadImage("Upload Status 2"),
@@ -148,10 +152,12 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
             // PWD Dropdown
             DropdownButtonFormField<String>(
               decoration: InputDecoration(
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                 filled: true,
                 fillColor: Colors.grey.shade200,
-                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 12, vertical: 16),
               ),
               value: _selectedPWDStatus,
               hint: const Text("Are you a PWD?*"),
@@ -177,22 +183,27 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
                   onPressed: () {}, // TODO: Implement Save functionality
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey.shade400,
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 14),
                   ),
-                  child: const Text("Save", style: TextStyle(color: Colors.black)),
+                  child:
+                      const Text("Save", style: TextStyle(color: Colors.black)),
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    if (_nationalityController.text.isEmpty || _selectedPWDStatus == null) {
+                    if (_nationalityController.text.isEmpty ||
+                        _selectedPWDStatus == null) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("⚠️ Please complete all required fields.")),
+                        SnackBar(
+                            content: Text(
+                                "⚠️ Please complete all required fields.")),
                       );
                     } else {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => DeclarationScreen(
-                            username: widget.username,
+                            password: widget.password,
                             email: widget.email,
                             firstName: widget.firstName,
                             middleInitial: widget.middleInitial,
@@ -206,9 +217,11 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.purple.shade700,
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 14),
                   ),
-                  child: const Text("Next", style: TextStyle(color: Colors.white)),
+                  child:
+                      const Text("Next", style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),
