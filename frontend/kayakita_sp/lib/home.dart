@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'bookings.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,7 +14,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Widget> _screens = [
     HomePage(),
-    BookingsPage(),
+    BookingScreen(),
     PaymentsPage(),
     ChatsPage(),
   ];
@@ -118,11 +119,22 @@ class HomePage extends StatelessWidget {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Expanded(child: _buildStatCard("Total Bookings", "46")),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => BookingScreen()),
+                        );
+                      },
+                      child: _buildStatCard("Total Bookings", "46"),
+                    ),
+                  ),
                   const SizedBox(width: 8),
                   Expanded(child: _buildStatCard("Completed Services", "5")),
                 ],
               ),
+
               const SizedBox(height: 12),
               Row(
                 children: [
@@ -187,7 +199,7 @@ class HomePage extends StatelessWidget {
 
   Widget _buildStatCard(String title, String value) {
   return Card(
-    color: Color(0xFF640287), // Set background color
+    color: Color(0xFF640287), 
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     child: Padding(
       padding: const EdgeInsets.all(12.0),
@@ -195,12 +207,12 @@ class HomePage extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(fontSize: 14, color: Colors.white), // White text
+            style: const TextStyle(fontSize: 14, color: Colors.white), 
           ),
           const SizedBox(height: 4),
           Text(
             value,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white), // White text
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white), 
           ),
         ],
       ),
@@ -222,12 +234,12 @@ class HomePage extends StatelessWidget {
 }
 
 
-class BookingsPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text("Bookings Page"));
-  }
-}
+// class BookingsPage extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return const Center(child: Text("Bookings Page"));
+//   }
+// }
 
 class PaymentsPage extends StatelessWidget {
   @override

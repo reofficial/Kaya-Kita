@@ -71,6 +71,7 @@ flutter:
     - assets/philcoatofarms.png
     - assets/kamala.png
     - assets/reviewprofile.png
+    - assets/smol_logo.png
     - assets/badwords.txt
     - .env
 

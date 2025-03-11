@@ -3,12 +3,16 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'onboarding.dart';
 import 'providers/profile_provider.dart';
 import 'package:provider/provider.dart';
+import 'bookingcontroller.dart';
 
 void main() async{
   await dotenv.load(fileName: ".env");
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => UserProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => UserProvider()),
+        ChangeNotifierProvider(create: (context) => BookingController()), 
+      ],
       child: MyApp(),
     ),
   );
