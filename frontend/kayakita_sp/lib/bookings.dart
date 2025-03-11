@@ -59,18 +59,16 @@ class BookingScreen extends StatelessWidget {
       elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
-        side: BorderSide(color: Colors.grey.shade600), // Greyish border
+        side: BorderSide(color: Colors.grey.shade600),
       ),
       child: Padding(
         padding: const EdgeInsets.all(10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Row containing the logo, status block, and action button
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Logo on the left
                 Image.asset(
                   'assets/smol_logo.png',
                   width: 80,
@@ -79,7 +77,6 @@ class BookingScreen extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
 
-                // Status, Service Fee, and Amount
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -105,11 +102,10 @@ class BookingScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 5),
 
-                // Show "Start Dispute" button only if status is Completed
                 if (status == "Completed")
                   ElevatedButton(
                     onPressed: () {
-                      // Handle dispute logic
+                      // dispute logic
                     },
                     style: ElevatedButton.styleFrom(backgroundColor: Color(0xFFFFCAEC), foregroundColor: Color(0xFFDF1995)),
                     child: const Text("Start Dispute"),
@@ -121,11 +117,10 @@ class BookingScreen extends StatelessWidget {
 
             const SizedBox(height: 10),
 
-            // Address and Details inside a box with separators
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFFFEDDFF), // Set background color
+                color: const Color(0xFFFEDDFF), 
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
@@ -144,7 +139,6 @@ class BookingScreen extends StatelessWidget {
               ),
             ),
 
-            // Show "Accept/Deny" buttons only if status is Pending
             if (status == "Pending")
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
@@ -183,13 +177,13 @@ class BookingScreen extends StatelessWidget {
         children: [
           Text(
             "$title:",
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold), // Increased font size
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold), 
           ),
           Expanded(
             child: Text(
               value,
-              textAlign: TextAlign.right, // Aligns text to the right
-              style: TextStyle(fontSize: 16, color: textColor, fontWeight: FontWeight.w500), // Increased font size
+              textAlign: TextAlign.right, 
+              style: TextStyle(fontSize: 16, color: textColor, fontWeight: FontWeight.w500), 
             ),
           ),
         ],
