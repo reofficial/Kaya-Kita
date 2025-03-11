@@ -77,7 +77,10 @@ class _RegisterWorkerScreenState extends State<RegisterWorkerScreen> {
         passwordError = "Password cannot be empty";
       } else if (passwordController.text != confirmPasswordController.text) {
         passwordError = "Passwords do not match";
-      } else if (!hasMinLength || !hasUpperCase || !hasNumber || !hasSpecialChar) {
+      } else if (!hasMinLength ||
+          !hasUpperCase ||
+          !hasNumber ||
+          !hasSpecialChar) {
         passwordError = "Password does not meet all requirements";
       } else {
         passwordError = null;
@@ -96,19 +99,19 @@ class _RegisterWorkerScreenState extends State<RegisterWorkerScreen> {
     try {
       // ✅ Fix: Ensure the backend gets the expected field name "email"
       final response = await ApiService.registerWorker(
-        emailController.text,  // Ensure email is passed correctly
+        emailController.text, // Ensure email is passed correctly
         passwordController.text,
       );
 
       if (response.statusCode == 201) {
         final Map<String, dynamic> responseData = json.decode(response.body);
-        final String username = responseData['username'] ?? "Worker"; // Fallback
+        final String username =
+            responseData['username'] ?? "Worker"; // Fallback
 
         // Store user data in Provider
         Provider.of<UserProvider>(context, listen: false)
             .setEmail(emailController.text);
-        Provider.of<UserProvider>(context, listen: false)
-            .setUsername(username);
+        Provider.of<UserProvider>(context, listen: false).setUsername(username);
 
         // ✅ Navigate to PersonalInfoScreen with correct email field
         Navigator.pushReplacement(
@@ -117,7 +120,6 @@ class _RegisterWorkerScreenState extends State<RegisterWorkerScreen> {
             builder: (context) => PersonalInfoScreen(
               email: emailController.text, // ✅ Ensure email is passed correctly
               password: passwordController.text,
-              username: username,
             ),
           ),
         );

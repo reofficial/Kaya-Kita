@@ -78,6 +78,18 @@ class ApiService {
     return response;
   }
 
+  static Future<http.Response> createWorker(
+      Map<String, dynamic> official) async {
+    final url = Uri.parse('$baseUrl/workers/register');
+    final response = await _client.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(official),
+    );
+
+    return response;
+  }
+
   static Future<http.Response> registerWorker(
       String email, String password) async {
     final url = Uri.parse('$baseUrl/workers/email');
@@ -100,7 +112,8 @@ class ApiService {
     return response;
   }
 
-  static Future<http.Response> loginWorker(String email, String password) async {
+  static Future<http.Response> loginWorker(
+      String email, String password) async {
     final url = Uri.parse('$baseUrl/workers/login');
     final response = await _client.post(
       url,
