@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:starter/api_service.dart';
+import 'package:starter/completedjob.dart';
 import 'package:starter/jobedit.dart';
-import 'package:starter/ratingreview.dart';
 import 'package:starter/providers/profile_provider.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
@@ -42,9 +42,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   'salary': job['salary'],
                   'salaryFrequency': job['salary_frequency'],
                   'duration': job['duration'],
-                  'status': (job['is_completed'] != null && job['is_completed'] == true) 
-                              ? "Completed" 
-                              : "Ongoing",
+                  'status': (job['is_completed'] != null && job['is_completed'] == true)
+                      ? "Completed"
+                      : "Ongoing",
                 })
             .toList();
 
@@ -105,7 +105,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           salary: job["salary"],
                           salaryFrequency: job["salaryFrequency"],
                           duration: job["duration"],
-                          status: job["status"], // Pass the status
+                          status: job["status"],
                         ))
                     .toList(),
                 const SizedBox(height: 15),
@@ -124,7 +124,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           salary: job["salary"],
                           salaryFrequency: job["salaryFrequency"],
                           duration: job["duration"],
-                          status: job["status"], // Pass the status
+                          status: job["status"],
                         ))
                     .toList(),
               ],
@@ -132,18 +132,19 @@ class _OrdersScreenState extends State<OrdersScreen> {
           );
         },
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat, // ⬅ Positioning at Bottom Left
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Navigate to the RatingReviewScreen with a dummy jobId
+          // Navigate to the CompletedJobScreen (No data passed yet)
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => RatingReviewScreen(jobId: 1), // Use a dummy jobId for testing
+              builder: (context) => CompletedJobScreen(),
             ),
           );
         },
-        backgroundColor: const Color(0xFF87027B),
-        child: const Icon(Icons.star, color: Colors.white),
+        backgroundColor: Colors.blue, // Changed to Blue to distinguish
+        child: const Icon(Icons.check, color: Colors.white),
       ),
     );
   }
@@ -160,7 +161,7 @@ class JobListing extends StatelessWidget {
     required this.salary,
     required this.salaryFrequency,
     required this.duration,
-    required this.status, // Add this parameter
+    required this.status,
   });
 
   final int jobId;
@@ -171,7 +172,7 @@ class JobListing extends StatelessWidget {
   final double salary;
   final String salaryFrequency;
   final String duration;
-  final String status; // Add this parameter
+  final String status;
 
   ImageProvider _getCategoryImage() {
     if (tags.isNotEmpty) {
@@ -248,24 +249,9 @@ class JobListing extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    if (tags.isNotEmpty)
-                      Wrap(
-                        spacing: 4,
-                        children: tags
-                            .map((tag) => Chip(
-                                  label: Text(
-                                    tag,
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                  backgroundColor: const Color(0xFF87027B),
-                                ))
-                            .toList(),
-                      ),
-                    const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(Icons.location_on,
-                            size: 14, color: Color(0xFF87027B)),
+                        const Icon(Icons.location_on, size: 14, color: Color(0xFF87027B)),
                         const SizedBox(width: 4),
                         Text(location),
                       ],
@@ -273,8 +259,7 @@ class JobListing extends StatelessWidget {
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        const Icon(Icons.attach_money,
-                            size: 14, color: Color(0xFF87027B)),
+                        const Icon(Icons.attach_money, size: 14, color: Color(0xFF87027B)),
                         const SizedBox(width: 4),
                         Text('$salary / $salaryFrequency'),
                       ],
