@@ -280,48 +280,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     children: [
-                      _buildExploreItem(
-                        "Biker", 
-                        Icons.motorcycle,
-                        () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const NearbyWorkersScreen(jobName: "Biker")
-                            ),
-                          );
-                        }
-                      ),
-                      _buildExploreItem(
-                        "Driver", 
-                        Icons.directions_car,
-                        () {}
-                      ),
-                      _buildExploreItem(
-                        "PasaBuy", 
-                        Icons.food_bank,
-                        () {}
-                      ),
-                      _buildExploreItem(
-                        "Pabili", 
-                        Icons.shopping_cart,
-                        () {}
-                      ),
-                      _buildExploreItem(
-                        "Laundry", 
-                        Icons.local_laundry_service,
-                        () {}
-                      ),
-                      _buildExploreItem(
-                        "More", 
-                        Icons.more_horiz,
-                        () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const JobCategoriesScreen()),
-                          );
-                        }
-                      ),
+                      _buildExploreItem("Biker", Icons.motorcycle),
+                      _buildExploreItem("Driver", Icons.directions_car),
+                      _buildExploreItem("PasaBuy", Icons.food_bank),
+                      _buildExploreItem("Pabili", Icons.shopping_cart),
+                      _buildExploreItem("Laundry", Icons.local_laundry_service),
+                      _buildExploreItem("More", Icons.more_horiz),
                     ],
                   ),
                   // Promos Section
@@ -440,11 +404,19 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildExploreItem(String title, IconData icon, VoidCallback onPressed) {
+  Widget _buildExploreItem(String title, IconData icon) {
     return Column(
       children: [
         ElevatedButton(
-          onPressed: onPressed,
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => 
+                  title == 'More'? const JobCategoriesScreen() : NearbyWorkersScreen(jobName: title)
+              ),
+            );
+          },
           style: ElevatedButton.styleFrom(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16), // Adjust corner radius
