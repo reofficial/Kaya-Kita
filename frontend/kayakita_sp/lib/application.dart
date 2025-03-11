@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'declaration.dart';
+import 'emergencycontact.dart';
 import 'widgets/customappbar.dart';
 import 'widgets/customtextfield.dart';
 
@@ -202,7 +202,7 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => DeclarationScreen(
+                          builder: (context) => EmergencyContactScreen(
                             password: widget.password,
                             email: widget.email,
                             firstName: widget.firstName,
