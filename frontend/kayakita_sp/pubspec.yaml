@@ -1,4 +1,4 @@
-name: kayakita_gov
+name: kayakita_sp
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -70,6 +70,7 @@ flutter:
     - assets/apple.png
     - assets/philcoatofarms.png
     - assets/kamala.png
+    - assets/reviewprofile.png
     - assets/badwords.txt
     - .env
 
