@@ -14,6 +14,7 @@ class Profile(BaseModel):
     address: str
     contact_number: str
     service_preference: Optional[str] = "N/A"
+    is_certified: Optional[bool] = False
     
 
 class InitialInfo(BaseModel):
