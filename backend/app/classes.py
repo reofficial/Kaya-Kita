@@ -2,6 +2,8 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 
+# .updateMany({}, { $set: { new_field: "" } });
+
 class Profile(BaseModel):
     email: str
     password: str
@@ -11,6 +13,7 @@ class Profile(BaseModel):
     username: str
     address: str
     contact_number: str
+    service_preference: Optional[str] = "N/A"
     
 
 class InitialInfo(BaseModel):

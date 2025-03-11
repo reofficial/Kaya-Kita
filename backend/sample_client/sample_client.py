@@ -10,15 +10,15 @@ BASE_URL = os.getenv("BACKEND_URL")
 customer_data = {
     "email": "test2@example.com",
     "password": "password123",
-    "first_name": "FirstName",
-    "last_name": "LastName",
-    "middle_initial": "A",
-    "username": "testuser2",
+    "first_name": "FirstasdasdasName",
+    "last_name": "LastNdasdsadame",
+    "middle_initial": "Adsds",
+    "username": "testusesadasdasdr2",
     "address": "123 Street St",
-    "contact_number": "216"
+    "contact_number": "21dsadsad6"
 }
 
-response = httpx.post(f"{BASE_URL}/customers", json=customer_data, verify=False)
+response = httpx.post(f"{BASE_URL}/customers/register", json=customer_data, verify=False)
 
 print(f"Status Code: {response.status_code}")
 print(f"Response: {response.json()}")

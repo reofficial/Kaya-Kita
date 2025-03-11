@@ -4,12 +4,13 @@ from fastapi import FastAPI, HTTPException, status
 from fastapi.responses import JSONResponse, RedirectResponse
 from motor.motor_asyncio import AsyncIOMotorClient
 from typing import List
-from app.classes import Profile, InitialInfo, JobListing, LoginInfo, ProfileUpdate, WorkerReviews
+from app.classes import Profile, InitialInfo, JobListing, LoginInfo, ProfileUpdate, WorkerReviews, JobCircles
 from app.DAO.customer_DAO import CustomerDAO
 from app.DAO.job_listing_DAO import JobListingDAO
 from app.DAO.worker_DAO import WorkerDAO
 from app.DAO.official_DAO import OfficialDAO
 from app.DAO.worker_reviews_DAO import WorkerReviewsDAO
+from app.DAO.job_circles_DAO import JobCirclesDAO
 
 # .\venv\Scripts\Activate
 # uvicorn app.main:app --reload
@@ -28,6 +29,7 @@ official_dao = OfficialDAO(database)
 worker_dao = WorkerDAO(database)
 job_listing_dao = JobListingDAO(database)
 worker_reviews_dao = WorkerReviewsDAO(database)
+job_circle_dao = JobCirclesDAO(database)
 
 # The following concerns customers
 @app.get("/customers", response_model=List[Profile])
@@ -204,6 +206,53 @@ async def update_review(review: WorkerReviews):
 async def delete_review(review_id: int):
     await worker_reviews_dao.delete_review(review_id)
     return {"message": "Review deleted successfully"}
+
+#The following concernt JobCircles
+
+
+@app.get("/job-circles", response_model=List[JobCircles])
+async def get_job_circles():
+    return await job_circle_dao.read_job_circles()
+
+@app.get("/job-circles/{username}", response_model=List[JobCircles])
+async def get_job_circles_by_username(username: str):
+    circles = await job_circle_dao.read_job_circles_by_username(username)
+    if circles is None or len(circles) == 0:
+        raise HTTPException(status_code=404, detail=f"No job found for username: {username}")
+    return circles
+
+@app.get("/job-circles/worker/{username}", response_model=List[JobCircles])
+async def get_job_circles_by_worker_username(username: str):
+    circles = await job_circle_dao.read_job_circles_by_worker_username(username)
+    if circles is None or len(circles) == 0:
+        raise HTTPException(status_code=404, detail=f"No job found for worker username: {username}")
+    return circles
+
+@app.get("/job-circles/job-id/{job_id}", response_model=List[JobCircles])
+async def get_job_circle_by_id(job_id: int):
+    circle = await job_circle_dao.read_job_circle_by_id(job_id)
+    if circle is None:
+        raise HTTPException(status_code=404, detail=f"Job not found for id: {id}")
+    return circle
+
+@app.post("/job-circles/post", response_model=JobCircles)
+async def create_job_circle(job_circle: JobCircles):
+    created_job = await job_circle_dao.create_job_circle(job_circle)
+    return JSONResponse(status_code=201, content=created_job.model_dump())
+    
+@app.put("/job-circles/update", response_model=dict)
+async def update_job_circle(job_circle: JobCircles):
+    success = await job_circle_dao.update_job_circle(job_circle)
+    if not success:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return {"message": "Job circle updated successfully"}
+
+@app.delete("/job-circles/delete/{job_id}", response_model=dict)
+async def delete_job_circle(job_id: int):
+    success = await job_circle_dao.delete_job_circle(job_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return {"message": "Job circle deleted successfully"}
 
 #Test function
 # @app.get("/")
