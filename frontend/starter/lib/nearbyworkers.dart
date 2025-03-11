@@ -22,9 +22,9 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
   String selectedPayment = 'Cash';
 
   final List<Map<String, dynamic>> workers = [
-    {'name' : 'Barack', 'image' : Icon(Icons.account_circle)}, 
-    {'name' : 'Donald', 'image' : Icon(Icons.account_circle)},
-    {'name' : 'Kamala', 'image' : Icon(Icons.account_circle)},
+    {'name' : 'Barack Obama', 'image' : Icon(Icons.account_circle)}, 
+    {'name' : 'Donald Trump', 'image' : Icon(Icons.account_circle)},
+    {'name' : 'Kamala Harris', 'image' : Icon(Icons.account_circle)},
     {'name' : 'Random Assignment', 'image' : Icon(Icons.more_horiz)},
   ];
 
