@@ -2,6 +2,8 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 
+# .updateMany({}, { $set: { new_field: "" } });
+
 class Profile(BaseModel):
     email: str
     password: str
@@ -11,6 +13,8 @@ class Profile(BaseModel):
     username: str
     address: str
     contact_number: str
+    service_preference: Optional[str] = "N/A"
+    is_certified: Optional[bool] = False
     
 
 class InitialInfo(BaseModel):
@@ -44,6 +48,15 @@ class JobListing(BaseModel):
     salary_frequency: str   #sample: salary = 10. salary_frequency = "hourly". therefore 10/hour is the salary
     duration: str           #extra job information
     worker_username: Optional[str] = None   #the username of the worker assigned to the job
+
+class JobCircles(BaseModel):
+    ticket_number: Optional[int] = None
+    datetime: datetime
+    customer: str
+    handyman: str
+    job_status: Optional[str] = "Ongoing"
+    payment_status: Optional[str] = "Not Paid"
+    
 
 class WorkerReviews(BaseModel):
     review_id: Optional[int] = None
