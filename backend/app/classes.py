@@ -45,6 +45,15 @@ class JobListing(BaseModel):
     duration: str           #extra job information
     worker_username: Optional[str] = None   #the username of the worker assigned to the job
 
+class JobCircles(BaseModel):
+    ticket_number: Optional[int] = None
+    datetime: datetime
+    customer: str
+    handyman: str
+    job_status: Optional[str] = "Ongoing"
+    payment_status: Optional[str] = "Not Paid"
+    
+
 class WorkerReviews(BaseModel):
     review_id: Optional[int] = None
     worker_username: str
