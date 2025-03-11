@@ -42,6 +42,7 @@ flutter:
     - assets/Food.png
     - assets/Transport.png
     - assets/badwords.txt
+    - assets/map.png # temp map img
 
     - .env
 

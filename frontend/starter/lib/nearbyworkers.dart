@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:starter/incomingworker.dart';
 
 class NearbyWorkersScreen extends StatefulWidget {
   const NearbyWorkersScreen({
@@ -14,6 +15,7 @@ class NearbyWorkersScreen extends StatefulWidget {
 }
 
 class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
+  final DraggableScrollableController _controller = DraggableScrollableController();
   int? selectedWorkerIndex;
   bool isTabOpen = false;
 
@@ -26,13 +28,7 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
     {'name' : 'Random Assignment', 'image' : Icon(Icons.more_horiz)},
   ];
 
-  double _sheetSize = 0.03; // Start almost hidden
-
-  void _toggleSheet() {
-    setState(() {
-      _sheetSize = (_sheetSize == 0.03) ? 0.5 : 0.03; // Toggle between hidden and half-expanded
-    });
-  }
+  Map<String, dynamic>? selectedWorker;
 
   void _showPaymentOptions() {
     showModalBottomSheet(
@@ -82,7 +78,7 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
       ),
 
       bottomNavigationBar: Container(
-        height: 200,
+        height: 180,
         width: MediaQuery.of(context).size.width,
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
@@ -215,6 +211,8 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
                 ),
               ]
             ),
+            
+            SizedBox(height:2),
 
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,         
@@ -244,10 +242,21 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
                   child: SizedBox(
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: selectedWorker == null
+                        ? null
+                        : () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => IncomingWorkerScreen(worker: selectedWorker),
+                              ),
+                            );
+                          },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF87027B),
                         foregroundColor: Colors.white,
+                        disabledBackgroundColor: Colors.grey,
+                        disabledForegroundColor: Colors.white70,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(100),
                         ),
@@ -279,17 +288,25 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
       body: Stack(
         children: [
           Container(
-            color: Colors.grey[300],
+            color: Colors.white,
             alignment: Alignment.center,
-            height: MediaQuery.of(context).size.height * 0.4,
-            child: Text('[MAP]', style: TextStyle(fontSize: 30))
+            height: MediaQuery.of(context).size.height ,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.asset(
+                'assets/map.png',
+                //fit: BoxFit.contain,
+                height: MediaQuery.of(context).size.height * 0.7,
+              ),
+            ),
           ),
 
           DraggableScrollableSheet(
-            initialChildSize: 0.4, 
-            minChildSize: 0.03, 
-            maxChildSize: 0.4, // Maximum expansion
-            builder: (context, scrollController) {
+            controller: _controller, 
+            initialChildSize: 0.4,
+            minChildSize: 0.04,
+            maxChildSize: 0.4,
+            builder: (BuildContext context, ScrollController scrollController) {
               return Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -298,19 +315,20 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
                 ),
                 child: Column(
                   children: [
-                    Container(
-                      height: 2,
-                      width: 60,
-                      margin: EdgeInsets.symmetric(vertical: 5),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[400],
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                    Grabber(
+                      isOnDesktopAndWeb: false,
+                      onVerticalDragUpdate: (DragUpdateDetails details) {
+                        _controller.animateTo(
+                          (_controller.size - details.primaryDelta! )
+                              .clamp(0.04, 0.4), // Keep within bounds
+                          duration: Duration(milliseconds: 100),
+                          curve: Curves.easeOut,
+                        );
+                      },
                     ),
-
                     Expanded(
                       child: ListView.builder(
-                        controller: scrollController, // Enables smooth scrolling
+                        controller: scrollController,
                         padding: EdgeInsets.zero,
                         itemCount: workers.length,
                         itemBuilder: (context, index) =>
@@ -334,7 +352,13 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
     return GestureDetector(
       onTap: () {
         setState(() {
-          selectedWorkerIndex = index;
+          if (selectedWorkerIndex == index) {
+            selectedWorkerIndex = -1;
+            selectedWorker = null; 
+          } else {
+            selectedWorkerIndex = index;
+            selectedWorker = workers[index]; // STORES SELECTED FOR SCREEN AFTER ACCEPTING
+          }
         });
       },
       child: Container(
@@ -372,6 +396,54 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+// class Grabber extends StatelessWidget {
+//   final bool isOnDesktopAndWeb;
+//   final void Function(DragUpdateDetails)? onVerticalDragUpdate;
+
+//   const Grabber({super.key, required this.isOnDesktopAndWeb, this.onVerticalDragUpdate});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return GestureDetector(
+//       onVerticalDragUpdate: onVerticalDragUpdate,
+//       child: Container(
+//         height: 5,
+//         width: 60,
+//         margin: EdgeInsets.symmetric(vertical: 5),
+//         decoration: BoxDecoration(
+//           color: Colors.grey[400],
+//           borderRadius: BorderRadius.circular(10),
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+class Grabber extends StatelessWidget {
+  const Grabber({super.key, required this.onVerticalDragUpdate, required this.isOnDesktopAndWeb});
+
+  final ValueChanged<DragUpdateDetails> onVerticalDragUpdate;
+  final bool isOnDesktopAndWeb;
+
+  @override
+  Widget build(BuildContext context) {
+
+    return GestureDetector(
+      onVerticalDragUpdate: onVerticalDragUpdate,
+      child: Container(
+        height: 10,
+        width: 200,
+        margin: EdgeInsets.symmetric(vertical: 5),
+        decoration: BoxDecoration(
+          color: Colors.grey[400],
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+      ),
+      
     );
   }
 }
