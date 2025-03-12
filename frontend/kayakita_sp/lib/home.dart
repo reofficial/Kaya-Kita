@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:kayakita_sp/editprofile.dart';
 import 'package:kayakita_sp/main.dart';
+
+import 'package:provider/provider.dart';
 import 'bookings.dart';
+import 'bookingcontroller.dart';
+
 import 'api_service.dart';
 import 'dart:convert';
 
@@ -17,11 +21,14 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   String firstName = "Loading...";
+  bool _showOverlay = true;
 
   @override
   void initState() {
     super.initState();
     fetchFirstName(widget.email);
+    Provider.of<BookingController>(context, listen: false)
+        .fetchBookings(widget.email);
   }
 
   Future<void> fetchFirstName(String email) async {
@@ -52,6 +59,12 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void _hideOverlay() {
+    setState(() {
+      _showOverlay = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<Widget> _screens = [
@@ -61,7 +74,56 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: _screens[_selectedIndex],
+      body: Stack(
+        children: [
+          _screens[_selectedIndex],
+          Consumer<BookingController>(
+            builder: (context, controller, child) {
+              if (controller.pendingBookingsCount > 0 && _showOverlay) {
+                return Positioned(
+                  // margins
+                  bottom: 16,
+                  left: 16,
+                  right: 16,
+
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.orange,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 6,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "You have ${controller.pendingBookingsCount} pending Job Bookings",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.close, color: Colors.white),
+                          onPressed: _hideOverlay,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+              return SizedBox.shrink();
+            },
+          ),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,

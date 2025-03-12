@@ -108,4 +108,8 @@ class BookingController extends ChangeNotifier {
       print("Error updating job status: $e");
     }
   }
+
+  int get pendingBookingsCount {
+    return bookings.where((booking) => booking["status"] == "Pending").length;
+  }
 }
