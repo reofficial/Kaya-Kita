@@ -9,7 +9,7 @@ class BookingController extends ChangeNotifier {
     try {
       final jobCirclesResponse = await ApiService.getJobCircles();
       final customersResponse = await ApiService.getCustomers();
-      final workersResponse = await ApiService.getWorkers(); // Fetch worker data
+      final workersResponse = await ApiService.getWorkers(); 
 
       if (jobCirclesResponse.statusCode == 200 &&
           customersResponse.statusCode == 200 &&
@@ -19,7 +19,6 @@ class BookingController extends ChangeNotifier {
         List<dynamic> customersData = jsonDecode(customersResponse.body);
         List<dynamic> workersData = jsonDecode(workersResponse.body);
 
-        // Create a map to check if a handyman is certified
         Map<String, bool> handymanCertificationMap = {
           for (var worker in workersData) worker["username"]: worker["is_certified"] == true
         };
@@ -43,7 +42,7 @@ class BookingController extends ChangeNotifier {
             "payment": booking["payment_status"],
             "statusColor": _getStatusColor(booking["job_status"]),
             "actions": "Pending",
-            "is_certified": handymanCertificationMap[handymanUsername] ?? false, // Store certification status
+            "is_certified": handymanCertificationMap[handymanUsername] ?? false, 
           };
         }).toList();
 
