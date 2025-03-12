@@ -139,7 +139,7 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                 ElevatedButton(
                   onPressed: isLoading ? null : onNext,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.purple.shade700,
+                    backgroundColor: const Color(0xFF87027B),
                     padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
                   ),
                   child: isLoading

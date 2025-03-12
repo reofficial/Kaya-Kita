@@ -123,7 +123,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                     service,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF87027B), // Purple text
+                      color: Color(0xFF87027B), 
                     ),
                   ),
                 );
@@ -140,7 +140,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
               child: ElevatedButton(
                 onPressed: isLoading ? null : onContinue,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF87027B), // Updated button color
+                  backgroundColor: const Color(0xFF87027B), 
                   padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
                 ),
                 child: isLoading
