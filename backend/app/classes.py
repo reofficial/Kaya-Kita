@@ -65,3 +65,7 @@ class WorkerReviews(BaseModel):
     rating: int
     review: str
     created_at: datetime
+
+class WorkerRates(BaseModel):
+    email: str
+    rate: float
