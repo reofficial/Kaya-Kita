@@ -49,7 +49,8 @@ class ApiService {
     return response;
   }
 
-  static Future<http.Response> updateCustomer(Map<String, dynamic> updateDetails) async {
+  static Future<http.Response> updateCustomer(
+      Map<String, dynamic> updateDetails) async {
     final url = Uri.parse('$baseUrl/customers/update');
     final response = await _client.post(
       url,
@@ -77,7 +78,8 @@ class ApiService {
     return response;
   }
 
-  static Future<http.Response> postJobListing(Map<String, dynamic> jobListing) async {
+  static Future<http.Response> postJobListing(
+      Map<String, dynamic> jobListing) async {
     final url = Uri.parse('$baseUrl/job-listings/post');
     final response = await _client.post(
       url,
@@ -87,7 +89,8 @@ class ApiService {
     return response;
   }
 
-  static Future<http.Response> updateJobListing(Map<String, dynamic> updateDetails) async {
+  static Future<http.Response> updateJobListing(
+      Map<String, dynamic> updateDetails) async {
     final url = Uri.parse('$baseUrl/job-listings/update');
     final response = await _client.put(
       url,
@@ -103,7 +106,17 @@ class ApiService {
     return response;
   }
 
-  static Future<http.Response> postJobCircle(Map<String, dynamic> jobCircle) async {
+  static Future<http.Response> getJobCircles() async {
+    final url = Uri.parse('$baseUrl/job-circles');
+    final response = await _client.get(
+      url,
+      headers: {'Content-Type': 'application/json'},
+    );
+    return response;
+  }
+
+  static Future<http.Response> postJobCircle(
+      Map<String, dynamic> jobCircle) async {
     final url = Uri.parse('$baseUrl/job-circles/post');
     final response = await _client.post(
       url,
@@ -116,6 +129,17 @@ class ApiService {
   static Future<http.Response> getWorkers() async {
     final url = Uri.parse('$baseUrl/workers');
     final response = await _client.get(url);
+    return response;
+  }
+
+  static Future<http.Response> postReview(
+      Map<String, dynamic> reviewDetails) async {
+    final url = Uri.parse('$baseUrl/reviews/create');
+    final response = await _client.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(reviewDetails),
+    );
     return response;
   }
 }

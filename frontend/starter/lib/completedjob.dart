@@ -1,7 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:starter/api_service.dart';
 
 class CompletedJobScreen extends StatefulWidget {
-  const CompletedJobScreen({super.key});
+  const CompletedJobScreen({
+    super.key,
+    required this.ticketNumber,
+    required this.datetime,
+    required this.customer,
+    required this.handyman,
+    required this.jobStatus,
+    required this.paymentStatus,
+  });
+
+  final int ticketNumber;
+  final String datetime;
+  final String customer;
+  final String handyman;
+  final String jobStatus;
+  final String paymentStatus;
 
   @override
   State<CompletedJobScreen> createState() => _CompletedJobScreenState();
@@ -15,7 +31,7 @@ class _CompletedJobScreenState extends State<CompletedJobScreen> {
   bool _isTitleError = false;
   bool _isReviewError = false;
 
-  void _submitReview() {
+  Future<void> _submitReview() async {
     setState(() {
       _isRatingError = _rating == 0;
       _isTitleError = _titleController.text.trim().isEmpty;
@@ -24,28 +40,39 @@ class _CompletedJobScreenState extends State<CompletedJobScreen> {
 
     if (_isRatingError || _isTitleError || _isReviewError) return;
 
-    // ✅ Placeholder logic for review submission
-    print("✅ Review submitted: ${_reviewController.text.trim()}");
+    try {
+      String currentDateTime = DateTime.now().toString();
 
-    // Show success message
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Review submitted successfully!")),
-    );
+      Map<String, dynamic> reviewDetails = {
+        "review_id": 0,
+        "rating": _rating,
+        "created_at": currentDateTime,
+        "customer_username": widget.customer,
+        "worker_username": widget.handyman,
+        "review": _reviewController.text,
+      };
 
-    // Clear input fields
-    _titleController.clear();
-    _reviewController.clear();
-    setState(() {
-      _rating = 0;
-    });
+      final response = await ApiService.postReview(reviewDetails);
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Review submitted successfully")),
+        );
+      } else {
+        throw Exception(response.body);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error submitting review: $e")),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     // ✅ Placeholder data (Modify later when passing actual data)
-    String workerName = "Worker Name";
-    String workerImage = "https://via.placeholder.com/150";
-    String jobTime = "10:05 AM - 2:05 PM";
+    String workerName = widget.handyman;
+    String jobTime = widget.datetime;
     double workerRate = 100.0;
     double hoursWorked = 4.5;
     double tip = 50.0;
@@ -101,12 +128,15 @@ class _CompletedJobScreenState extends State<CompletedJobScreen> {
                   children: [
                     const Text(
                       "Receipt",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
-                    _buildReceiptRow("Worker Rate", "P $workerRate x $hoursWorked hours"),
+                    _buildReceiptRow(
+                        "Worker Rate", "P $workerRate x $hoursWorked hours"),
                     _buildReceiptRow("Tip", "P $tip", hasLink: true),
-                    _buildReceiptRow("Total", "P $totalAmount", isBold: true, color: Colors.purple),
+                    _buildReceiptRow("Total", "P $totalAmount",
+                        isBold: true, color: Colors.purple),
                   ],
                 ),
               ),
@@ -124,7 +154,6 @@ class _CompletedJobScreenState extends State<CompletedJobScreen> {
                   children: [
                     CircleAvatar(
                       radius: 30,
-                      backgroundImage: NetworkImage(workerImage),
                     ),
                     const SizedBox(width: 10),
                     Column(
@@ -132,7 +161,8 @@ class _CompletedJobScreenState extends State<CompletedJobScreen> {
                       children: [
                         const Text(
                           "Worker",
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         Row(
                           children: [
@@ -145,7 +175,8 @@ class _CompletedJobScreenState extends State<CompletedJobScreen> {
                               ),
                             ),
                             const SizedBox(width: 5),
-                            const Icon(Icons.verified, color: Colors.purple, size: 18),
+                            const Icon(Icons.verified,
+                                color: Colors.purple, size: 18),
                           ],
                         ),
                         const Text(
@@ -172,7 +203,8 @@ class _CompletedJobScreenState extends State<CompletedJobScreen> {
                   children: [
                     const Text(
                       "Submit Feedback",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),
 
@@ -210,7 +242,8 @@ class _CompletedJobScreenState extends State<CompletedJobScreen> {
                     // 📝 Title Input
                     const Text(
                       "Title:",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),
                     TextField(
@@ -218,7 +251,8 @@ class _CompletedJobScreenState extends State<CompletedJobScreen> {
                       decoration: InputDecoration(
                         border: const OutlineInputBorder(),
                         hintText: "Enter a title (e.g., 'Great Job!')",
-                        errorText: _isTitleError ? "⚠️ Please provide a title." : null,
+                        errorText:
+                            _isTitleError ? "⚠️ Please provide a title." : null,
                       ),
                       onChanged: (value) {
                         setState(() {
@@ -232,7 +266,8 @@ class _CompletedJobScreenState extends State<CompletedJobScreen> {
                     // 💬 Review Input
                     const Text(
                       "Leave a review:",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),
                     TextField(
@@ -241,7 +276,8 @@ class _CompletedJobScreenState extends State<CompletedJobScreen> {
                       decoration: InputDecoration(
                         border: const OutlineInputBorder(),
                         hintText: "Write your review here...",
-                        errorText: _isReviewError ? "⚠️ Please write a review." : null,
+                        errorText:
+                            _isReviewError ? "⚠️ Please write a review." : null,
                       ),
                       onChanged: (value) {
                         setState(() {
@@ -258,7 +294,8 @@ class _CompletedJobScreenState extends State<CompletedJobScreen> {
                         onPressed: _submitReview,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.purple,
-                          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 40, vertical: 12),
                         ),
                         child: const Text(
                           "Submit Review",
@@ -277,14 +314,19 @@ class _CompletedJobScreenState extends State<CompletedJobScreen> {
   }
 
   // ✅ Helper function for receipt row
-  Widget _buildReceiptRow(String label, String value, {bool isBold = false, Color? color, bool hasLink = false}) {
+  Widget _buildReceiptRow(String label, String value,
+      {bool isBold = false, Color? color, bool hasLink = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: const TextStyle(fontSize: 16)),
-          Text(value, style: TextStyle(fontSize: 16, fontWeight: isBold ? FontWeight.bold : FontWeight.normal, color: color ?? Colors.black)),
+          Text(value,
+              style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+                  color: color ?? Colors.black)),
         ],
       ),
     );

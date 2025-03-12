@@ -37,7 +37,7 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
 
   String selectedPayment = 'Cash';
 
-  final Duration apiTimeoutDuration = Duration(seconds: 10);
+  final Duration apiTimeoutDuration = Duration(seconds: 5);
 
   Future<List<Map<String, dynamic>>> fetchWorkers() async {
     try {

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:starter/api_service.dart';
 import 'package:starter/completedjob.dart';
-import 'package:starter/jobedit.dart';
 import 'package:starter/providers/profile_provider.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
@@ -15,52 +14,46 @@ class OrdersScreen extends StatefulWidget {
 
 class _OrdersScreenState extends State<OrdersScreen> {
   late Future<List<Map<String, dynamic>>> jobsFuture;
+  late String currentUsername;
 
   @override
   void initState() {
     super.initState();
-    jobsFuture = fetchUserJobs();
+    currentUsername =
+        Provider.of<UserProvider>(context, listen: false).username;
+    jobsFuture = fetchUserJobs(currentUsername);
   }
 
-  Future<List<Map<String, dynamic>>> fetchUserJobs() async {
+  Future<List<Map<String, dynamic>>> fetchUserJobs(
+      String currentUsername) async {
     try {
-      final response = await ApiService.getJobListings();
+      final response = await ApiService.getJobCircles();
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
 
-        // Get the logged-in username
-        String currentUsername = Provider.of<UserProvider>(context, listen: false).username;
-
         List<Map<String, dynamic>> userJobs = data
-            .where((job) => job['username'] == currentUsername)
+            .where((job) => job['customer'] == currentUsername)
             .map((job) => {
-                  'job_id': job['job_id'],
-                  'tags': job['tag'] ?? [],
-                  'title': job['job_title'],
-                  'description': job['description'],
-                  'location': job['location'],
-                  'salary': job['salary'],
-                  'salaryFrequency': job['salary_frequency'],
-                  'duration': job['duration'],
-                  'status': (job['is_completed'] != null && job['is_completed'] == true)
-                      ? "Completed"
-                      : "Ongoing",
+                  'ticket_number': job['ticket_number'],
+                  'datetime': job['datetime'],
+                  'customer': job['customer'],
+                  'handyman': job['handyman'],
+                  'job_status': job['job_status'],
+                  'payment_status': job['payment_status'],
                 })
             .toList();
-
         return userJobs;
       } else {
         throw Exception("Failed to load jobs (Status: ${response.statusCode})");
       }
     } catch (e) {
-      print("Error fetching jobs: $e");
       throw Exception("Error fetching jobs: $e");
     }
   }
 
   void refreshOrders() {
     setState(() {
-      jobsFuture = fetchUserJobs();
+      jobsFuture = fetchUserJobs(currentUsername);
     });
   }
 
@@ -91,118 +84,75 @@ class _OrdersScreenState extends State<OrdersScreen> {
               padding: const EdgeInsets.all(12),
               children: [
                 const Text(
+                  "Pending Orders",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                ...jobs
+                    .where((job) => job["job_status"] == "Pending")
+                    .map((job) => JobCircles(
+                          ticketNumber: job["ticket_number"],
+                          datetime: job["datetime"],
+                          customer: job["customer"],
+                          handyman: job["handyman"],
+                          jobStatus: job["job_status"],
+                          paymentStatus: job["payment_status"],
+                        )),
+                const SizedBox(height: 15),
+                const Text(
                   "Ongoing Orders",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 ...jobs
-                    .where((job) => job["status"] == "Ongoing")
-                    .map((job) => JobListing(
-                          jobId: job["job_id"],
-                          tags: List<String>.from(job["tags"]),
-                          title: job["title"],
-                          description: job["description"],
-                          location: job["location"],
-                          salary: job["salary"],
-                          salaryFrequency: job["salaryFrequency"],
-                          duration: job["duration"],
-                          status: job["status"],
-                        ))
-                    .toList(),
+                    .where((job) => job["job_status"] == "Ongoing")
+                    .map((job) => JobCircles(
+                          ticketNumber: job["ticket_number"],
+                          datetime: job["datetime"],
+                          customer: job["customer"],
+                          handyman: job["handyman"],
+                          jobStatus: job["job_status"],
+                          paymentStatus: job["payment_status"],
+                        )),
                 const SizedBox(height: 15),
                 const Text(
                   "Completed Orders",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 ...jobs
-                    .where((job) => job["status"] == "Completed")
-                    .map((job) => JobListing(
-                          jobId: job["job_id"],
-                          tags: List<String>.from(job["tags"]),
-                          title: job["title"],
-                          description: job["description"],
-                          location: job["location"],
-                          salary: job["salary"],
-                          salaryFrequency: job["salaryFrequency"],
-                          duration: job["duration"],
-                          status: job["status"],
+                    .where((job) => job["job_status"] == "Completed")
+                    .map((job) => JobCircles(
+                          ticketNumber: job["ticket_number"],
+                          datetime: job["datetime"],
+                          customer: job["customer"],
+                          handyman: job["handyman"],
+                          jobStatus: job["job_status"],
+                          paymentStatus: job["payment_status"],
                         ))
-                    .toList(),
               ],
             ),
           );
         },
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat, // ⬅ Positioning at Bottom Left
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Navigate to the CompletedJobScreen (No data passed yet)
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CompletedJobScreen(),
-            ),
-          );
-        },
-        backgroundColor: Colors.blue, // Changed to Blue to distinguish
-        child: const Icon(Icons.check, color: Colors.white),
-      ),
     );
   }
 }
 
-class JobListing extends StatelessWidget {
-  const JobListing({
+class JobCircles extends StatelessWidget {
+  const JobCircles({
     super.key,
-    required this.jobId,
-    required this.tags,
-    required this.title,
-    required this.description,
-    required this.location,
-    required this.salary,
-    required this.salaryFrequency,
-    required this.duration,
-    required this.status,
+    required this.ticketNumber,
+    required this.datetime,
+    required this.customer,
+    required this.handyman,
+    required this.jobStatus,
+    required this.paymentStatus,
   });
 
-  final int jobId;
-  final List<String> tags;
-  final String title;
-  final String description;
-  final String location;
-  final double salary;
-  final String salaryFrequency;
-  final String duration;
-  final String status;
-
-  ImageProvider _getCategoryImage() {
-    if (tags.isNotEmpty) {
-      final category = tags.first.toLowerCase();
-      switch (category) {
-        case 'technology':
-          return const AssetImage('assets/Technology.png');
-        case 'business':
-          return const AssetImage('assets/Business.png');
-        case 'entertainment':
-          return const AssetImage('assets/Entertainment.png');
-        case 'construction':
-          return const AssetImage('assets/Construction.png');
-        case 'education':
-          return const AssetImage('assets/Education.png');
-        case 'health':
-          return const AssetImage('assets/Health.png');
-        case 'housework':
-          return const AssetImage('assets/Housework.png');
-        case 'food':
-          return const AssetImage('assets/Food.png');
-        case 'transport':
-          return const AssetImage('assets/Transport.png');
-        default:
-          return const AssetImage('assets/Default.png');
-      }
-    } else {
-      return const AssetImage('assets/Default.png');
-    }
-  }
+  final int ticketNumber;
+  final String datetime;
+  final String customer;
+  final String handyman;
+  final String jobStatus;
+  final String paymentStatus;
 
   @override
   Widget build(BuildContext context) {
@@ -218,57 +168,42 @@ class JobListing extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => JobEditScreen(
-                jobId: jobId,
-                isEditMode: true,
+              builder: (context) => CompletedJobScreen(
+                ticketNumber: ticketNumber,
+                datetime: datetime,
+                customer: customer,
+                handyman: handyman,
+                jobStatus: jobStatus,
+                paymentStatus: paymentStatus,
               ),
             ),
           );
         },
-        child: Row(
-          children: [
-            Image(
-              image: _getCategoryImage(),
-              width: 120,
-              height: 120,
-              fit: BoxFit.cover,
-            ),
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                color: Colors.white,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF87027B),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.location_on, size: 14, color: Color(0xFF87027B)),
-                        const SizedBox(width: 4),
-                        Text(location),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        const Icon(Icons.attach_money, size: 14, color: Color(0xFF87027B)),
-                        const SizedBox(width: 4),
-                        Text('$salary / $salaryFrequency'),
-                      ],
-                    ),
-                  ],
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Ticket #$ticketNumber",
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF87027B),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text("Date: $datetime"),
+              const SizedBox(height: 4),
+              Text("Customer: $customer"),
+              const SizedBox(height: 4),
+              Text("Handyman: $handyman"),
+              const SizedBox(height: 4),
+              Text("Job Status: $jobStatus"),
+              const SizedBox(height: 4),
+              Text("Payment Status: $paymentStatus"),
+            ],
+          ),
         ),
       ),
     );
