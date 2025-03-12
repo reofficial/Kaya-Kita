@@ -23,24 +23,24 @@ class JobCirclesDAO:
     async def read_job_circles(self):
         job_circles_cursor = self.collection.find()
         job_circles = await job_circles_cursor.to_list(length=None)
-        return [JobCircles(**job_circle) for job_circle in job_circles]
+        return jsonable_encoder([JobCircles(**job_circle) for job_circle in job_circles])
     
     async def read_job_circles_by_username(self, username: str):
         # Fetch all job listings that match the provided username.
         job_circles_cursor = self.collection.find({"username": username})
         job_circles = await job_circles_cursor.to_list(length=None)
-        return [JobCircles(**job_circle) for job_circle in job_circles]
+        return jsonable_encoder([JobCircles(**job_circle) for job_circle in job_circles])
     
     async def read_job_circles_by_worker_username(self, username: str):
         # Fetch all job listings that match the provided username.
         job_circles_cursor = self.collection.find({"worker_username": username})
         job_circles = await job_circles_cursor.to_list(length=None)
-        return [JobCircles(**job_circle) for job_circle in job_circles]
+        return jsonable_encoder([JobCircles(**job_circle) for job_circle in job_circles])
     
     async def read_job_circle_by_id(self, ticket_number: int):
         job_circles_cursor = self.collection.find({"ticket_number": ticket_number})
         job_circles = await job_circles_cursor.to_list(length=None)
-        return [JobCircles(**job_circle) for job_circle in job_circles]
+        return jsonable_encoder([JobCircles(**job_circle) for job_circle in job_circles])
     
     async def update_job_circle(self, job_circle: JobCircles):
         job_data = job_circle.model_dump()
