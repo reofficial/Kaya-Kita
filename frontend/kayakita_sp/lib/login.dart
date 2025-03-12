@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'dart:convert';
 
 import 'entrance.dart';
-import 'home.dart';
 import 'register.dart';
 import 'onboarding.dart';
 
@@ -39,67 +38,67 @@ class _LoginScreenState extends State<LoginScreen> {
   /// It sends the email and password to the backend, shows a loading indicator,
   /// and navigates to the EntranceScreen upon success.
   Future<void> handleLogin() async {
-  setState(() {
-    isLoading = true; // Show loading overlay.
-  });
-
-  try {
-    // Fetch all workers
-    final response = await ApiService.getWorkers();
-
-    if (response.statusCode != 200) {
-      throw Exception("Failed to fetch workers.");
-    }
-
-    final List<dynamic> workers = json.decode(response.body);
-
-    // Extract input email and password
-    String inputEmail = emailController.text.trim();
-    String inputPassword = passwordController.text;
-
-    // Find worker by email
-    final worker = workers.firstWhere(
-      (worker) => worker['email'] == inputEmail,
-      orElse: () => null,
-    );
-
-    if (worker == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Email does not exist.")),
-      );
-      return;
-    }
-
-    // Check if password matches
-    if (worker['password'] != inputPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Incorrect password.")),
-      );
-      return;
-    }
-
-    // Successful login
-    String apiEmail = worker['email']; 
-
-    Provider.of<UserProvider>(context, listen: false).setEmail(inputEmail);
-    Provider.of<UserProvider>(context, listen: false)
-        .setUsername(worker['username']);
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => EntranceScreen(email: apiEmail)),
-    );
-  } catch (error) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("An error occurred: $error")),
-    );
-  } finally {
     setState(() {
-      isLoading = false; // Hide loading overlay.
+      isLoading = true; // Show loading overlay.
     });
-  }
-}
 
+    try {
+      // Fetch all workers
+      final response = await ApiService.getWorkers();
+
+      if (response.statusCode != 200) {
+        throw Exception("Failed to fetch workers.");
+      }
+
+      final List<dynamic> workers = json.decode(response.body);
+
+      // Extract input email and password
+      String inputEmail = emailController.text.trim();
+      String inputPassword = passwordController.text;
+
+      // Find worker by email
+      final worker = workers.firstWhere(
+        (worker) => worker['email'] == inputEmail,
+        orElse: () => null,
+      );
+
+      if (worker == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Email does not exist.")),
+        );
+        return;
+      }
+
+      // Check if password matches
+      if (worker['password'] != inputPassword) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Incorrect password.")),
+        );
+        return;
+      }
+
+      // Successful login
+      String apiEmail = worker['email'];
+
+      Provider.of<UserProvider>(context, listen: false).setEmail(inputEmail);
+      Provider.of<UserProvider>(context, listen: false)
+          .setUsername(worker['username']);
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => EntranceScreen(email: apiEmail)),
+      );
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("An error occurred: $error")),
+      );
+    } finally {
+      setState(() {
+        isLoading = false; // Hide loading overlay.
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF000000)),
           onPressed: () {
-            Navigator.push(
+            Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => const OnboardingScreen()),
             );
@@ -256,7 +255,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const RegisterWorkerScreen()),
+                              builder: (context) =>
+                                  const RegisterWorkerScreen()),
                         );
                       },
                       child: const Text(

@@ -9,24 +9,30 @@ class BookingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String loggedInWorker = Provider.of<UserProvider>(context, listen: false).username.trim();
+    String loggedInWorker =
+        Provider.of<UserProvider>(context, listen: false).username.trim();
 
     return Scaffold(
       appBar: AppBar(
         title: const Text("Bookings"),
         backgroundColor: Colors.purple,
+        automaticallyImplyLeading: false,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => HomeScreen(email: Provider.of<UserProvider>(context, listen: false).email)),
+              MaterialPageRoute(
+                  builder: (context) => HomeScreen(
+                      email: Provider.of<UserProvider>(context, listen: false)
+                          .email)),
             );
           },
         ),
       ),
       body: FutureBuilder(
-        future: Provider.of<BookingController>(context, listen: false).fetchBookings(),
+        future: Provider.of<BookingController>(context, listen: false)
+            .fetchBookings(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -43,12 +49,16 @@ class BookingScreen extends StatelessWidget {
               }
 
               var workerBookings = controller.bookings
-                  .where((booking) => booking["handyman"].trim().toLowerCase() == loggedInWorker.toLowerCase())
+                  .where((booking) =>
+                      booking["handyman"].trim().toLowerCase() ==
+                      loggedInWorker.toLowerCase())
                   .toList();
 
               if (workerBookings.isEmpty) {
                 return const Center(
-                  child: Text("No jobs booked for you.", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  child: Text("No jobs booked for you.",
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 );
               }
 
@@ -118,19 +128,26 @@ class BookingScreen extends StatelessWidget {
                   fit: BoxFit.contain,
                 ),
                 const SizedBox(width: 10),
-
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(status, style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 15)),
+                    Text(status,
+                        style: TextStyle(
+                            color: statusColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15)),
                     const SizedBox(height: 4),
-                    const Text("Service Fee", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.grey)),
-                    Text(amount, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    const Text("Service Fee",
+                        style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey)),
+                    Text(amount,
+                        style: const TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold)),
                   ],
                 ),
-
                 const Spacer(),
-
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
@@ -143,22 +160,21 @@ class BookingScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 5),
-
                     if (status == "Completed")
                       ElevatedButton(
                         onPressed: () {
                           // dispute logic
                         },
-                        style: ElevatedButton.styleFrom(backgroundColor: Color(0xFFFFCAEC), foregroundColor: Color(0xFFDF1995)),
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFFFFCAEC),
+                            foregroundColor: Color(0xFFDF1995)),
                         child: const Text("Start Dispute"),
                       ),
                   ],
                 ),
               ],
             ),
-
             const SizedBox(height: 10),
-
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
@@ -176,11 +192,11 @@ class BookingScreen extends StatelessWidget {
                   const Divider(),
                   _buildDetailRow("Handyman", handyman),
                   const Divider(),
-                  _buildDetailRow("Payment Status", payment, textColor: Colors.green),
+                  _buildDetailRow("Payment Status", payment,
+                      textColor: Colors.green),
                 ],
               ),
             ),
-
             if (status == "Pending")
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
@@ -199,7 +215,9 @@ class BookingScreen extends StatelessWidget {
                           );
                           return;
                         }
-                        context.read<BookingController>().updateBookingStatus(index, "Denied", Colors.red);
+                        context
+                            .read<BookingController>()
+                            .updateBookingStatus(index, "Denied", Colors.red);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFF8D0010),
@@ -219,7 +237,8 @@ class BookingScreen extends StatelessWidget {
                           );
                           return;
                         }
-                        context.read<BookingController>().updateBookingStatus(index, "Accepted", Colors.green);
+                        context.read<BookingController>().updateBookingStatus(
+                            index, "Accepted", Colors.green);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFF00B14F),
@@ -236,7 +255,8 @@ class BookingScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailRow(String title, String value, {Color textColor = Colors.black}) {
+  Widget _buildDetailRow(String title, String value,
+      {Color textColor = Colors.black}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -250,7 +270,8 @@ class BookingScreen extends StatelessWidget {
             child: Text(
               value,
               textAlign: TextAlign.right,
-              style: TextStyle(fontSize: 16, color: textColor, fontWeight: FontWeight.w500),
+              style: TextStyle(
+                  fontSize: 16, color: textColor, fontWeight: FontWeight.w500),
             ),
           ),
         ],

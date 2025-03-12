@@ -1,4 +1,4 @@
-import 'dart:ffi';
+//import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -62,7 +62,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (response.statusCode == 200) {
         List<dynamic> workers = json.decode(response.body);
         Map<String, dynamic>? matchedWorker = workers.firstWhere(
-          (worker) => worker['email']  ==email,
+          (worker) => worker['email'] == email,
           orElse: () => null,
         );
 
@@ -109,7 +109,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         if (matchedWorker != null) {
           setState(() {
             rateController.text = matchedWorker['rate'].toString();
-            
           });
         }
       }
@@ -131,9 +130,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       };
 
       final response1 = await ApiService.updateWorker(updateDetails);
-      final response2 = await ApiService.updateRate(originalEmail, double.tryParse(rateController.text) ?? 0.0);
+      final response2 = await ApiService.updateRate(
+          originalEmail, double.tryParse(rateController.text) ?? 0.0);
 
-      if (response1.statusCode == 200) {
+      if (response1.statusCode == 200 && response2.statusCode == 200) {
         // update provider email
         Provider.of<UserProvider>(context, listen: false)
             .setEmail(emailController.text);
@@ -153,39 +153,39 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     log("Entered EditProfileScreen");
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        title: Text(
-          'Worker Profile',
-          style: TextStyle(fontSize: 20, color: Color(0xFFE8F0FE)),
-        ),
-        backgroundColor: Color(0xFF87027B),
-        elevation: 0,
-        automaticallyImplyLeading: true,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Color(0xFFE8F0FE)),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.account_circle,
-                size: 40, color: Color(0xFFE8F0FE)),
-            tooltip: 'Profile',
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          title: Text(
+            'Worker Profile',
+            style: TextStyle(fontSize: 20, color: Color(0xFFE8F0FE)),
+          ),
+          backgroundColor: Color(0xFF87027B),
+          elevation: 0,
+          automaticallyImplyLeading: true,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Color(0xFFE8F0FE)),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => EditProfileScreen(),
-                ),
-              );
+              Navigator.pop(context);
             },
           ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
+          actions: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.account_circle,
+                  size: 40, color: Color(0xFFE8F0FE)),
+              tooltip: 'Profile',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditProfileScreen(),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+        body: SingleChildScrollView(
+            child: Column(
           children: [
             SizedBox(height: 30),
             Stack(
@@ -206,7 +206,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   bottom: 0,
                   right: 0,
                   child: Container(
-                    padding: EdgeInsets.all(4), // Padding around the camera icon
+                    padding:
+                        EdgeInsets.all(4), // Padding around the camera icon
                     decoration: BoxDecoration(
                       color: Colors.blue, // Background color
                       shape: BoxShape.circle,
@@ -275,7 +276,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             borderRadius: BorderRadius.circular(10)),
                       ),
                       onPressed: handleUpdate,
-
                       child: Text(
                         "Save",
                         style: TextStyle(
@@ -291,9 +291,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
             ),
           ],
-        )
-      )
-    );
+        )));
   }
 }
 
@@ -335,34 +333,33 @@ class CustomTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 40,
-      child: TextField(
-        controller: controller, // Bind the controller
-        enabled: enabled,
-        decoration: InputDecoration(
-          hintText: hintText,
-          hintStyle: TextStyle(
-            fontSize: 14,
-            fontFamily: 'Roboto',
-            color: Colors.black87.withAlpha(95),
+        height: 40,
+        child: TextField(
+          controller: controller, // Bind the controller
+          enabled: enabled,
+          decoration: InputDecoration(
+            hintText: hintText,
+            hintStyle: TextStyle(
+              fontSize: 14,
+              fontFamily: 'Roboto',
+              color: Colors.black87.withAlpha(95),
+            ),
+            filled: true,
+            fillColor: borderColor.withAlpha((0.2 * 255).toInt()),
+            contentPadding: EdgeInsets.only(top: 1.0, bottom: 1.0, left: 10.0),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: borderColor),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: borderColor),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: Color(0xFF87027B)),
+            ),
           ),
-          filled: true,
-          fillColor: borderColor.withAlpha((0.2 * 255).toInt()),
-          contentPadding: EdgeInsets.only(top: 1.0, bottom: 1.0, left: 10.0),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(color: borderColor),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(color: borderColor),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(color: Color(0xFF87027B)),
-          ),
-        ),
-      )
-    );
+        ));
   }
 }

@@ -5,19 +5,18 @@ import 'package:kayakita_sp/main.dart';
 import 'bookings.dart';
 import 'api_service.dart';
 import 'dart:convert';
-import 'main.dart';
 
 class HomeScreen extends StatefulWidget {
   final String email;
   const HomeScreen({super.key, required this.email});
 
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 0; 
-  String firstName = "Loading..."; 
+  int _selectedIndex = 0;
+  String firstName = "Loading...";
 
   @override
   void initState() {
@@ -29,14 +28,16 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final response = await ApiService.getWorkers();
       final List<dynamic> workers = json.decode(response.body);
-      
+
       final worker = workers.firstWhere(
         (worker) => worker['email'] == email,
-        orElse: () => null, 
+        orElse: () => null,
       );
 
       setState(() {
-        firstName = worker != null ? worker['first_name'] ?? "Unknown" : "Email not found";
+        firstName = worker != null
+            ? worker['first_name'] ?? "Unknown"
+            : "Email not found";
       });
     } catch (e) {
       setState(() {
@@ -57,15 +58,15 @@ class _HomeScreenState extends State<HomeScreen> {
       HomePage(firstName: firstName),
       BookingScreen(),
     ];
-    
+
     return Scaffold(
       backgroundColor: Colors.white,
-      body: _screens[_selectedIndex], 
+      body: _screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex, 
-        onTap: _onItemTapped, 
-        selectedItemColor: const Color(0xFF87027B), 
-        unselectedItemColor: Colors.grey, 
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        selectedItemColor: const Color(0xFF87027B),
+        unselectedItemColor: Colors.grey,
         showSelectedLabels: true,
         showUnselectedLabels: true,
         type: BottomNavigationBarType.fixed,
@@ -119,7 +120,6 @@ class HomePage extends StatelessWidget {
           )
         ],
       ),
-
       endDrawer: Drawer(
         key: const Key('homeDrawer'),
         width: MediaQuery.of(context).size.width * 0.5,
@@ -132,7 +132,8 @@ class HomePage extends StatelessWidget {
                 decoration: const BoxDecoration(),
                 child: Row(
                   children: [
-                    Image.asset('assets/logofull.png', key: const Key('logo full')),
+                    Image.asset('assets/logofull.png',
+                        key: const Key('logo full')),
                     const Spacer(),
                     IconButton(
                       icon: const Icon(Icons.account_circle, size: 40),
@@ -151,7 +152,8 @@ class HomePage extends StatelessWidget {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 10, bottom: 5, top: 10),
+                        padding:
+                            const EdgeInsets.only(left: 10, bottom: 5, top: 10),
                         child: Text(
                           'Account',
                           style: TextStyle(
@@ -184,7 +186,8 @@ class HomePage extends StatelessWidget {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 10, bottom: 5, top: 10),
+                        padding:
+                            const EdgeInsets.only(left: 10, bottom: 5, top: 10),
                         child: Text(
                           'Support & About',
                           style: TextStyle(
@@ -212,7 +215,8 @@ class HomePage extends StatelessWidget {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 10, bottom: 5, top: 10),
+                        padding:
+                            const EdgeInsets.only(left: 10, bottom: 5, top: 10),
                         child: Text(
                           'Cache & Cellular',
                           style: TextStyle(
@@ -235,7 +239,8 @@ class HomePage extends StatelessWidget {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 10, bottom: 5, top: 10),
+                        padding:
+                            const EdgeInsets.only(left: 10, bottom: 5, top: 10),
                         child: Text(
                           'Actions',
                           style: TextStyle(
@@ -267,38 +272,46 @@ class HomePage extends StatelessWidget {
           ],
         ),
       ),
-
-      body: SingleChildScrollView( 
+      body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Hello, $firstName!", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+              Text("Hello, $firstName!",
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Card(
                 color: Colors.purple,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16), 
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
                   child: Row(
                     children: const [
-                      Icon(Icons.account_balance_wallet, color: Colors.white, size: 36), 
+                      Icon(Icons.account_balance_wallet,
+                          color: Colors.white, size: 36),
                       SizedBox(width: 12),
                       Text(
                         "Today's Earnings",
-                        style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold), 
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold),
                       ),
                       Spacer(),
                       Text(
                         "₱420.69",
-                        style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold), 
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
                 ),
               ),
-
               const SizedBox(height: 12),
               Row(
                 children: [
@@ -307,7 +320,8 @@ class HomePage extends StatelessWidget {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => BookingScreen()),
+                          MaterialPageRoute(
+                              builder: (context) => BookingScreen()),
                         );
                       },
                       child: _buildStatCard("Total Bookings", "46"),
@@ -317,17 +331,18 @@ class HomePage extends StatelessWidget {
                   Expanded(child: _buildStatCard("Completed Services", "5")),
                 ],
               ),
-
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Expanded(child: _buildStatCard("Monthly Earnings", "₱19,983.79")),
+                  Expanded(
+                      child: _buildStatCard("Monthly Earnings", "₱19,983.79")),
                   const SizedBox(width: 8),
                   Expanded(child: _buildStatCard("Wallet", "₱3078.00")),
                 ],
               ),
               const SizedBox(height: 16),
-              const Text("Monthly Revenue", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text("Monthly Revenue",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Container(
                 height: 150,
@@ -335,7 +350,9 @@ class HomePage extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 5)],
+                  boxShadow: [
+                    BoxShadow(color: Colors.grey.shade300, blurRadius: 5)
+                  ],
                 ),
                 child: LineChart(LineChartData(
                   gridData: FlGridData(show: false),
@@ -352,7 +369,8 @@ class HomePage extends StatelessWidget {
                         FlSpot(6, 300),
                       ],
                       isCurved: true,
-                      gradient: LinearGradient(colors: [Colors.purple, Colors.deepPurple]),
+                      gradient: LinearGradient(
+                          colors: [Colors.purple, Colors.deepPurple]),
                       barWidth: 3,
                       isStrokeCapRound: true,
                     )
@@ -360,9 +378,12 @@ class HomePage extends StatelessWidget {
                 )),
               ),
               const SizedBox(height: 16),
-              const Text("Reviews about you", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              _buildReview("assets/reviewprofile.png", "⭐⭐⭐⭐⭐", "2nd time booking, maayos po pala gawa niya."),
-              _buildReview("assets/reviewprofile.png", "⭐⭐", "Hindi ko po nagustuhan gawa niya..."),
+              const Text("Reviews about you",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              _buildReview("assets/reviewprofile.png", "⭐⭐⭐⭐⭐",
+                  "2nd time booking, maayos po pala gawa niya."),
+              _buildReview("assets/reviewprofile.png", "⭐⭐",
+                  "Hindi ko po nagustuhan gawa niya..."),
             ],
           ),
         ),
@@ -372,7 +393,7 @@ class HomePage extends StatelessWidget {
 
   Widget _buildStatCard(String title, String value) {
     return Card(
-      color: const Color(0xFF640287), 
+      color: const Color(0xFF640287),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -380,12 +401,15 @@ class HomePage extends StatelessWidget {
           children: [
             Text(
               title,
-              style: const TextStyle(fontSize: 14, color: Colors.white), 
+              style: const TextStyle(fontSize: 14, color: Colors.white),
             ),
             const SizedBox(height: 4),
             Text(
               value,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white), 
+              style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
             ),
           ],
         ),
@@ -399,12 +423,12 @@ class HomePage extends StatelessWidget {
       child: ListTile(
         leading: CircleAvatar(backgroundImage: AssetImage(imagePath)),
         title: Text(rating, style: const TextStyle(fontSize: 16)),
-        subtitle: Text(reviewText, style: const TextStyle(fontSize: 14, color: Colors.black87)),
+        subtitle: Text(reviewText,
+            style: const TextStyle(fontSize: 14, color: Colors.black87)),
       ),
     );
   }
 }
-
 
 // class BookingsPage extends StatelessWidget {
 //   @override
@@ -458,4 +482,3 @@ class SidebarButton extends StatelessWidget {
     );
   }
 }
-

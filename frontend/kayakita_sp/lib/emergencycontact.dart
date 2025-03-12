@@ -1,9 +1,9 @@
-import 'dart:ffi';
+//import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'widgets/customappbar.dart';
 import 'widgets/customtextfield.dart';
-import 'govissue.dart'; 
+import 'govissue.dart';
 
 class EmergencyContactScreen extends StatefulWidget {
   final String email;
@@ -15,7 +15,6 @@ class EmergencyContactScreen extends StatefulWidget {
   final String address;
   final String service;
   final bool isCertified;
-
 
   const EmergencyContactScreen({
     super.key,
@@ -37,7 +36,8 @@ class EmergencyContactScreen extends StatefulWidget {
 class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
   final TextEditingController emergencyNameController = TextEditingController();
   final TextEditingController relationshipController = TextEditingController();
-  final TextEditingController emergencyNumberController = TextEditingController();
+  final TextEditingController emergencyNumberController =
+      TextEditingController();
   String? isAbove56;
   bool isLoading = false;
 
@@ -89,24 +89,35 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 20),
-            Center(child: Image.asset('assets/emergency_icon.png', height: 150)),
+            Center(
+                child: Image.asset('assets/emergency_icon.png', height: 150)),
             const SizedBox(height: 20),
             Text(
               'Emergency Contact',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
-            CustomTextField(hintText: "Emergency Contact Name*", controller: emergencyNameController),
+            CustomTextField(
+                hintText: "Emergency Contact Name*",
+                controller: emergencyNameController),
             const SizedBox(height: 10),
-            CustomTextField(hintText: "Relationship*", controller: relationshipController),
+            CustomTextField(
+                hintText: "Relationship*", controller: relationshipController),
             const SizedBox(height: 10),
-            CustomTextField(hintText: "Emergency Contact Number*", controller: emergencyNumberController),
+            CustomTextField(
+                hintText: "Emergency Contact Number*",
+                controller: emergencyNumberController),
             const SizedBox(height: 15),
-            Text("Are you 56 years old and above?*", style: Theme.of(context).textTheme.titleMedium),
+            Text("Are you 56 years old and above?*",
+                style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 5),
             DropdownButtonFormField<String>(
               decoration: InputDecoration(
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                 filled: true,
                 fillColor: Colors.grey.shade200,
               ),
@@ -132,19 +143,23 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                   onPressed: () {},
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey.shade400,
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 14),
                   ),
-                  child: const Text("Save", style: TextStyle(color: Colors.black)),
+                  child:
+                      const Text("Save", style: TextStyle(color: Colors.black)),
                 ),
                 ElevatedButton(
                   onPressed: isLoading ? null : onNext,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF87027B),
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 14),
                   ),
                   child: isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text("Next", style: TextStyle(color: Colors.white)),
+                      : const Text("Next",
+                          style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),
