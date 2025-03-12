@@ -54,9 +54,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    if (index == 0 || index == 1) {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
   }
 
   void _hideOverlay() {
@@ -68,7 +70,14 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> _screens = [
-      HomePage(firstName: firstName),
+      HomePage(
+        firstName: firstName,
+        onTotalBookingsTap: () {
+          setState(() {
+            _selectedIndex = 1;
+          });
+        },
+      ),
       BookingScreen(),
     ];
 
@@ -158,8 +167,13 @@ class _HomeScreenState extends State<HomeScreen> {
 // pages navigation
 class HomePage extends StatelessWidget {
   final String firstName;
+  final VoidCallback onTotalBookingsTap; // Callback for Total Bookings tap
 
-  const HomePage({super.key, required this.firstName});
+  const HomePage({
+    super.key,
+    required this.firstName,
+    required this.onTotalBookingsTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -379,13 +393,7 @@ class HomePage extends StatelessWidget {
                 children: [
                   Expanded(
                     child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => BookingScreen()),
-                        );
-                      },
+                      onTap: onTotalBookingsTap,
                       child: _buildStatCard("Total Bookings", "46"),
                     ),
                   ),
