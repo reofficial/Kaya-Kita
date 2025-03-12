@@ -57,14 +57,9 @@ class _HomeScreenState extends State<HomeScreen> {
     if (index == 0 || index == 1) {
       setState(() {
         _selectedIndex = index;
+        _showOverlay = _selectedIndex == 0;
       });
     }
-  }
-
-  void _hideOverlay() {
-    setState(() {
-      _showOverlay = false;
-    });
   }
 
   @override
@@ -98,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Container(
                     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                     decoration: BoxDecoration(
-                      color: Colors.orange,
+                      color: Colors.purple,
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
@@ -120,8 +115,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         IconButton(
-                          icon: Icon(Icons.close, color: Colors.white),
-                          onPressed: _hideOverlay,
+                          icon: Icon(Icons.chevron_right, color: Colors.white),
+                          onPressed: () => {_onItemTapped(1)},
                         ),
                       ],
                     ),
