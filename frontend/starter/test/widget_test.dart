@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:starter/home.dart' as homepage;
+import 'package:starter/jobcategories.dart' as jobcategoriespage;
 import 'package:starter/jobinfo.dart' as jobinfopage;
 import 'package:starter/joblistings.dart' as joblistpage;
 import 'package:starter/login.dart' as loginpage;
@@ -330,6 +332,117 @@ void main() {
       await tester.pumpWidget(MaterialApp(home: joblistpage.JobListingsScreen()));
 
       expect(find.widgetWithIcon(IconButton, Icons.add_circle), findsOneWidget);
+    });
+  });
+
+  group ('Job Categories screen:', () {
+
+    testWidgets('Verify Biker icon', (WidgetTester tester) async {
+      await tester.pumpWidget(const MaterialApp(home: jobcategoriespage.JobCategoriesScreen()));
+
+      expect(find.widgetWithIcon(ElevatedButton, Icons.motorcycle), findsOneWidget);
+    });
+
+    testWidgets('Verify Driver icon', (WidgetTester tester) async {
+      await tester.pumpWidget(const MaterialApp(home: jobcategoriespage.JobCategoriesScreen()));
+
+      expect(find.widgetWithIcon(ElevatedButton, Icons.directions_car), findsOneWidget);
+    });
+
+    testWidgets('Verify PasaBuy icon', (WidgetTester tester) async {
+      await tester.pumpWidget(const MaterialApp(home: jobcategoriespage.JobCategoriesScreen()));
+
+      expect(find.widgetWithIcon(ElevatedButton, Icons.food_bank), findsOneWidget);
+    });
+
+    testWidgets('Verify Pabili icon', (WidgetTester tester) async {
+      await tester.pumpWidget(const MaterialApp(home: jobcategoriespage.JobCategoriesScreen()));
+
+      expect(find.widgetWithIcon(ElevatedButton, Icons.shopping_cart), findsOneWidget);
+    });
+
+    testWidgets('Verify Laundry icon', (WidgetTester tester) async {
+      await tester.pumpWidget(const MaterialApp(home: jobcategoriespage.JobCategoriesScreen()));
+
+      expect(find.widgetWithIcon(ElevatedButton, Icons.local_laundry_service), findsOneWidget);
+    });
+
+    testWidgets('Verify Balloon Artist icon', (WidgetTester tester) async {
+      await tester.pumpWidget(const MaterialApp(home: jobcategoriespage.JobCategoriesScreen()));
+
+      expect(find.widgetWithIcon(ElevatedButton, Icons.question_mark), findsOneWidget);
+    });
+
+    testWidgets('Verify Home Cleaning icon', (WidgetTester tester) async {
+      await tester.pumpWidget(const MaterialApp(home: jobcategoriespage.JobCategoriesScreen()));
+
+      expect(find.widgetWithIcon(ElevatedButton, Icons.cleaning_services), findsOneWidget);
+    });
+
+    testWidgets('Verify Aircon Tech icon', (WidgetTester tester) async {
+      await tester.pumpWidget(const MaterialApp(home: jobcategoriespage.JobCategoriesScreen()));
+
+      expect(find.widgetWithIcon(ElevatedButton, Icons.air), findsOneWidget);
+    });
+
+    testWidgets('Verify Pet Groomer icon', (WidgetTester tester) async {
+      await tester.pumpWidget(const MaterialApp(home: jobcategoriespage.JobCategoriesScreen()));
+
+      expect(find.widgetWithIcon(ElevatedButton, Icons.shower), findsOneWidget);
+    });
+
+    testWidgets('Verify Masseuse icon', (WidgetTester tester) async {
+      await tester.pumpWidget(const MaterialApp(home: jobcategoriespage.JobCategoriesScreen()));
+
+      expect(find.widgetWithIcon(ElevatedButton, Icons.bed), findsOneWidget);
+    });
+
+    testWidgets('Verify Photographer icon', (WidgetTester tester) async {
+      await tester.pumpWidget(const MaterialApp(home: jobcategoriespage.JobCategoriesScreen()));
+
+      expect(find.widgetWithIcon(ElevatedButton, Icons.camera_alt), findsOneWidget);
+    });
+
+    testWidgets('Verify Veterinarian icon', (WidgetTester tester) async {
+      await tester.pumpWidget(const MaterialApp(home: jobcategoriespage.JobCategoriesScreen()));
+
+      expect(find.widgetWithIcon(ElevatedButton, Icons.pets), findsOneWidget);
+    });
+
+    testWidgets('Verify DJ icon', (WidgetTester tester) async {
+      await tester.pumpWidget(const MaterialApp(home: jobcategoriespage.JobCategoriesScreen()));
+
+      expect(find.widgetWithIcon(ElevatedButton, Icons.music_note), findsOneWidget);
+    });
+
+    testWidgets('Verify Tutor icon', (WidgetTester tester) async {
+      await tester.pumpWidget(const MaterialApp(home: jobcategoriespage.JobCategoriesScreen()));
+
+      expect(find.widgetWithIcon(ElevatedButton, Icons.book), findsOneWidget);
+    });
+
+    testWidgets('Verify Hair Stylist icon', (WidgetTester tester) async {
+      await tester.pumpWidget(const MaterialApp(home: jobcategoriespage.JobCategoriesScreen()));
+
+      expect(find.widgetWithIcon(ElevatedButton, FontAwesomeIcons.scissors), findsOneWidget);
+    });
+
+    testWidgets('Verify Electrician icon', (WidgetTester tester) async {
+      await tester.pumpWidget(const MaterialApp(home: jobcategoriespage.JobCategoriesScreen()));
+
+      expect(find.widgetWithIcon(ElevatedButton, Icons.electrical_services), findsOneWidget);
+    });
+
+    testWidgets('Verify Graphic Designer icon', (WidgetTester tester) async {
+      await tester.pumpWidget(const MaterialApp(home: jobcategoriespage.JobCategoriesScreen()));
+
+      expect(find.widgetWithIcon(ElevatedButton, Icons.draw), findsOneWidget);
+    });
+
+    testWidgets('Verify Plumber icon', (WidgetTester tester) async {
+      await tester.pumpWidget(const MaterialApp(home: jobcategoriespage.JobCategoriesScreen()));
+
+      expect(find.widgetWithIcon(ElevatedButton, Icons.plumbing), findsOneWidget);
     });
   });
 

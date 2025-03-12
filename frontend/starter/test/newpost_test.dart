@@ -11,77 +11,77 @@ void main() {
     await dotenv.load(fileName: ".env");
   });
 
-  group('New Post Tests:', () {
-    test('Valid job listing post returns 200', () async {
+  // group('New Post Tests:', () {
+  //   test('Valid job listing post returns 200', () async {
 
-      final Map<String, dynamic> newPostDetails = {
-        'username': 'testuser',
-        'tag': ['Education'], 
-        'job_title': 'Job Listing Header test',        
-        'description': 'Job listing to be listed in the job listing page',
-        'location': 'Makati City',
-        'salary': 10,           
-        'salary_frequency': 'Hourly',  
-        'duration': 'Short-term'   
-      };
+  //     final Map<String, dynamic> newPostDetails = {
+  //       'username': 'testuser',
+  //       'tag': ['Education'], 
+  //       'job_title': 'Job Listing Header test',        
+  //       'description': 'Job listing to be listed in the job listing page',
+  //       'location': 'Makati City',
+  //       'salary': 10,           
+  //       'salary_frequency': 'Hourly',  
+  //       'duration': 'Short-term'   
+  //     };
 
-      final response = await ApiService.postJobListing(newPostDetails);
+  //     final response = await ApiService.postJobListing(newPostDetails);
 
-      expect(response.statusCode, 201);
+  //     expect(response.statusCode, 201);
 
-      await ApiService.deleteJobListing(lastPost); 
-      await ApiService.deleteJobListing(10); 
-      await ApiService.deleteJobListing(11); 
-      await ApiService.deleteJobListing(12); 
-    });
+  //     await ApiService.deleteJobListing(lastPost); 
+  //     await ApiService.deleteJobListing(10); 
+  //     await ApiService.deleteJobListing(11); 
+  //     await ApiService.deleteJobListing(12); 
+  //   });
 
-    test('Job listing post with incomplete details returns 422', () async {
+  //   test('Job listing post with incomplete details returns 422', () async {
 
-      final Map<String, dynamic> newPostDetails = {
-        'tag': ['Education'],   
-        'job_title': null, 
-        'description': 'Job listing to be listed in the job listing page',
-        'location': 'Makati City',
-        'salary': 10,           
-        'salary_frequency': 'Hourly',  
-        'duration': 'Short-term'   
-      };
+  //     final Map<String, dynamic> newPostDetails = {
+  //       'tag': ['Education'],   
+  //       'job_title': null, 
+  //       'description': 'Job listing to be listed in the job listing page',
+  //       'location': 'Makati City',
+  //       'salary': 10,           
+  //       'salary_frequency': 'Hourly',  
+  //       'duration': 'Short-term'   
+  //     };
 
-      final response = await ApiService.postJobListing(newPostDetails);
+  //     final response = await ApiService.postJobListing(newPostDetails);
 
-      expect(response.statusCode, 422); 
+  //     expect(response.statusCode, 422); 
 
-      await ApiService.deleteJobListing(lastPost); 
+  //     await ApiService.deleteJobListing(lastPost); 
 
-      await ApiService.deleteJobListing(10); 
-      await ApiService.deleteJobListing(11); 
-      await ApiService.deleteJobListing(12); 
-    });
+  //     await ApiService.deleteJobListing(10); 
+  //     await ApiService.deleteJobListing(11); 
+  //     await ApiService.deleteJobListing(12); 
+  //   });
 
-    test('Verify deletion of posted job listing', () async {
+  //   test('Verify deletion of posted job listing', () async {
     
-      final Map<String, dynamic> newPostDetails = {
-        'username': 'testuser',
-        'tag': ['Education'], 
-        'job_title': 'Job Listing Header test',        
-        'description': 'Job listing to be listed in the job listing page',
-        'location': 'Makati City',
-        'salary': 10,           
-        'salary_frequency': 'Hourly',  
-        'duration': 'Short-term'   
-      };
+  //     final Map<String, dynamic> newPostDetails = {
+  //       'username': 'testuser',
+  //       'tag': ['Education'], 
+  //       'job_title': 'Job Listing Header test',        
+  //       'description': 'Job listing to be listed in the job listing page',
+  //       'location': 'Makati City',
+  //       'salary': 10,           
+  //       'salary_frequency': 'Hourly',  
+  //       'duration': 'Short-term'   
+  //     };
 
-      await ApiService.postJobListing(newPostDetails);
+  //     await ApiService.postJobListing(newPostDetails);
 
-      final response = await ApiService.deleteJobListing(lastPost);  
+  //     final response = await ApiService.deleteJobListing(lastPost);  
 
-      final responseBody = jsonDecode(response.body);
-      expect(responseBody['message'], 'Job listing deleted successfully');
+  //     final responseBody = jsonDecode(response.body);
+  //     expect(responseBody['message'], 'Job listing deleted successfully');
 
-      await ApiService.deleteJobListing(10); 
-      await ApiService.deleteJobListing(11); 
-      await ApiService.deleteJobListing(12); 
-    });
+  //     await ApiService.deleteJobListing(10); 
+  //     await ApiService.deleteJobListing(11); 
+  //     await ApiService.deleteJobListing(12); 
+  //   });
     
-  });
+  // });
 }

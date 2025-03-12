@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:starter/nearbyworkers.dart';
 
 class JobCategoriesScreen extends StatefulWidget {
@@ -27,7 +28,7 @@ class _JobCategoriesScreenState extends State<JobCategoriesScreen> {
     {'label': "Veterinarian", 'icon': Icons.pets},
     {'label': "DJ", 'icon': Icons.music_note},
     {'label': "Tutor", 'icon': Icons.book},
-    {'label': "Hair Stylist", 'icon': Icons.question_mark},
+    {'label': "Hair Stylist", 'icon': FontAwesomeIcons.scissors},
     {'label': "Electrician", 'icon': Icons.electrical_services},
     {'label': "Graphic Designer", 'icon': Icons.draw},
     {'label': "Plumber", 'icon': Icons.plumbing},
