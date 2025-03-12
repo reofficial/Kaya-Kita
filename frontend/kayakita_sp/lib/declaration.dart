@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kayakita_sp/entrance.dart';
 import 'home.dart';
 import 'api_service.dart';
 import 'widgets/customappbar.dart';
@@ -119,7 +120,7 @@ class _DeclarationScreenState extends State<DeclarationScreen> {
         // ✅ **Navigate to HomeScreen upon successful registration**
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
+          MaterialPageRoute(builder: (context) => EntranceScreen(email: widget.email)),
         );
       } else {
         _showErrorMessage("Registration failed: ${response.body}");

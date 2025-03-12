@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'home.dart';
 
 class EntranceScreen extends StatefulWidget {
-  const EntranceScreen({super.key});
+  final String email;
+  const EntranceScreen({super.key, required this.email});
 
   @override
   EntranceScreenState createState() => EntranceScreenState();
@@ -16,7 +17,7 @@ class EntranceScreenState extends State<EntranceScreen> {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
+          MaterialPageRoute(builder: (context) => HomeScreen(email: widget.email)),
         );
       }
     });

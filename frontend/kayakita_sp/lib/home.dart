@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'bookings.dart';
+import 'api_service.dart';
+import 'dart:convert';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final String email;
+  const HomeScreen({super.key, required this.email});
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -11,13 +14,34 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0; 
+  String firstName = "Loading..."; 
 
-  final List<Widget> _screens = [
-    HomePage(),
-    BookingScreen(),
-    PaymentsPage(),
-    ChatsPage(),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    fetchFirstName(widget.email);
+  }
+
+  Future<void> fetchFirstName(String email) async {
+  try {
+    final response = await ApiService.getWorkers();
+    final List<dynamic> workers = json.decode(response.body);
+    
+    final worker = workers.firstWhere(
+      (worker) => worker['email'] == email,
+      orElse: () => null, 
+    );
+
+    setState(() {
+      firstName = worker != null ? worker['first_name'] ?? "Unknown" : "Email not found";
+    });
+  } catch (e) {
+    setState(() {
+      firstName = "Network Error: $e";
+    });
+  }
+}
+
 
   void _onItemTapped(int index) {
     setState(() {
@@ -27,6 +51,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> _screens = [
+      HomePage(firstName: firstName),
+      BookingScreen(),
+      PaymentsPage(),
+      ChatsPage(),
+    ];
+    
     return Scaffold(
       backgroundColor: Colors.white,
       // appBar: AppBar(
@@ -68,7 +99,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
 // pages navigation
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  final String firstName;
+
+  const HomePage({super.key, required this.firstName});
+  
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +125,7 @@ class HomePage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text("Hello, Barack!", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+              Text("Hello, $firstName!", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Card(
                 color: Colors.purple,

@@ -35,6 +35,10 @@ class _GovIssueScreenState extends State<GovIssueScreen> {
   bool _isUploadingBarangay = false;
   bool _isUploadingLicense = false;
   bool _isUploadingClearance = false;
+  bool _isIDUploaded = false;
+  bool _isBarangayUploaded = false;
+  bool _isLicenseUploaded = false;
+  bool _isClearanceUploaded = false;
 
   @override
   void dispose() {
@@ -53,10 +57,22 @@ class _GovIssueScreenState extends State<GovIssueScreen> {
     await Future.delayed(const Duration(seconds: 2));
 
     setState(() {
-      if (type == "Government ID") _isUploadingID = false;
-      if (type == "Barangay Certificate") _isUploadingBarangay = false;
-      if (type == "Licensing Certificate") _isUploadingLicense = false;
-      if (type == "Clearance") _isUploadingClearance = false;
+      if (type == "Government ID") {
+        _isUploadingID = false;
+        _isIDUploaded = true;
+      }
+      if (type == "Barangay Certificate") {
+        _isUploadingBarangay = false;
+        _isBarangayUploaded = true;
+      }
+      if (type == "Licensing Certificate") {
+        _isUploadingLicense = false;
+        _isLicenseUploaded = true;
+      }
+      if (type == "Clearance") {
+        _isUploadingClearance = false;
+        _isClearanceUploaded = true;
+      }
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -64,10 +80,20 @@ class _GovIssueScreenState extends State<GovIssueScreen> {
     );
   }
 
+  bool get isCertified {
+    if (selectedGovID == null || !_isIDUploaded || residentialAddressController.text.isEmpty || !_isBarangayUploaded || !_isLicenseUploaded) {
+      return false;
+    }
+    if (hasClearance == "Yes" && !_isClearanceUploaded) {
+      return false;
+    }
+    return true;
+  }
+
   void onNext() {
-    if (selectedGovID == null || residentialAddressController.text.isEmpty) {
+    if (!isCertified) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("⚠️ Please fill in all required fields.")),
+        const SnackBar(content: Text("⚠️ Please complete all required fields before proceeding.")),
       );
       return;
     }
@@ -101,10 +127,7 @@ class _GovIssueScreenState extends State<GovIssueScreen> {
             children: [
               const SizedBox(height: 20),
 
-              Text(
-                'Government Issued ID',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-              ),
+              Text('Government Issued ID', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
 
               DropdownButtonFormField<String>(
@@ -116,25 +139,15 @@ class _GovIssueScreenState extends State<GovIssueScreen> {
                 value: selectedGovID,
                 hint: const Text("Select Government Issued ID"),
                 items: ["Passport", "Driver’s License", "SSS ID", "Voter’s ID"].map((String id) {
-                  return DropdownMenuItem<String>(
-                    value: id,
-                    child: Text(id),
-                  );
+                  return DropdownMenuItem<String>(value: id, child: Text(id));
                 }).toList(),
-                onChanged: (newValue) {
-                  setState(() {
-                    selectedGovID = newValue;
-                  });
-                },
+                onChanged: (newValue) => setState(() => selectedGovID = newValue),
               ),
               const SizedBox(height: 15),
 
               Text("Government ID Image (Front)*", style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 5),
-              GestureDetector(
-                onTap: () => _uploadImage("Government ID"),
-                child: _buildUploadBox(_isUploadingID),
-              ),
+              GestureDetector(onTap: () => _uploadImage("Government ID"), child: _buildUploadBox(_isUploadingID, _isIDUploaded)),
               const SizedBox(height: 15),
 
               CustomTextField(hintText: "Residential Address*", controller: residentialAddressController),
@@ -142,29 +155,17 @@ class _GovIssueScreenState extends State<GovIssueScreen> {
 
               Text("Upload Barangay Certificate*", style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 5),
-              GestureDetector(
-                onTap: () => _uploadImage("Barangay Certificate"),
-                child: _buildUploadBox(_isUploadingBarangay),
-              ),
+              GestureDetector(onTap: () => _uploadImage("Barangay Certificate"), child: _buildUploadBox(_isUploadingBarangay, _isBarangayUploaded)),
               const SizedBox(height: 15),
 
               Text("Upload Licensing Certificate*", style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 5),
-              GestureDetector(
-                onTap: () => _uploadImage("Licensing Certificate"),
-                child: _buildUploadBox(_isUploadingLicense),
-              ),
+              GestureDetector(onTap: () => _uploadImage("Licensing Certificate"), child: _buildUploadBox(_isUploadingLicense, _isLicenseUploaded)),
               const SizedBox(height: 20),
 
-              // ✅ New Section: NBI / Police Clearance / CIBI
-              Text(
-                "NBI / Police Clearance / CIBI",
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-              ),
+              Text("NBI / Police Clearance / CIBI", style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
 
-              Text("Do you have NBI / Police Clearance / CIBI?", style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 5),
               DropdownButtonFormField<String>(
                 decoration: InputDecoration(
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -174,26 +175,16 @@ class _GovIssueScreenState extends State<GovIssueScreen> {
                 value: hasClearance,
                 hint: const Text("Select"),
                 items: ["Yes", "No"].map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
+                  return DropdownMenuItem<String>(value: value, child: Text(value));
                 }).toList(),
-                onChanged: (newValue) {
-                  setState(() {
-                    hasClearance = newValue;
-                  });
-                },
+                onChanged: (newValue) => setState(() => hasClearance = newValue),
               ),
               const SizedBox(height: 15),
 
               if (hasClearance == "Yes") ...[
                 Text("Upload Clearance*", style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 5),
-                GestureDetector(
-                  onTap: () => _uploadImage("Clearance"),
-                  child: _buildUploadBox(_isUploadingClearance),
-                ),
+                GestureDetector(onTap: () => _uploadImage("Clearance"), child: _buildUploadBox(_isUploadingClearance, _isClearanceUploaded)),
                 const SizedBox(height: 20),
               ],
 
@@ -202,18 +193,12 @@ class _GovIssueScreenState extends State<GovIssueScreen> {
                 children: [
                   ElevatedButton(
                     onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey.shade400,
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
-                    ),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.grey.shade400, padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14)),
                     child: const Text("Save", style: TextStyle(color: Colors.black)),
                   ),
                   ElevatedButton(
                     onPressed: onNext,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.purple.shade700,
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
-                    ),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.purple.shade700, padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14)),
                     child: const Text("Next", style: TextStyle(color: Colors.white)),
                   ),
                 ],
@@ -226,16 +211,12 @@ class _GovIssueScreenState extends State<GovIssueScreen> {
     );
   }
 
-  Widget _buildUploadBox(bool isUploading) {
+  Widget _buildUploadBox(bool isUploading, bool isUploaded) {
     return Container(
       height: 100,
       width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        color: Colors.grey.shade200,
-        border: Border.all(color: Colors.black38),
-      ),
-      child: isUploading ? const Center(child: CircularProgressIndicator()) : const Icon(Icons.add, size: 40, color: Colors.black54),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: Colors.grey.shade200, border: Border.all(color: Colors.black38)),
+      child: isUploading ? const Center(child: CircularProgressIndicator()) : (isUploaded ? const Icon(Icons.check_circle, color: Colors.green, size: 40) : const Icon(Icons.add, size: 40, color: Colors.black54)),
     );
   }
 }

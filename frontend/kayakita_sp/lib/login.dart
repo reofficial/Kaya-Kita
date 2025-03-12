@@ -52,12 +52,12 @@ class LoginScreen extends StatelessWidget {
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => HomeScreen(),
-                          ),
-                        );
+                        // Navigator.push(
+                        //   context,
+                          // MaterialPageRoute(
+                          //   //builder: (context) => HomeScreen(email: ,),
+                          // ),
+                        // );
                       },
                       child: Text(
                         'Forgot your password?',
@@ -69,12 +69,12 @@ class LoginScreen extends StatelessWidget {
                   Center(
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => EntranceScreen(),
-                          ),
-                        );
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => EntranceScreen(),
+                        //   ),
+                        // );
                       },
                       child: Text(
                         "Sign in",

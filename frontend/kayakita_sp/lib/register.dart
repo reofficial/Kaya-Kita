@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+
 import 'personalinfo.dart';
 import 'login.dart';
+
 import 'api_service.dart';
+
 import 'package:provider/provider.dart';
 import 'providers/profile_provider.dart';
 
@@ -10,11 +13,11 @@ class RegisterWorkerScreen extends StatefulWidget {
   const RegisterWorkerScreen({super.key});
 
   @override
-  State<RegisterWorkerScreen> createState() => _RegisterWorkerScreenState();
+  State<RegisterWorkerScreen> createState() => RegisterWorkerScreenState();
 }
 
-class _RegisterWorkerScreenState extends State<RegisterWorkerScreen> {
-  // Controllers for text fields
+class RegisterWorkerScreenState extends State<RegisterWorkerScreen> {
+  // Controllers for the text fields
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
@@ -41,34 +44,36 @@ class _RegisterWorkerScreenState extends State<RegisterWorkerScreen> {
 
   bool isLoading = false; // Used for displaying the loading overlay
 
-  // ✅ Email validation
-  bool isValidEmail(String email) {
-    return RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
-        .hasMatch(email);
-  }
-
-  // ✅ Validate password and update criteria flags
+  // Validate the password and update criteria flags
   void validatePassword(String value) {
     setState(() {
       hasMinLength = value.length >= 6;
       hasUpperCase = RegExp(r'[A-Z]').hasMatch(value);
       hasNumber = RegExp(r'[0-9]').hasMatch(value);
       hasSpecialChar = RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(value);
-
-      // Generate a detailed error message
-      List<String> errors = [];
-
-      if (!hasMinLength) errors.add("❌ At least 6 characters");
-      if (!hasUpperCase) errors.add("❌ At least one uppercase letter");
-      if (!hasNumber) errors.add("❌ At least one number");
-      if (!hasSpecialChar) errors.add("❌ At least one special character");
-
-      passwordError = errors.isEmpty ? null : errors.join("\n");
     });
   }
 
-  // ✅ Worker registration function
-  Future<void> onRegisterWorker() async {
+  Map<String, bool> validatePasswordFlags(String value) {
+    return {
+      'hasMinLength': value.length >= 6,
+      'hasUpperCase': RegExp(r'[A-Z]').hasMatch(value),
+      'hasNumber': RegExp(r'[0-9]').hasMatch(value),
+      'hasSpecialChar': RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(value),
+    };
+  }
+
+  // Basic email validation using regex
+  bool isValidEmail(String email) {
+    return RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+        .hasMatch(email);
+  }
+
+  // This function handles registration:
+  // 1. It validates the form fields.
+  // 2. It calls the API to register the user.
+  // 3. On success, it navigates to PersonalInfoScreen, carrying over email and password.
+  Future<void> onRegister() async {
     setState(() {
       emailError =
           isValidEmail(emailController.text) ? null : "Invalid email format";
@@ -87,59 +92,57 @@ class _RegisterWorkerScreenState extends State<RegisterWorkerScreen> {
       }
     });
 
-    // 🔴 **Stop execution if validation fails**
-    if (emailError != null || passwordError != null) {
-      return;
-    }
-
-    setState(() {
-      isLoading = true; // Show loading indicator
-    });
-
-    try {
-      // ✅ Fix: Ensure the backend gets the expected field name "email"
-      final response = await ApiService.registerWorker(
-        emailController.text, // Ensure email is passed correctly
-        passwordController.text,
-      );
-
-      if (response.statusCode == 201) {
-        final Map<String, dynamic> responseData = json.decode(response.body);
-        final String username =
-            responseData['username'] ?? "Worker"; // Fallback
-
-        // Store user data in Provider
-        Provider.of<UserProvider>(context, listen: false)
-            .setEmail(emailController.text);
-        Provider.of<UserProvider>(context, listen: false).setUsername(username);
-
-        // ✅ Navigate to PersonalInfoScreen with correct email field
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PersonalInfoScreen(
-              email: emailController.text, // ✅ Ensure email is passed correctly
-              password: passwordController.text,
-            ),
-          ),
-        );
-      } else if (response.statusCode == 409) {
-        setState(() {
-          emailError = "Email already exists. Please use a different one.";
-        });
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Registration failed: ${response.body}")),
-        );
-      }
-    } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("An error occurred: $error")),
-      );
-    } finally {
+    if (emailError == null && passwordError == null) {
       setState(() {
-        isLoading = false; // Hide loading indicator
+        isLoading =
+            true; // Show loading indicator while API call is in progress
       });
+
+      try {
+        // --- API CALL ---
+        final response = await ApiService.registerWorker(
+          emailController.text,
+          passwordController.text,
+        );
+        // ------------------
+
+        if (response.statusCode == 201) {
+          final Map<String, dynamic> responseData = json.decode(response.body);
+          final String username = responseData['username'];
+          Provider.of<UserProvider>(context, listen: false)
+              .setEmail(emailController.text);
+          Provider.of<UserProvider>(context, listen: false)
+              .setUsername(username);
+
+          // Navigate to PersonalInfoScreen
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PersonalInfoScreen(
+                email: emailController.text,
+                password: passwordController.text,
+              ),
+            ),
+          );
+        } else if (response.statusCode == 409) {
+          // 409 Conflict - Email already exists
+          setState(() {
+            emailError = "Email already exists. Please use a different one.";
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Registration failed: ${response.body}")),
+          );
+        }
+      } catch (error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("An error occurred: $error")),
+        );
+      } finally {
+        setState(() {
+          isLoading = false; // Hide loading indicator after API call completes
+        });
+      }
     }
   }
 
@@ -147,7 +150,7 @@ class _RegisterWorkerScreenState extends State<RegisterWorkerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Register Worker',
+        title: const Text('Register',
             style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 0,
@@ -156,6 +159,7 @@ class _RegisterWorkerScreenState extends State<RegisterWorkerScreen> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
+      // Use Stack to overlay a loading indicator over the registration form
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -167,9 +171,9 @@ class _RegisterWorkerScreenState extends State<RegisterWorkerScreen> {
                   const SizedBox(height: 20),
                   const Center(
                     child: Text(
-                      'Create Worker Account',
+                      'Create Account',
                       style: TextStyle(
-                          color: Color(0xFF000E53),
+                          color: Color(0xFF87027B),
                           fontSize: 30,
                           fontWeight: FontWeight.bold),
                     ),
@@ -184,6 +188,8 @@ class _RegisterWorkerScreenState extends State<RegisterWorkerScreen> {
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8)),
                       errorText: emailError,
+                      errorStyle:
+                          const TextStyle(fontSize: 14, color: Colors.red),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -197,7 +203,6 @@ class _RegisterWorkerScreenState extends State<RegisterWorkerScreen> {
                       fillColor: Colors.grey[200],
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8)),
-                      errorText: passwordError,
                       suffixIcon: IconButton(
                         icon: Icon(obscurePassword
                             ? Icons.visibility_off
@@ -208,7 +213,27 @@ class _RegisterWorkerScreenState extends State<RegisterWorkerScreen> {
                           });
                         },
                       ),
+                      errorText: passwordError,
+                      errorStyle:
+                          const TextStyle(fontSize: 14, color: Colors.red),
                     ),
+                  ),
+                  const SizedBox(height: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      PasswordRequirement(
+                          text: "At least 6 characters",
+                          satisfied: hasMinLength),
+                      PasswordRequirement(
+                          text: "At least one uppercase letter",
+                          satisfied: hasUpperCase),
+                      PasswordRequirement(
+                          text: "At least one number", satisfied: hasNumber),
+                      PasswordRequirement(
+                          text: "At least one special character",
+                          satisfied: hasSpecialChar),
+                    ],
                   ),
                   const SizedBox(height: 10),
                   TextField(
@@ -236,8 +261,26 @@ class _RegisterWorkerScreenState extends State<RegisterWorkerScreen> {
                   Center(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF000E53)),
-                      onPressed: onRegisterWorker,
+                          backgroundColor: const Color(0xFF87027B)),
+                      onPressed: () async {
+                        // try to register email and password
+                        await onRegister();
+                        if (emailError == null && passwordError == null) {
+                          // set provider email
+                          Provider.of<UserProvider>(context, listen: false)
+                              .setEmail(emailController.text);
+                          // go to next page
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PersonalInfoScreen(
+                                email: emailController.text,
+                                password: passwordController.text,
+                              ),
+                            ),
+                          );
+                        }
+                      },
                       child: const Text("Continue",
                           style: TextStyle(
                               color: Colors.white,
@@ -245,17 +288,152 @@ class _RegisterWorkerScreenState extends State<RegisterWorkerScreen> {
                               fontSize: 16)),
                     ),
                   ),
+                  const SizedBox(height: 10),
+                  Center(
+                    child: TextButton(
+                      onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => LoginScreen())),
+                      child: const Text(
+                        'Already have an account?',
+                        style: TextStyle(
+                            decoration: TextDecoration.underline,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 50),
+                  Center(
+                    child: Column(
+                      children: [
+                        const Text(
+                          "Or continue with",
+                          style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black),
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                // TODO: Implement Google sign-in
+                              },
+                              icon: Image.asset('assets/google.png',
+                                  width: 30, height: 30),
+                              iconSize: 30,
+                            ),
+                            const SizedBox(width: 3),
+                            IconButton(
+                              onPressed: () {
+                                // TODO: Implement Facebook sign-in
+                              },
+                              icon: Image.asset('assets/facebook.png',
+                                  width: 30, height: 30),
+                              iconSize: 30,
+                            ),
+                            const SizedBox(width: 2),
+                            IconButton(
+                              onPressed: () {
+                                // TODO: Implement Apple sign-in
+                              },
+                              icon: Image.asset('assets/apple.png',
+                                  width: 32, height: 32),
+                              iconSize: 32,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 30),
                 ],
               ),
             ),
           ),
+          // Loading overlay: shows a semi-transparent background and a spinner when isLoading is true.
           if (isLoading)
             Container(
               color: Colors.black.withOpacity(0.3),
-              child: const Center(child: CircularProgressIndicator()),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
             ),
         ],
       ),
     );
   }
 }
+
+// Widget to display individual password requirements.
+class PasswordRequirement extends StatelessWidget {
+  final String text;
+  final bool satisfied;
+
+  const PasswordRequirement(
+      {super.key, required this.text, required this.satisfied});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          Icon(satisfied ? Icons.check_circle : Icons.circle,
+              color: satisfied ? Colors.green : Colors.grey, size: 16),
+          const SizedBox(width: 5),
+          Text(text,
+              style: TextStyle(
+                  color: satisfied ? Colors.green : Colors.grey, fontSize: 14)),
+        ],
+      ),
+    );
+  }
+}
+
+// // Optional reusable custom text field widget.
+// class CustomTextField extends StatelessWidget {
+//   const CustomTextField({
+//     super.key,
+//     required this.controller,
+//     required this.hintText,
+//     this.borderColor = const Color(0xFFE8F0FE),
+//     this.obscureText = false,
+//   });
+
+//   final TextEditingController controller;
+//   final String hintText;
+//   final Color borderColor;
+//   final bool obscureText;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return TextField(
+//       controller: controller,
+//       obscureText: obscureText,
+//       decoration: InputDecoration(
+//         hintText: hintText,
+//         filled: true,
+//         fillColor: borderColor.withAlpha((0.2 * 255).toInt()),
+//         border: OutlineInputBorder(
+//           borderRadius: BorderRadius.circular(8),
+//           borderSide: BorderSide(color: borderColor),
+//         ),
+//         enabledBorder: OutlineInputBorder(
+//           borderRadius: BorderRadius.circular(8),
+//           borderSide: BorderSide(color: borderColor),
+//         ),
+//         focusedBorder: OutlineInputBorder(
+//           borderRadius: BorderRadius.circular(8),
+//           borderSide: const BorderSide(color: Color(0xFF87027B)),
+//         ),
+//       ),
+//     );
+//   }
+// }
