@@ -46,6 +46,7 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
                 ? '${item['first_name']} ${item['last_name']}'
                 : null,
               'rating' : 5.0,
+              'username' : item['username'],
               'service_preference' : item['service_preference'] ?? "N/A" 
             })
           .toList();
@@ -69,7 +70,7 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
         "ticket_number": 0, // need help with this
         "datetime": formattedDateTime, 
         "customer": username,
-        "handyman": worker?['name'] ?? "Unknown",
+        "handyman": worker?['username'] ?? "Unknown",
         "job_status": "Pending",
         "payment_status": "Not Paid"
       };
