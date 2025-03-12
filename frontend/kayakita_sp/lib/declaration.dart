@@ -13,6 +13,8 @@ class DeclarationScreen extends StatefulWidget {
   final String lastName;
   final String contactNumber;
   final String address;
+  final String service;
+  final bool isCertified;
 
   const DeclarationScreen({
     super.key,
@@ -23,6 +25,8 @@ class DeclarationScreen extends StatefulWidget {
     required this.lastName,
     required this.contactNumber,
     required this.address,
+    required this.isCertified,
+    required this.service,
   });
 
   @override
@@ -50,7 +54,7 @@ class _DeclarationScreenState extends State<DeclarationScreen> {
   bool _dataSharingConsent = false;
   bool _walletUpgradeConsent = false;
 
-  bool isLoading = false; // ✅ Show loading indicator
+  bool isLoading = false; 
 
   /// ✅ **Handles form submission (Final API call)**
   Future<void> onSubmit() async {
@@ -76,14 +80,16 @@ class _DeclarationScreenState extends State<DeclarationScreen> {
     });
 
     Map<String, dynamic> workerData = {
-      "email": widget.email, // ✅ Ensure email is included
+      "email": widget.email, 
       "password": widget.password,
       "first_name": widget.firstName,
       "middle_initial": widget.middleInitial,
       "last_name": widget.lastName,
       "contact_number": widget.contactNumber,
       "address": widget.address,
-      "username": "--", // Default value as specified.
+      "username": "--", 
+      "service_preference": widget.service,
+      "is_certified": widget.isCertified,
 
       /*
       "consents": {

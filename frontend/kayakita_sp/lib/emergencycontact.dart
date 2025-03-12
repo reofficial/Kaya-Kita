@@ -11,6 +11,7 @@ class EmergencyContactScreen extends StatefulWidget {
   final String lastName;
   final String contactNumber;
   final String address;
+  final String service;
   const EmergencyContactScreen({
     super.key,
     required this.email,
@@ -20,6 +21,7 @@ class EmergencyContactScreen extends StatefulWidget {
     required this.lastName,
     required this.contactNumber,
     required this.address,
+    required this.service,
   });
 
   @override
@@ -63,6 +65,7 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
           lastName: widget.lastName,
           contactNumber: widget.contactNumber,
           address: widget.address,
+          service: widget.service,
         ),
       ),
     );
