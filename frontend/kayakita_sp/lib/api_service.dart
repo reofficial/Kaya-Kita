@@ -134,6 +134,13 @@ class ApiService {
     return response;
   }
 
+  // ========================= CUSTOMER API CALLS ========================= //
+  static Future<http.Response> getCustomers() async {
+    final url = Uri.parse('$baseUrl/customers');
+    final response = await _client.get(url);
+    return response;
+  }
+
   static Future<http.Response> getRates() async {
     final url = Uri.parse('$baseUrl/rate');
     final response = await _client.get(url);
@@ -196,6 +203,38 @@ class ApiService {
   static Future<http.Response> deleteJobListing(int jobId) async {
     final url = Uri.parse('$baseUrl/job-listings/delete/$jobId');
     final response = await _client.delete(url);
+    return response;
+  }
+
+  // ========================= JOB LISTINGS API CALLS ========================= //
+
+   static Future<http.Response> postJobCircle(Map<String, dynamic> jobCircle) async {
+    final url = Uri.parse('$baseUrl/job-circles/post');
+    final response = await _client.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(jobCircle),
+    );
+    return response;
+  }
+
+  static Future<http.Response> getJobCircles() async {
+    final url = Uri.parse('$baseUrl/job-circles');
+    final response = await _client.get(
+      url,
+      headers: {'Content-Type': 'application/json'},
+    );
+    return response;
+  }
+
+  static Future<http.Response> updateJobCircles(
+      Map<String, dynamic> updateDetails) async {
+    final url = Uri.parse('$baseUrl/job-circles/update');
+    final response = await _client.put(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(updateDetails),
+    );
     return response;
   }
 }
