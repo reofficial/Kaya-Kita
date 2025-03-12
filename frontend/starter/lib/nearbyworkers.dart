@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -22,6 +23,8 @@ class NearbyWorkersScreen extends StatefulWidget {
 }
 
 class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
+  bool isTabOpen = false;
+
   late String username;
 
   final DraggableScrollableController _controller =
@@ -29,15 +32,18 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
 
   late Future<List<Map<String, dynamic>>> workersFuture;
   List<Map<String, dynamic>> workers = [];
-
+  Map<String, dynamic>? selectedWorker;
   int? selectedWorkerIndex;
-  bool isTabOpen = false;
 
   String selectedPayment = 'Cash';
 
+  final Duration apiTimeoutDuration = Duration(seconds: 10);
+
   Future<List<Map<String, dynamic>>> fetchWorkers() async {
     try {
-      final response = await ApiService.getWorkers();
+      final response =
+          await ApiService.getWorkers().timeout(apiTimeoutDuration);
+
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         return data
@@ -60,25 +66,31 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
         throw Exception(
             'Failed to load workers (Status: ${response.statusCode})');
       }
+    } on TimeoutException {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error fetching workers: Request timed out.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      throw Exception(TimeoutException);
     } catch (e) {
       throw Exception('Error fetching workers: $e');
     }
   }
 
-  Map<String, dynamic>? selectedWorker;
-
   Future<void> handleJobBooking(
       Map<String, dynamic>? worker, String username) async {
-    if (selectedPayment != 'Cash') {
+    if (selectedPayment == 'E-Cash') {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content:
-              Text("Error: Only cash payments are accepted at the moment."),
-          backgroundColor: Colors.red,
+          content: Text('Please set up your E-Cash payment to continue.'),
+          backgroundColor: Colors.red.shade900,
         ),
       );
       return;
     }
+
     try {
       String formattedDateTime =
           DateFormat("d MMM. yyyy - h:mm a").format(DateTime.now());
@@ -92,7 +104,10 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
         "payment_status": "Not Paid"
       };
 
-      final response = await ApiService.postJobCircle(jobCircle);
+      // Add timeout to the API call
+      final response =
+          await ApiService.postJobCircle(jobCircle).timeout(apiTimeoutDuration);
+
       if (response.statusCode == 201) {
         Future.microtask(() {
           Navigator.pushReplacement(
@@ -103,11 +118,18 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Job booked successfully.")),
+          const SnackBar(content: Text('Job booked successfully.')),
         );
       } else {
         throw Exception('Failed to book job (Status: ${response.statusCode})');
       }
+    } on TimeoutException {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to book job: Request timed out.'),
+          backgroundColor: Colors.red,
+        ),
+      );
     } catch (e) {
       throw Exception('Error creating job booking: $e');
     }
