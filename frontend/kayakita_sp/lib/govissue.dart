@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'widgets/customappbar.dart';
 import 'widgets/customtextfield.dart';
@@ -12,6 +14,7 @@ class GovIssueScreen extends StatefulWidget {
   final String contactNumber;
   final String address;
   final String service;
+  final bool isCertified;
 
   const GovIssueScreen({
     super.key,
@@ -23,6 +26,7 @@ class GovIssueScreen extends StatefulWidget {
     required this.contactNumber,
     required this.address,
     required this.service,
+    required this.isCertified,
   });
 
   @override
@@ -83,7 +87,7 @@ class _GovIssueScreenState extends State<GovIssueScreen> {
           contactNumber: widget.contactNumber,
           address: widget.address,
           service: widget.service,
-          isCertified: isCertified,
+          isCertified: widget.isCertified,
         ),
       ),
     );

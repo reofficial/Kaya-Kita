@@ -60,6 +60,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
           contactNumber: mobileNumberController.text,
           address: addressController.text,
           service: selectedService!,
+          isCertified: false,
         ),
       ),
     );

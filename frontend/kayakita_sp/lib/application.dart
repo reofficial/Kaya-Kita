@@ -12,6 +12,7 @@ class ApplicationScreen extends StatefulWidget {
   final String contactNumber;
   final String address;
   final String service;
+  final bool isCertified;
 
   const ApplicationScreen({
     super.key,
@@ -23,6 +24,7 @@ class ApplicationScreen extends StatefulWidget {
     required this.contactNumber,
     required this.address,
     required this.service,
+    required this.isCertified,
   });
 
   @override
@@ -162,6 +164,7 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
                             contactNumber: widget.contactNumber,
                             address: widget.address,
                             service: widget.service,
+                            isCertified: widget.isCertified,
                           ),
                         ),
                       );

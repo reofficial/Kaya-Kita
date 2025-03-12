@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'widgets/customappbar.dart';
 import 'widgets/customtextfield.dart';
@@ -12,6 +14,9 @@ class EmergencyContactScreen extends StatefulWidget {
   final String contactNumber;
   final String address;
   final String service;
+  final bool isCertified;
+
+
   const EmergencyContactScreen({
     super.key,
     required this.email,
@@ -22,6 +27,7 @@ class EmergencyContactScreen extends StatefulWidget {
     required this.contactNumber,
     required this.address,
     required this.service,
+    required this.isCertified,
   });
 
   @override
@@ -66,6 +72,7 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
           contactNumber: widget.contactNumber,
           address: widget.address,
           service: widget.service,
+          isCertified: widget.isCertified,
         ),
       ),
     );
