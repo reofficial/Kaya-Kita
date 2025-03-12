@@ -1,6 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:starter/api_service.dart';
 import 'package:starter/incomingworker.dart';
+
+import 'package:provider/provider.dart';
+import 'package:starter/providers/profile_provider.dart';
 
 class NearbyWorkersScreen extends StatefulWidget {
   const NearbyWorkersScreen({
@@ -15,20 +21,76 @@ class NearbyWorkersScreen extends StatefulWidget {
 }
 
 class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
+  late String username;
+
   final DraggableScrollableController _controller = DraggableScrollableController();
+
+  late Future<List<Map<String, dynamic>>> workersFuture;
+  List<Map<String, dynamic>> workers = [];
+
   int? selectedWorkerIndex;
   bool isTabOpen = false;
 
   String selectedPayment = 'Cash';
 
-  final List<Map<String, dynamic>> workers = [
-    {'name' : 'Barack Obama', 'image' : Icon(Icons.account_circle)}, 
-    {'name' : 'Donald Trump', 'image' : Icon(Icons.account_circle)},
-    {'name' : 'Kamala Harris', 'image' : Icon(Icons.account_circle)},
-    {'name' : 'Random Assignment', 'image' : Icon(Icons.more_horiz)},
-  ];
+  Future<List<Map<String, dynamic>>> fetchWorkers() async {
+    try {
+      final response = await ApiService.getWorkers();
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        return data
+          .where((item) => item['is_certified'] == true)
+          .map((item) => {
+              'name' : (item['first_name'] != null && item['last_name'] != null) 
+                ? '${item['first_name']} ${item['last_name']}'
+                : null,
+              'rating' : 5.0,
+              'service_preference' : item['service_preference'] ?? "N/A" 
+            })
+          .toList();
+      } else {
+        throw Exception(
+            'Failed to load workers (Status: ${response.statusCode})');
+      }
+    } catch (e) {
+      throw Exception('Error fetching workers: $e');
+    }
+  }
 
   Map<String, dynamic>? selectedWorker;
+
+  Future<void> handleJobBooking(Map<String, dynamic>? worker, String username) async {
+
+    try {
+      Map<String, dynamic> jobCircle = {
+        "ticket_number": 0, // need help with this
+        "datetime": DateTime.now().toIso8601String(), 
+        "customer": username,
+        "handyman": worker?['name'] ?? "Unknown",
+        "job_status": "Ongoing",
+        "payment_status": "Not Paid"
+      };
+
+      final response = await ApiService.postJobCircle(jobCircle);
+      if (response.statusCode == 201) {
+        Future.microtask(() {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => IncomingWorkerScreen(worker: worker)),
+          );
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Job booked successfully.")),
+        );
+      } else {
+        throw Exception(
+            'Failed to book job (Status: ${response.statusCode})');
+      }
+    } catch (e) {
+      throw Exception('Error creating job booking: $e');
+    }
+  }
 
   void _showPaymentOptions() {
     showModalBottomSheet(
@@ -59,7 +121,20 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    workersFuture = fetchWorkers().then((loadedWorkers) {
+      setState(() {
+        workers = loadedWorkers;
+      });
+      return loadedWorkers;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    username = Provider.of<UserProvider>(context, listen: false).username;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -242,16 +317,9 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
                   child: SizedBox(
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: selectedWorker == null
-                        ? null
-                        : () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => IncomingWorkerScreen(worker: selectedWorker),
-                              ),
-                            );
-                          },
+                      onPressed: selectedWorker != null
+                        ? () { handleJobBooking(selectedWorker, username); }
+                        : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF87027B),
                         foregroundColor: Colors.white,
@@ -295,7 +363,6 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
               borderRadius: BorderRadius.circular(12),
               child: Image.asset(
                 'assets/map.png',
-                //fit: BoxFit.contain,
                 height: MediaQuery.of(context).size.height * 0.7,
               ),
             ),
@@ -327,12 +394,25 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
                       },
                     ),
                     Expanded(
-                      child: ListView.builder(
-                        controller: scrollController,
-                        padding: EdgeInsets.zero,
-                        itemCount: workers.length,
-                        itemBuilder: (context, index) =>
-                            _buildWorker(index, index == workers.length - 1),
+                      child: FutureBuilder<List<Map<String, dynamic>>>(
+                        future: workersFuture,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return Center(child: CircularProgressIndicator());
+                          } else if (snapshot.hasError) {
+                            return Center(child: Text('Error: ${snapshot.error}'));
+                          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                            return Center(child: Text('No workers found.'));
+                          } else {
+                            return ListView.builder(
+                              controller: scrollController,
+                              itemCount: snapshot.data!.length,
+                              itemBuilder: (context, index) {
+                                return _buildWorker(snapshot.data![index], index == snapshot.data!.length - 1, index);
+                              },
+                            );
+                          }
+                        },
                       ),
                     ),
                   ],
@@ -345,8 +425,7 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
     );
   }
 
-  Widget _buildWorker(int index, bool isLast) {
-    final worker = workers[index];
+  Widget _buildWorker(Map<String, dynamic> worker, bool isLast, int index) {
     bool isSelected = selectedWorkerIndex == index;
 
     return GestureDetector(
@@ -357,7 +436,7 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
             selectedWorker = null; 
           } else {
             selectedWorkerIndex = index;
-            selectedWorker = workers[index]; // STORES SELECTED FOR SCREEN AFTER ACCEPTING
+            selectedWorker = worker; // Stores selected worker for screen after accepting
           }
         });
       },
@@ -372,56 +451,44 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
         padding: EdgeInsets.symmetric(vertical: 20, horizontal: 15), 
         child: Row(
           children: [
-            CircleAvatar(child: worker['image']),
+            CircleAvatar(
+              backgroundImage: worker['image'] != null ? NetworkImage(worker['image']) : null,
+              child: worker['image'] == null ? Icon(Icons.person, color: Colors.white) : null,
+            ),
             SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(worker['name'], style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(worker['name'] ?? 'Unknown', style: TextStyle(fontWeight: FontWeight.bold)),
                   Row(
                     children: [
-                      Text(worker['name'] == 'Random Assignment' ? 'A worker will be assigned randomly.' : '10-12 mins', 
-                        style: TextStyle(fontSize: 12, color: Colors.grey[700])),
+                      Text(
+                        worker['name'] == 'Random Assignment'
+                            ? 'A worker will be assigned randomly.'
+                            : '10-12 mins', 
+                        style: TextStyle(fontSize: 12, color: Colors.grey[700])
+                      ),
                       SizedBox(width: 10),
-                      worker['name'] == 'Random Assignment' ? SizedBox() : Icon(Icons.star, color: Colors.amber, size: 14),
-                      Text(worker['name'] == 'Random Assignment' ? '' : '5.0', 
-                        style: TextStyle(fontSize: 12, color: Colors.grey[700])),
-                    ]
+                      if (worker['name'] != 'Random Assignment') ...[
+                        Icon(Icons.star, color: Colors.amber, size: 14),
+                        Text(worker['rating']?.toString() ?? 'N/A', 
+                          style: TextStyle(fontSize: 12, color: Colors.grey[700])
+                        ),
+                      ],
+                    ],
                   )
                 ],
               ),
             ),
-            Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[600]), // Smaller arrow icon
+            Text('P 100/hr', style: TextStyle(fontWeight: FontWeight.bold)), 
           ],
         ),
       ),
     );
   }
+
 }
-
-// class Grabber extends StatelessWidget {
-//   final bool isOnDesktopAndWeb;
-//   final void Function(DragUpdateDetails)? onVerticalDragUpdate;
-
-//   const Grabber({super.key, required this.isOnDesktopAndWeb, this.onVerticalDragUpdate});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return GestureDetector(
-//       onVerticalDragUpdate: onVerticalDragUpdate,
-//       child: Container(
-//         height: 5,
-//         width: 60,
-//         margin: EdgeInsets.symmetric(vertical: 5),
-//         decoration: BoxDecoration(
-//           color: Colors.grey[400],
-//           borderRadius: BorderRadius.circular(10),
-//         ),
-//       ),
-//     );
-//   }
-// }
 
 class Grabber extends StatelessWidget {
   const Grabber({super.key, required this.onVerticalDragUpdate, required this.isOnDesktopAndWeb});

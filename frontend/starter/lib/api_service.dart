@@ -46,19 +46,16 @@ class ApiService {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': email, 'password': password}),
     );
-
     return response;
   }
 
-  static Future<http.Response> updateCustomer(
-      Map<String, dynamic> updateDetails) async {
+  static Future<http.Response> updateCustomer(Map<String, dynamic> updateDetails) async {
     final url = Uri.parse('$baseUrl/customers/update');
     final response = await _client.post(
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(updateDetails),
     );
-
     return response;
   }
 
@@ -80,33 +77,45 @@ class ApiService {
     return response;
   }
 
-  static Future<http.Response> postJobListing(
-      Map<String, dynamic> jobListing) async {
+  static Future<http.Response> postJobListing(Map<String, dynamic> jobListing) async {
     final url = Uri.parse('$baseUrl/job-listings/post');
     final response = await _client.post(
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(jobListing),
     );
-
     return response;
   }
 
-  static Future<http.Response> updateJobListing(
-      Map<String, dynamic> updateDetails) async {
+  static Future<http.Response> updateJobListing(Map<String, dynamic> updateDetails) async {
     final url = Uri.parse('$baseUrl/job-listings/update');
     final response = await _client.put(
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(updateDetails),
     );
-
     return response;
   }
 
   static Future<http.Response> deleteJobListing(int jobId) async {
     final url = Uri.parse('$baseUrl/job-listings/delete/$jobId');
     final response = await _client.delete(url);
+    return response;
+  }
+
+  static Future<http.Response> postJobCircle(Map<String, dynamic> jobCircle) async {
+    final url = Uri.parse('$baseUrl/job-circles/post');
+    final response = await _client.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(jobCircle),
+    );
+    return response;
+  }
+
+  static Future<http.Response> getWorkers() async {
+    final url = Uri.parse('$baseUrl/workers');
+    final response = await _client.get(url);
     return response;
   }
 }
