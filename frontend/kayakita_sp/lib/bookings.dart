@@ -42,6 +42,7 @@ class BookingScreen extends StatelessWidget {
                     booking["payment"],
                     booking["statusColor"],
                     booking["actions"],
+                    booking["is_certified"],
                   );
                 },
               );
@@ -65,6 +66,7 @@ class BookingScreen extends StatelessWidget {
   String payment,
   Color statusColor,
   String? actions,
+  bool is_certified,
   ) {
     return Card(
       elevation: 4,
@@ -151,28 +153,55 @@ class BookingScreen extends StatelessWidget {
             ),
 
             if (status == "Pending")
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        context.read<BookingController>().updateBookingStatus(index, "Denied", Colors.red);
-                      },
-                      style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF8D0010), foregroundColor: Colors.white),
-                      child: const Text("Deny"),
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      if (!is_certified) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Certification expired."),
+                            backgroundColor: Colors.red,
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                        return; 
+                      }
+                      context.read<BookingController>().updateBookingStatus(index, "Denied", Colors.red);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF8D0010),
+                      foregroundColor: Colors.white,
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        context.read<BookingController>().updateBookingStatus(index, "Accepted", Colors.green);
-                      },
-                      style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF00B14F), foregroundColor: Colors.white),
-                      child: const Text("Accept"),
+                    child: const Text("Deny"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (!is_certified) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Certification expired."),
+                            backgroundColor: Colors.red,
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                        return; 
+                      }
+                      context.read<BookingController>().updateBookingStatus(index, "Accepted", Colors.green);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF00B14F),
+                      foregroundColor: Colors.white,
                     ),
-                  ],
-                ),
+                    child: const Text("Accept"),
+                  ),
+                ],
               ),
+            ),
+
           ],
         ),
       ),
