@@ -9,10 +9,20 @@ class BookingController extends ChangeNotifier {
     try {
       final jobCirclesResponse = await ApiService.getJobCircles();
       final customersResponse = await ApiService.getCustomers();
+      final workersResponse = await ApiService.getWorkers(); // Fetch worker data
 
-      if (jobCirclesResponse.statusCode == 200 && customersResponse.statusCode == 200) {
+      if (jobCirclesResponse.statusCode == 200 &&
+          customersResponse.statusCode == 200 &&
+          workersResponse.statusCode == 200) {
+
         List<dynamic> jobCirclesData = jsonDecode(jobCirclesResponse.body);
         List<dynamic> customersData = jsonDecode(customersResponse.body);
+        List<dynamic> workersData = jsonDecode(workersResponse.body);
+
+        // Create a map to check if a handyman is certified
+        Map<String, bool> handymanCertificationMap = {
+          for (var worker in workersData) worker["username"]: worker["is_certified"] == true
+        };
 
         Map<String, String> customerAddressMap = {
           for (var customer in customersData) customer["username"]: customer["address"]
@@ -20,6 +30,8 @@ class BookingController extends ChangeNotifier {
 
         bookings = jobCirclesData.map((booking) {
           String customerUsername = booking["customer"];
+          String handymanUsername = booking["handyman"];
+
           return {
             "ticket_num": booking["ticket_number"],
             "status": booking["job_status"],
@@ -27,21 +39,23 @@ class BookingController extends ChangeNotifier {
             "amount": "₱100.00",
             "date": booking["datetime"],
             "customer": customerUsername,
-            "handyman": booking["handyman"],
+            "handyman": handymanUsername,
             "payment": booking["payment_status"],
             "statusColor": _getStatusColor(booking["job_status"]),
-            "actions": "Pending"
+            "actions": "Pending",
+            "is_certified": handymanCertificationMap[handymanUsername] ?? false, // Store certification status
           };
         }).toList();
 
         notifyListeners();
       } else {
-        throw Exception('Failed to load bookings or customers');
+        throw Exception('Failed to load bookings, customers, or workers');
       }
     } catch (e) {
       print("Error fetching bookings: $e");
     }
   }
+
 
 
   Color _getStatusColor(String status) {
