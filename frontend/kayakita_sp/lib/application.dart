@@ -22,7 +22,7 @@ class ApplicationScreen extends StatefulWidget {
     required this.lastName,
     required this.contactNumber,
     required this.address,
-    required this.service, // TODO: backend handling
+    required this.service,
   });
 
   @override
@@ -42,7 +42,6 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
     super.dispose();
   }
 
-  // Simulated upload function
   Future<void> _uploadImage(String type) async {
     setState(() {
       if (type == "Selfie") _isUploadingSelfie = true;
@@ -50,7 +49,7 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
       if (type == "Upload Status 2") _isUploadingStatus2 = true;
     });
 
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2));
 
     setState(() {
       if (type == "Selfie") _isUploadingSelfie = false;
@@ -66,137 +65,89 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       appBar: CustomAppBar(titleText: 'Application'),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Hey ${widget.firstName}!',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            Text("You're applying for",
-                style: Theme.of(context).textTheme.titleMedium),
-            Text(
-              widget.service,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.purple,
-                  ),
-            ),
-            const SizedBox(height: 15),
-
-            // Profile Photo Upload
             Center(
-              child: Stack(
-                alignment: Alignment.center,
+              child: Column(
                 children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Colors.grey.shade300,
-                    child: _isUploadingSelfie
-                        ? CircularProgressIndicator()
-                        : Icon(Icons.camera_alt,
-                            size: 40, color: Colors.black54),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    child: ElevatedButton(
-                      onPressed: () => _uploadImage("Selfie"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey.shade700,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                  Text(
+                    'Hey ${widget.firstName}!',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
                         ),
-                      ),
-                      child: const Text("Take Selfie",
-                          style: TextStyle(color: Colors.white)),
+                  ),
+                  Text(
+                    "You're applying for",
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  Text(
+                    widget.service,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.purple,
+                        ),
+                  ),
+                  const SizedBox(height: 15),
+                  GestureDetector(
+                    onTap: () => _uploadImage("Selfie"),
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Colors.grey.shade300,
+                      child: _isUploadingSelfie
+                          ? const CircularProgressIndicator()
+                          : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.camera_alt,
+                                    size: 30, color: Colors.black54),
+                                const SizedBox(height: 5),
+                                Text("Take Selfie",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelSmall),
+                              ],
+                            ),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 15),
-
-            // Nationality Input
-            CustomTextField(
-              hintText: "Nationality*",
-              controller: _nationalityController,
-            ),
-            const SizedBox(height: 15),
-
-            // Upload Status 1
-            Text("Upload Status 1 *",
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 5),
-            GestureDetector(
-              onTap: () => _uploadImage("Upload Status 1"),
-              child: _buildUploadBox(_isUploadingStatus1),
-            ),
-            const SizedBox(height: 15),
-
-            // Upload Status 2
-            Text("Upload Status 2",
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 5),
-            GestureDetector(
-              onTap: () => _uploadImage("Upload Status 2"),
-              child: _buildUploadBox(_isUploadingStatus2),
-            ),
-            const SizedBox(height: 15),
-
-            // PWD Dropdown
-            DropdownButtonFormField<String>(
-              decoration: InputDecoration(
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                filled: true,
-                fillColor: Colors.grey.shade200,
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-              ),
-              value: _selectedPWDStatus,
-              hint: const Text("Are you a PWD?*"),
-              items: ["Yes", "No"].map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (newValue) {
-                setState(() {
-                  _selectedPWDStatus = newValue;
-                });
-              },
-            ),
             const SizedBox(height: 20),
 
-            // Save and Next Buttons
+            _buildRow("Nationality*", _buildTextField(_nationalityController)),
+            const SizedBox(height: 20),
+
+            _buildRow("Upload Status 1*", _buildUploadBox(_isUploadingStatus1, "Upload Status 1")),
+            const SizedBox(height: 20),
+
+            _buildRow("Upload Status 2", _buildUploadBox(_isUploadingStatus2, "Upload Status 2")),
+            const SizedBox(height: 20),
+
+            _buildRow("Are you a PWD?*", _buildDropdown()),
+            const SizedBox(height: 30),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ElevatedButton(
-                  onPressed: () {}, // TODO: Implement Save functionality
+                  onPressed: () {},
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey.shade400,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 40, vertical: 14),
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
                   ),
-                  child:
-                      const Text("Save", style: TextStyle(color: Colors.black)),
+                  child: const Text("Save", style: TextStyle(color: Colors.black)),
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    if (_nationalityController.text.isEmpty ||
-                        _selectedPWDStatus == null) {
+                    if (_nationalityController.text.isEmpty || _selectedPWDStatus == null) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content: Text(
-                                "⚠️ Please complete all required fields.")),
+                        const SnackBar(
+                            content: Text("⚠️ Please complete all required fields.")),
                       );
                     } else {
                       Navigator.push(
@@ -217,33 +168,84 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.purple.shade700,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 40, vertical: 14),
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
                   ),
-                  child:
-                      const Text("Next", style: TextStyle(color: Colors.white)),
+                  child: const Text("Next", style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
 
-  // Reusable Widget for Upload Boxes
-  Widget _buildUploadBox(bool isUploading) {
-    return Container(
-      height: 100,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        color: Colors.grey.shade200,
-        border: Border.all(color: Colors.black38),
+  Widget _buildRow(String label, Widget child) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          flex: 2,
+          child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        ),
+        const SizedBox(width: 10),
+        Expanded(flex: 3, child: child),
+      ],
+    );
+  }
+
+  Widget _buildUploadBox(bool isUploading, String type) {
+    return GestureDetector(
+      onTap: () => _uploadImage(type),
+      child: Container(
+        height: 100,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          color: Colors.grey.shade200,
+          border: Border.all(color: Colors.black38),
+        ),
+        child: isUploading
+            ? const Center(child: CircularProgressIndicator())
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.add, size: 30, color: Colors.black54),
+                  const SizedBox(height: 5),
+                  Text("Upload 1x1 photo",
+                      style: Theme.of(context).textTheme.labelSmall),
+                ],
+              ),
       ),
-      child: isUploading
-          ? Center(child: CircularProgressIndicator())
-          : Icon(Icons.add, size: 40, color: Colors.black54),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller) {
+    return CustomTextField(controller: controller);
+  }
+
+  Widget _buildDropdown() {
+    return DropdownButtonFormField<String>(
+      decoration: InputDecoration(
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        filled: true,
+        fillColor: Colors.grey.shade200,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+      ),
+      value: _selectedPWDStatus,
+      hint: const Text("Select"),
+      items: ["Yes", "No"].map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+      onChanged: (newValue) {
+        setState(() {
+          _selectedPWDStatus = newValue;
+        });
+      },
     );
   }
 }

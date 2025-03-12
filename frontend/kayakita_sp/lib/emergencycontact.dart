@@ -79,7 +79,7 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 20),
-            Center(child: Image.asset('assets/emergency_icon.png', height: 100)),
+            Center(child: Image.asset('assets/emergency_icon.png', height: 150)),
             const SizedBox(height: 20),
             Text(
               'Emergency Contact',

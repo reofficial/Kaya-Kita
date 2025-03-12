@@ -52,14 +52,14 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => ApplicationScreen(
-          password: widget.password,
           email: widget.email,
+          password: widget.password,
           firstName: firstNameController.text,
           middleInitial: middleInitialController.text,
           lastName: lastNameController.text,
           contactNumber: mobileNumberController.text,
           address: addressController.text,
-          service: selectedService!, // TODO: backend handling
+          service: selectedService!,
         ),
       ),
     );
@@ -87,32 +87,30 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 10),
-            CustomTextField(
-                hintText: 'First Name', controller: firstNameController),
+            CustomTextField(hintText: 'First Name', controller: firstNameController),
             const SizedBox(height: 10),
-            CustomTextField(
-                hintText: 'Middle Initial',
-                controller: middleInitialController),
+            CustomTextField(hintText: 'Middle Initial', controller: middleInitialController),
             const SizedBox(height: 10),
-            CustomTextField(
-                hintText: 'Last Name', controller: lastNameController),
+            CustomTextField(hintText: 'Last Name', controller: lastNameController),
             const SizedBox(height: 10),
-            CustomTextField(
-                hintText: 'Mobile Number', controller: mobileNumberController),
+            CustomTextField(hintText: 'Mobile Number', controller: mobileNumberController),
             const SizedBox(height: 10),
             CustomTextField(hintText: 'Address', controller: addressController),
             const SizedBox(height: 20),
 
-            // ✅ Service Selection Dropdown
-            Text('Select Service',
-                style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              'Select Service',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF87027B),
+                  ),
+            ),
             const SizedBox(height: 5),
             DropdownButtonFormField<String>(
               decoration: InputDecoration(
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                 filled: true,
-                fillColor: Colors.grey.shade200,
+                fillColor: Colors.purple.shade50, 
               ),
               value: selectedService,
               hint: const Text("Choose a service"),
@@ -120,7 +118,13 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                   .map((String service) {
                 return DropdownMenuItem<String>(
                   value: service,
-                  child: Text(service),
+                  child: Text(
+                    service,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF87027B), // Purple text
+                    ),
+                  ),
                 );
               }).toList(),
               onChanged: (newValue) {
@@ -131,19 +135,16 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
             ),
             const SizedBox(height: 40),
 
-            // ✅ Continue Button
             Center(
               child: ElevatedButton(
                 onPressed: isLoading ? null : onContinue,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue.shade700,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
+                  backgroundColor: const Color(0xFF87027B), // Updated button color
+                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
                 ),
                 child: isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text("Continue",
-                        style: TextStyle(color: Colors.white)),
+                    : const Text("Continue", style: TextStyle(color: Colors.white)),
               ),
             ),
           ],
