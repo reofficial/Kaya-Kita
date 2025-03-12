@@ -5,6 +5,7 @@ import 'package:kayakita_sp/main.dart';
 import 'bookings.dart';
 import 'api_service.dart';
 import 'dart:convert';
+import 'main.dart';
 
 class HomeScreen extends StatefulWidget {
   final String email;
@@ -25,25 +26,24 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> fetchFirstName(String email) async {
-  try {
-    final response = await ApiService.getWorkers();
-    final List<dynamic> workers = json.decode(response.body);
-    
-    final worker = workers.firstWhere(
-      (worker) => worker['email'] == email,
-      orElse: () => null, 
-    );
+    try {
+      final response = await ApiService.getWorkers();
+      final List<dynamic> workers = json.decode(response.body);
+      
+      final worker = workers.firstWhere(
+        (worker) => worker['email'] == email,
+        orElse: () => null, 
+      );
 
-    setState(() {
-      firstName = worker != null ? worker['first_name'] ?? "Unknown" : "Email not found";
-    });
-  } catch (e) {
-    setState(() {
-      firstName = "Network Error: $e";
-    });
+      setState(() {
+        firstName = worker != null ? worker['first_name'] ?? "Unknown" : "Email not found";
+      });
+    } catch (e) {
+      setState(() {
+        firstName = "Network Error: $e";
+      });
+    }
   }
-}
-
 
   void _onItemTapped(int index) {
     setState(() {
@@ -56,18 +56,11 @@ class _HomeScreenState extends State<HomeScreen> {
     final List<Widget> _screens = [
       HomePage(firstName: firstName),
       BookingScreen(),
-      PaymentsPage(),
-      ChatsPage(),
     ];
     
     return Scaffold(
       backgroundColor: Colors.white,
-      // appBar: AppBar(
-      //   title: const Text("Service Provider"),
-      //   backgroundColor: Colors.purple,
-      // ),
       body: _screens[_selectedIndex], 
-
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex, 
         onTap: _onItemTapped, 
@@ -104,7 +97,6 @@ class HomePage extends StatelessWidget {
   final String firstName;
 
   const HomePage({super.key, required this.firstName});
-  
 
   @override
   Widget build(BuildContext context) {
@@ -375,42 +367,31 @@ class HomePage extends StatelessWidget {
           ),
         ),
       ),
-      // bottomNavigationBar: BottomNavigationBar(
-      //   selectedItemColor: Colors.purple,
-      //   unselectedItemColor: Colors.grey,
-      //   items: const [
-      //     BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-      //     BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: "Bookings"),
-      //     BottomNavigationBarItem(icon: Icon(Icons.payment), label: "Payments"),
-      //     BottomNavigationBarItem(icon: Icon(Icons.chat), label: "Chat"),
-      //   ],
-      // ),
     );
   }
 
   Widget _buildStatCard(String title, String value) {
-  return Card(
-    color: Color(0xFF640287), 
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    child: Padding(
-      padding: const EdgeInsets.all(12.0),
-      child: Column(
-        children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 14, color: Colors.white), 
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white), 
-          ),
-        ],
+    return Card(
+      color: const Color(0xFF640287), 
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          children: [
+            Text(
+              title,
+              style: const TextStyle(fontSize: 14, color: Colors.white), 
+            ),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white), 
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   Widget _buildReview(String imagePath, String rating, String reviewText) {
     return Card(
