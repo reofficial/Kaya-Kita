@@ -80,12 +80,14 @@ class BookingController extends ChangeNotifier {
       String ticketNum = bookings[index]["ticket_num"].toString();
       String datetime = bookings[index]["date"].toString();
       String customer = bookings[index]["customer"].toString();
+      String handyman = bookings[index]["handyman"].toString();
 
       Map<String, dynamic> requestBody = {
         "ticket_number": ticketNum,
         "job_status": newStatus,
         "datetime": datetime,
-        "customer": customer
+        "customer": customer,
+        "handyman": handyman,
       };
 
       print("Sending request: $requestBody");

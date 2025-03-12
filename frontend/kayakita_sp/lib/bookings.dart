@@ -218,6 +218,36 @@ class BookingScreen extends StatelessWidget {
                   ],
                 ),
               ),
+            if (status == "Accepted")
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        if (!is_certified) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Certification expired."),
+                              backgroundColor: Colors.red,
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                          return;
+                        }
+                        context.read<BookingController>().updateBookingStatus(
+                            index, "Completed", Colors.blue);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF007BFF),
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Text("Mark as Completed"),
+                    ),
+                  ],
+                ),
+              ),
           ],
         ),
       ),
