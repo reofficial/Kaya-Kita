@@ -24,7 +24,8 @@ class NearbyWorkersScreen extends StatefulWidget {
 class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
   late String username;
 
-  final DraggableScrollableController _controller = DraggableScrollableController();
+  final DraggableScrollableController _controller =
+      DraggableScrollableController();
 
   late Future<List<Map<String, dynamic>>> workersFuture;
   List<Map<String, dynamic>> workers = [];
@@ -40,16 +41,21 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         return data
-          .where((item) => item['is_certified'] == true)
-          .map((item) => {
-              'name' : (item['first_name'] != null && item['last_name'] != null) 
-                ? '${item['first_name']} ${item['last_name']}'
-                : null,
-              'rating' : 5.0,
-              'username' : item['username'],
-              'service_preference' : item['service_preference'] ?? "N/A" 
-            })
-          .toList();
+            .where((item) =>
+                item['is_certified'] == true &&
+                (item['service_preference'] == widget.jobName ||
+                    item['service_preference'] == 'N/A' ||
+                    item['service_preference'] == ''))
+            .map((item) => {
+                  'name':
+                      (item['first_name'] != null && item['last_name'] != null)
+                          ? '${item['first_name']} ${item['last_name']}'
+                          : null,
+                  'rating': 5.0,
+                  'username': item['username'],
+                  'service_preference': item['service_preference'] ?? "N/A"
+                })
+            .toList();
       } else {
         throw Exception(
             'Failed to load workers (Status: ${response.statusCode})');
@@ -61,28 +67,38 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
 
   Map<String, dynamic>? selectedWorker;
 
-  Future<void> handleJobBooking(Map<String, dynamic>? worker, String username) async {
-
+  Future<void> handleJobBooking(
+      Map<String, dynamic>? worker, String username) async {
+    if (selectedPayment != 'Cash') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content:
+              Text("Error: Only cash payments are accepted at the moment."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
     try {
-      String formattedDateTime = DateFormat("d MMM. yyyy - h:mm a").format(DateTime.now());
+      String formattedDateTime =
+          DateFormat("d MMM. yyyy - h:mm a").format(DateTime.now());
 
       Map<String, dynamic> jobCircle = {
         "ticket_number": 0, // need help with this
-        "datetime": formattedDateTime, 
+        "datetime": formattedDateTime,
         "customer": username,
         "handyman": worker?['username'] ?? "Unknown",
         "job_status": "Pending",
         "payment_status": "Not Paid"
       };
 
-      print("Sending jobCircle data: $jobCircle");
-
       final response = await ApiService.postJobCircle(jobCircle);
       if (response.statusCode == 201) {
         Future.microtask(() {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => IncomingWorkerScreen(worker: worker)),
+            MaterialPageRoute(
+                builder: (context) => IncomingWorkerScreen(worker: worker)),
           );
         });
 
@@ -90,8 +106,7 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
           const SnackBar(content: Text("Job booked successfully.")),
         );
       } else {
-        throw Exception(
-            'Failed to book job (Status: ${response.statusCode})');
+        throw Exception('Failed to book job (Status: ${response.statusCode})');
       }
     } catch (e) {
       throw Exception('Error creating job booking: $e');
@@ -157,7 +172,6 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
           },
         ),
       ),
-
       bottomNavigationBar: Container(
         height: 180,
         width: MediaQuery.of(context).size.width,
@@ -176,21 +190,27 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
                 ElevatedButton(
                   onPressed: _showPaymentOptions,
                   style: ElevatedButton.styleFrom(
-                    padding:  EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    elevation: 0, 
-                    shadowColor: Colors.transparent, 
+                    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)),
+                    elevation: 0,
+                    shadowColor: Colors.transparent,
                     minimumSize: Size(0, 36),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(selectedPayment == 'Cash' ? FontAwesomeIcons.moneyBill : Icons.account_balance_wallet), SizedBox(width:10),
-                      Text(selectedPayment, style: TextStyle(color: Color(0xFF000000), fontSize: 14)), SizedBox(width: 8),
+                      Icon(selectedPayment == 'Cash'
+                          ? FontAwesomeIcons.moneyBill
+                          : Icons.account_balance_wallet),
+                      SizedBox(width: 10),
+                      Text(selectedPayment,
+                          style: TextStyle(
+                              color: Color(0xFF000000), fontSize: 14)),
+                      SizedBox(width: 8),
                       Icon(Icons.arrow_forward_ios, size: 16),
                     ],
                   ),
-                  
                 ),
 
                 Row(
@@ -199,28 +219,34 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
                     ElevatedButton(
                       onPressed: () {},
                       style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 2),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 15, vertical: 2),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20)),
                         minimumSize: Size(0, 36),
                       ),
-                      child: Text('Vouchers', style: TextStyle(fontSize: 14, color: Color(0xFF000000)),),
+                      child: Text(
+                        'Vouchers',
+                        style:
+                            TextStyle(fontSize: 14, color: Color(0xFF000000)),
+                      ),
                     ),
 
                     SizedBox(width: 10),
 
                     // GRID BUTTON
                     Container(
-                      width: 36, 
-                      height: 36, 
+                      width: 36,
+                      height: 36,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.grey.shade400), 
+                        border: Border.all(color: Colors.grey.shade400),
                       ),
                       child: IconButton(
                         onPressed: () {},
-                        icon: Icon(Icons.grid_view_sharp, size: 20), 
+                        icon: Icon(Icons.grid_view_sharp, size: 20),
                         padding: EdgeInsets.zero,
-                        constraints: BoxConstraints(), 
+                        constraints: BoxConstraints(),
                       ),
                     ),
                   ],
@@ -229,74 +255,74 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
             ),
 
             // 20% OFF VOUCHER BUTTON
-            Row(
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    height: 30,
-                    child: Container(
-                      height: 50, // Fixed height for the button
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20), // Rounded edges
-                      ),
-                      child: Row(
-                        children: [
-                          // Left Side: Light Blue
-                          Expanded(
-                            flex: 85, // Takes more space for longer text
-                            child: ElevatedButton(
-                              onPressed: () {},
-                              style: ElevatedButton.styleFrom(
-                                padding: EdgeInsets.symmetric(horizontal: 2),
-                                backgroundColor: Colors.lightBlue.shade400,
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(20),
-                                    bottomLeft: Radius.circular(20),
-                                  ),
+            Row(children: [
+              Expanded(
+                child: SizedBox(
+                  height: 30,
+                  child: Container(
+                    height: 50, // Fixed height for the button
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20), // Rounded edges
+                    ),
+                    child: Row(
+                      children: [
+                        // Left Side: Light Blue
+                        Expanded(
+                          flex: 85, // Takes more space for longer text
+                          child: ElevatedButton(
+                            onPressed: () {},
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(horizontal: 2),
+                              backgroundColor: Colors.lightBlue.shade400,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(20),
+                                  bottomLeft: Radius.circular(20),
                                 ),
                               ),
-                              child: Text(
-                                'Up to 20% off voucher if your worker is late.',
-                                style: TextStyle(fontSize: 12, color: Colors.white),
-                                textAlign: TextAlign.left,
-                              ),
+                            ),
+                            child: Text(
+                              'Up to 20% off voucher if your worker is late.',
+                              style:
+                                  TextStyle(fontSize: 12, color: Colors.white),
+                              textAlign: TextAlign.left,
                             ),
                           ),
+                        ),
 
-                          // Right Side: Dark Blue
-                          Expanded(
-                            flex: 15, // Smaller space for "Try"
-                            child: ElevatedButton(
-                              onPressed: () {},
-                              style: ElevatedButton.styleFrom(
-                                padding: EdgeInsets.symmetric(horizontal: 2),
-                                backgroundColor: Colors.blue.shade700,
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.only(
-                                    topRight: Radius.circular(20),
-                                    bottomRight: Radius.circular(20),
-                                  ),
+                        // Right Side: Dark Blue
+                        Expanded(
+                          flex: 15, // Smaller space for "Try"
+                          child: ElevatedButton(
+                            onPressed: () {},
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(horizontal: 2),
+                              backgroundColor: Colors.blue.shade700,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.only(
+                                  topRight: Radius.circular(20),
+                                  bottomRight: Radius.circular(20),
                                 ),
                               ),
-                              child: Text(
-                                'Try',
-                                style: TextStyle(fontSize: 12, color: Colors.white),
-                              ),
+                            ),
+                            child: Text(
+                              'Try',
+                              style:
+                                  TextStyle(fontSize: 12, color: Colors.white),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              ]
-            ),
-            
-            SizedBox(height:2),
+              ),
+            ]),
+
+            SizedBox(height: 2),
 
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,         
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // SCHEDULE BUTTON
                 InkWell(
@@ -309,14 +335,21 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
                     height: 50,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: const Color(0xFF87027B), width: 2),
+                      border:
+                          Border.all(color: const Color(0xFF87027B), width: 2),
                       color: Colors.transparent, // No background color
                     ),
-                    child: Icon(Icons.calendar_month, color: Colors.purple, size: 30,),
+                    child: Icon(
+                      Icons.calendar_month,
+                      color: Colors.purple,
+                      size: 30,
+                    ),
                   ),
                 ),
 
-                SizedBox(width: 10,),
+                SizedBox(
+                  width: 10,
+                ),
 
                 // ACCEPT BUTTON
                 Expanded(
@@ -324,8 +357,10 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
                     height: 50,
                     child: ElevatedButton(
                       onPressed: selectedWorker != null
-                        ? () { handleJobBooking(selectedWorker, username); }
-                        : null,
+                          ? () {
+                              handleJobBooking(selectedWorker, username);
+                            }
+                          : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF87027B),
                         foregroundColor: Colors.white,
@@ -338,12 +373,18 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Accept', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          Text('Accept',
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold)),
                           Row(
                             children: [
-                              Text('P100/hr', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                              Text('P100/hr',
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold)),
                               SizedBox(width: 8),
-                              Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white),
+                              Icon(Icons.arrow_forward_ios,
+                                  size: 16, color: Colors.white),
                             ],
                           ),
                         ],
@@ -353,81 +394,81 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
                 ),
               ],
             ),
-            
+
             SizedBox(height: 10)
           ],
         ),
       ),
-
-      body: Stack(
-        children: [
-          Container(
-            color: Colors.white,
-            alignment: Alignment.center,
-            height: MediaQuery.of(context).size.height ,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.asset(
-                'assets/map.png',
-                height: MediaQuery.of(context).size.height * 0.7,
-              ),
+      body: Stack(children: [
+        Container(
+          color: Colors.white,
+          alignment: Alignment.center,
+          height: MediaQuery.of(context).size.height,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.asset(
+              'assets/map.png',
+              height: MediaQuery.of(context).size.height * 0.7,
             ),
           ),
-
-          DraggableScrollableSheet(
-            controller: _controller, 
-            initialChildSize: 0.4,
-            minChildSize: 0.04,
-            maxChildSize: 0.4,
-            builder: (BuildContext context, ScrollController scrollController) {
-              return Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                  boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 6)],
-                ),
-                child: Column(
-                  children: [
-                    Grabber(
-                      isOnDesktopAndWeb: false,
-                      onVerticalDragUpdate: (DragUpdateDetails details) {
-                        _controller.animateTo(
-                          (_controller.size - details.primaryDelta! )
-                              .clamp(0.04, 0.4), // Keep within bounds
-                          duration: Duration(milliseconds: 100),
-                          curve: Curves.easeOut,
-                        );
+        ),
+        DraggableScrollableSheet(
+          controller: _controller,
+          initialChildSize: 0.4,
+          minChildSize: 0.04,
+          maxChildSize: 0.4,
+          builder: (BuildContext context, ScrollController scrollController) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 6)],
+              ),
+              child: Column(
+                children: [
+                  Grabber(
+                    isOnDesktopAndWeb: false,
+                    onVerticalDragUpdate: (DragUpdateDetails details) {
+                      _controller.animateTo(
+                        (_controller.size - details.primaryDelta!)
+                            .clamp(0.04, 0.4), // Keep within bounds
+                        duration: Duration(milliseconds: 100),
+                        curve: Curves.easeOut,
+                      );
+                    },
+                  ),
+                  Expanded(
+                    child: FutureBuilder<List<Map<String, dynamic>>>(
+                      future: workersFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return Center(
+                              child: Text('Error: ${snapshot.error}'));
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return Center(child: Text('No workers found.'));
+                        } else {
+                          return ListView.builder(
+                            controller: scrollController,
+                            itemCount: snapshot.data!.length,
+                            itemBuilder: (context, index) {
+                              return _buildWorker(snapshot.data![index],
+                                  index == snapshot.data!.length - 1, index);
+                            },
+                          );
+                        }
                       },
                     ),
-                    Expanded(
-                      child: FutureBuilder<List<Map<String, dynamic>>>(
-                        future: workersFuture,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return Center(child: CircularProgressIndicator());
-                          } else if (snapshot.hasError) {
-                            return Center(child: Text('Error: ${snapshot.error}'));
-                          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                            return Center(child: Text('No workers found.'));
-                          } else {
-                            return ListView.builder(
-                              controller: scrollController,
-                              itemCount: snapshot.data!.length,
-                              itemBuilder: (context, index) {
-                                return _buildWorker(snapshot.data![index], index == snapshot.data!.length - 1, index);
-                              },
-                            );
-                          }
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          )
-        ]
-      ),
+                  ),
+                ],
+              ),
+            );
+          },
+        )
+      ]),
     );
   }
 
@@ -439,10 +480,11 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
         setState(() {
           if (selectedWorkerIndex == index) {
             selectedWorkerIndex = -1;
-            selectedWorker = null; 
+            selectedWorker = null;
           } else {
             selectedWorkerIndex = index;
-            selectedWorker = worker; // Stores selected worker for screen after accepting
+            selectedWorker =
+                worker; // Stores selected worker for screen after accepting
           }
         });
       },
@@ -450,61 +492,69 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
         decoration: BoxDecoration(
           color: isSelected ? Colors.blue[100] : Colors.white,
           border: Border(
-            top: BorderSide(color: Colors.grey.shade300, width: 1), 
-            bottom: isLast ? BorderSide(color: Colors.grey.shade300, width: 1) : BorderSide.none, 
+            top: BorderSide(color: Colors.grey.shade300, width: 1),
+            bottom: isLast
+                ? BorderSide(color: Colors.grey.shade300, width: 1)
+                : BorderSide.none,
           ),
         ),
-        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 15), 
+        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
         child: Row(
           children: [
             CircleAvatar(
-              backgroundImage: worker['image'] != null ? NetworkImage(worker['image']) : null,
-              child: worker['image'] == null ? Icon(Icons.person, color: Colors.white) : null,
+              backgroundImage: worker['image'] != null
+                  ? NetworkImage(worker['image'])
+                  : null,
+              child: worker['image'] == null
+                  ? Icon(Icons.person, color: Colors.white)
+                  : null,
             ),
             SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(worker['name'] ?? 'Unknown', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(worker['name'] ?? 'Unknown',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                   Row(
                     children: [
                       Text(
-                        worker['name'] == 'Random Assignment'
-                            ? 'A worker will be assigned randomly.'
-                            : '10-12 mins', 
-                        style: TextStyle(fontSize: 12, color: Colors.grey[700])
-                      ),
+                          worker['name'] == 'Random Assignment'
+                              ? 'A worker will be assigned randomly.'
+                              : '10-12 mins',
+                          style:
+                              TextStyle(fontSize: 12, color: Colors.grey[700])),
                       SizedBox(width: 10),
                       if (worker['name'] != 'Random Assignment') ...[
                         Icon(Icons.star, color: Colors.amber, size: 14),
-                        Text(worker['rating']?.toString() ?? 'N/A', 
-                          style: TextStyle(fontSize: 12, color: Colors.grey[700])
-                        ),
+                        Text(worker['rating']?.toString() ?? 'N/A',
+                            style: TextStyle(
+                                fontSize: 12, color: Colors.grey[700])),
                       ],
                     ],
                   )
                 ],
               ),
             ),
-            Text('P 100/hr', style: TextStyle(fontWeight: FontWeight.bold)), 
+            Text('P 100/hr', style: TextStyle(fontWeight: FontWeight.bold)),
           ],
         ),
       ),
     );
   }
-
 }
 
 class Grabber extends StatelessWidget {
-  const Grabber({super.key, required this.onVerticalDragUpdate, required this.isOnDesktopAndWeb});
+  const Grabber(
+      {super.key,
+      required this.onVerticalDragUpdate,
+      required this.isOnDesktopAndWeb});
 
   final ValueChanged<DragUpdateDetails> onVerticalDragUpdate;
   final bool isOnDesktopAndWeb;
 
   @override
   Widget build(BuildContext context) {
-
     return GestureDetector(
       onVerticalDragUpdate: onVerticalDragUpdate,
       child: Container(
@@ -516,7 +566,6 @@ class Grabber extends StatelessWidget {
           borderRadius: BorderRadius.circular(8.0),
         ),
       ),
-      
     );
   }
 }
