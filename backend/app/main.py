@@ -237,8 +237,7 @@ async def get_job_circle_by_id(job_id: int):
 
 @app.post("/job-circles/post", response_model=JobCircles)
 async def create_job_circle(job_circle: JobCircles):
-    created_job = await job_circle_dao.create_job_circle(job_circle)
-    return JSONResponse(status_code=201, content=created_job.model_dump())
+    return await job_circle_dao.create_job_circle(job_circle)
     
 @app.put("/job-circles/update", response_model=dict)
 async def update_job_circle(job_circle: JobCircles):

@@ -1,6 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from app.classes import JobCircles
-
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
 class JobCirclesDAO:
     def __init__(self, db: AsyncIOMotorDatabase):
         self.collection = db["JobCircles"]
@@ -17,7 +18,7 @@ class JobCirclesDAO:
         job_data["ticket_number"] = new_id
 
         await self.collection.insert_one(job_data)
-        return JobCircles(**job_data)
+        return JSONResponse(status_code=201, content=jsonable_encoder(JobCircles(**job_data)))
     
     async def read_job_circles(self):
         job_circles_cursor = self.collection.find()
