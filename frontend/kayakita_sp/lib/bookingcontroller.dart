@@ -5,36 +5,40 @@ import 'dart:convert';
 class BookingController extends ChangeNotifier {
   List<Map<String, dynamic>> bookings = [];
 
-  Future<void> fetchBookings() async {
+  Future<void> fetchBookings(String handymanUsername) async {
     try {
       final jobCirclesResponse = await ApiService.getJobCircles();
       final customersResponse = await ApiService.getCustomers();
-      final workersResponse = await ApiService.getWorkers(); 
+      final workersResponse = await ApiService.getWorkers();
 
       if (jobCirclesResponse.statusCode == 200 &&
           customersResponse.statusCode == 200 &&
           workersResponse.statusCode == 200) {
-
         List<dynamic> jobCirclesData = jsonDecode(jobCirclesResponse.body);
         List<dynamic> customersData = jsonDecode(customersResponse.body);
         List<dynamic> workersData = jsonDecode(workersResponse.body);
 
         Map<String, bool> handymanCertificationMap = {
-          for (var worker in workersData) worker["username"]: worker["is_certified"] == true
+          for (var worker in workersData)
+            worker["username"]: worker["is_certified"] == true
         };
 
         Map<String, String> customerAddressMap = {
-          for (var customer in customersData) customer["username"]: customer["address"]
+          for (var customer in customersData)
+            customer["username"]: customer["address"]
         };
 
-        bookings = jobCirclesData.map((booking) {
+        // Filter bookings for the logged-in handyman
+        bookings = jobCirclesData
+            .where((booking) => booking["handyman"] == handymanUsername)
+            .map((booking) {
           String customerUsername = booking["customer"];
           String handymanUsername = booking["handyman"];
 
           return {
             "ticket_num": booking["ticket_number"],
             "status": booking["job_status"],
-            "address": customerAddressMap[customerUsername] ?? "N/A", 
+            "address": customerAddressMap[customerUsername] ?? "N/A",
             "amount": "₱100.00",
             "date": booking["datetime"],
             "customer": customerUsername,
@@ -42,7 +46,7 @@ class BookingController extends ChangeNotifier {
             "payment": booking["payment_status"],
             "statusColor": _getStatusColor(booking["job_status"]),
             "actions": "Pending",
-            "is_certified": handymanCertificationMap[handymanUsername] ?? false, 
+            "is_certified": handymanCertificationMap[handymanUsername] ?? false,
           };
         }).toList();
 
@@ -54,8 +58,6 @@ class BookingController extends ChangeNotifier {
       print("Error fetching bookings: $e");
     }
   }
-
-
 
   Color _getStatusColor(String status) {
     switch (status) {
@@ -72,38 +74,38 @@ class BookingController extends ChangeNotifier {
     }
   }
 
-  Future<void> updateBookingStatus(int index, String newStatus, Color color) async {
-  try {
-    String ticketNum = bookings[index]["ticket_num"].toString(); 
-    String datetime = bookings[index]["date"].toString(); 
-    String customer = bookings[index]["customer"].toString(); 
+  Future<void> updateBookingStatus(
+      int index, String newStatus, Color color) async {
+    try {
+      String ticketNum = bookings[index]["ticket_num"].toString();
+      String datetime = bookings[index]["date"].toString();
+      String customer = bookings[index]["customer"].toString();
 
-    Map<String, dynamic> requestBody = {
-      "ticket_number": ticketNum,
-      "job_status": newStatus,
-      "datetime": datetime,  
-      "customer": customer   
-    };
+      Map<String, dynamic> requestBody = {
+        "ticket_number": ticketNum,
+        "job_status": newStatus,
+        "datetime": datetime,
+        "customer": customer
+      };
 
-   // print("Sending request: $requestBody"); 
+      print("Sending request: $requestBody");
 
-    final response = await ApiService.updateJobCircles(requestBody);
+      final response = await ApiService.updateJobCircles(requestBody);
 
-    print("API Response: ${response.statusCode} - ${response.body}"); 
+      print("API Response: ${response.statusCode} - ${response.body}");
 
-    if (response.statusCode == 200) {
-      bookings[index]["status"] = newStatus;
-      bookings[index]["statusColor"] = color;
-      bookings[index]["actions"] = newStatus == "Accepted" ? "Ongoing" : "Denied";
+      if (response.statusCode == 200) {
+        bookings[index]["status"] = newStatus;
+        bookings[index]["statusColor"] = color;
+        bookings[index]["actions"] =
+            newStatus == "Accepted" ? "Ongoing" : "Denied";
 
-      notifyListeners();
-    } else {
-      print("Failed to update job status: ${response.body}");
+        notifyListeners();
+      } else {
+        print("Failed to update job status: ${response.body}");
+      }
+    } catch (e) {
+      print("Error updating job status: $e");
     }
-  } catch (e) {
-    print("Error updating job status: $e");
   }
-}
-
-
 }
