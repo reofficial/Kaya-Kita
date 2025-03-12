@@ -72,6 +72,7 @@ flutter:
     - assets/kamala.png
     - assets/reviewprofile.png
     - assets/smol_logo.png
+    - assets/emergency_icon.png
     - assets/badwords.txt
     - .env
 
