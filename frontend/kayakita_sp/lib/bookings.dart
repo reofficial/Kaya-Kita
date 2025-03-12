@@ -8,37 +8,48 @@ class BookingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text("Bookings"),
-          backgroundColor: Colors.purple,
-        ),
-        body: Consumer<BookingController>(
-          builder: (context, controller, child) {
-            return ListView.builder(
-              padding: const EdgeInsets.all(10),
-              itemCount: controller.bookings.length,
-              itemBuilder: (context, index) {
-                var booking = controller.bookings[index];
-                print("Booking Data: $booking");
-                return _buildBookingCard(
-                  context,
-                  index,
-                  booking["ticket_num"],
-                  booking["status"],
-                  booking["address"],
-                  booking["amount"],
-                  booking["date"],
-                  booking["customer"],
-                  booking["handyman"],
-                  booking["payment"],
-                  booking["statusColor"],
-                  booking["actions"] ?? "No Actions",
-                );
-              },
-            );
-          },
-        ),
-      );
+      appBar: AppBar(
+        title: const Text("Bookings"),
+        backgroundColor: Colors.purple,
+      ),
+      body: FutureBuilder(
+        future: Provider.of<BookingController>(context, listen: false).fetchBookings(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator()); 
+          } else if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}")); 
+          }
+          return Consumer<BookingController>(
+            builder: (context, controller, child) {
+              return ListView.builder(
+                padding: const EdgeInsets.all(10),
+                itemCount: controller.bookings.length,
+                itemBuilder: (context, index) {
+                  var booking = controller.bookings[index];
+                  print("Booking Data: $booking");
+
+                  return _buildBookingCard(
+                    context,
+                    index,
+                    booking["ticket_num"],
+                    booking["status"],
+                    booking["address"],
+                    booking["amount"],
+                    booking["date"],
+                    booking["customer"],
+                    booking["handyman"],
+                    booking["payment"],
+                    booking["statusColor"],
+                    booking["actions"],
+                  );
+                },
+              );
+            },
+          );
+        },
+      ),
+    );
   }
 
   Widget _buildBookingCard(
