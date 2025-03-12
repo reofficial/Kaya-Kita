@@ -7,6 +7,7 @@ import 'package:starter/incomingworker.dart';
 
 import 'package:provider/provider.dart';
 import 'package:starter/providers/profile_provider.dart';
+import 'package:intl/intl.dart';
 
 class NearbyWorkersScreen extends StatefulWidget {
   const NearbyWorkersScreen({
@@ -62,14 +63,18 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
   Future<void> handleJobBooking(Map<String, dynamic>? worker, String username) async {
 
     try {
+      String formattedDateTime = DateFormat("d MMM. yyyy - h:mm a").format(DateTime.now());
+
       Map<String, dynamic> jobCircle = {
         "ticket_number": 0, // need help with this
-        "datetime": DateTime.now().toIso8601String(), 
+        "datetime": formattedDateTime, 
         "customer": username,
         "handyman": worker?['name'] ?? "Unknown",
-        "job_status": "Ongoing",
+        "job_status": "Pending",
         "payment_status": "Not Paid"
       };
+
+      print("Sending jobCircle data: $jobCircle");
 
       final response = await ApiService.postJobCircle(jobCircle);
       if (response.statusCode == 201) {

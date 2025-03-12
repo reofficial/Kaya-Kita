@@ -4,14 +4,14 @@ from fastapi import FastAPI, HTTPException, status
 from fastapi.responses import JSONResponse, RedirectResponse
 from motor.motor_asyncio import AsyncIOMotorClient
 from typing import List
-from app.classes import Profile, InitialInfo, JobListing, LoginInfo, ProfileUpdate, WorkerReviews, JobCircles
+from app.classes import Profile, InitialInfo, JobListing, LoginInfo, ProfileUpdate, WorkerReviews, JobCircles, WorkerRates
 from app.DAO.customer_DAO import CustomerDAO
 from app.DAO.job_listing_DAO import JobListingDAO
 from app.DAO.worker_DAO import WorkerDAO
 from app.DAO.official_DAO import OfficialDAO
 from app.DAO.worker_reviews_DAO import WorkerReviewsDAO
 from app.DAO.job_circles_DAO import JobCirclesDAO
-
+from app.DAO.worker_rates_DAO import WorkerRatesDAO
 # .\venv\Scripts\Activate
 # uvicorn app.main:app --reload
 
@@ -30,6 +30,7 @@ worker_dao = WorkerDAO(database)
 job_listing_dao = JobListingDAO(database)
 worker_reviews_dao = WorkerReviewsDAO(database)
 job_circle_dao = JobCirclesDAO(database)
+worker_rates_dao = WorkerRatesDAO(database)
 
 # The following concerns customers
 @app.get("/customers", response_model=List[Profile])
@@ -237,8 +238,7 @@ async def get_job_circle_by_id(job_id: int):
 
 @app.post("/job-circles/post", response_model=JobCircles)
 async def create_job_circle(job_circle: JobCircles):
-    created_job = await job_circle_dao.create_job_circle(job_circle)
-    return JSONResponse(status_code=201, content=created_job.model_dump())
+    return await job_circle_dao.create_job_circle(job_circle)
     
 @app.put("/job-circles/update", response_model=dict)
 async def update_job_circle(job_circle: JobCircles):
@@ -253,6 +253,28 @@ async def delete_job_circle(job_id: int):
     if not success:
         raise HTTPException(status_code=404, detail="Job not found")
     return {"message": "Job circle deleted successfully"}
+
+# The following concerns worker rates
+@app.get("/rates", response_model=List[WorkerRates])
+async def get_rates():
+    return await worker_rates_dao.read_worker_rates()
+
+@app.get("/rates/{email}", response_model=WorkerRates | None)
+async def get_rate_by_email(email: str):
+    return await worker_rates_dao.read_worker_rate_by_email(email)
+
+@app.post("/rates/create", response_model=WorkerRates)
+async def create_rate(rate: WorkerRates):
+    return await worker_rates_dao.create_worker_rate(rate)
+
+@app.put("/rates/update", response_model=bool)
+async def update_rate(email: str, new_rate: float):
+    return await worker_rates_dao.update_worker_rate(email, new_rate)
+
+@app.delete("/rates/delete/{email}", response_model=dict)
+async def delete_rate(email: str):
+    success = await worker_rates_dao.delete_worker_rate(email)
+    return {"message": "Rate deleted successfully"} if success else {"message": "Rate not found"}
 
 #Test function
 # @app.get("/")
