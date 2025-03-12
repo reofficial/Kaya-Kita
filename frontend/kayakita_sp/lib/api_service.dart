@@ -141,6 +141,7 @@ class ApiService {
     return response;
   }
 
+  // =========================== RATES API CALLS ========================== //
   static Future<http.Response> getRates() async {
     final url = Uri.parse('$baseUrl/rate');
     final response = await _client.get(url);
