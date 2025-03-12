@@ -11,6 +11,7 @@ class GovIssueScreen extends StatefulWidget {
   final String lastName;
   final String contactNumber;
   final String address;
+  final String service;
 
   const GovIssueScreen({
     super.key,
@@ -21,6 +22,7 @@ class GovIssueScreen extends StatefulWidget {
     required this.lastName,
     required this.contactNumber,
     required this.address,
+    required this.service,
   });
 
   @override
@@ -80,6 +82,8 @@ class _GovIssueScreenState extends State<GovIssueScreen> {
           lastName: widget.lastName,
           contactNumber: widget.contactNumber,
           address: widget.address,
+          service: widget.service,
+          isCertified: isCertified,
         ),
       ),
     );

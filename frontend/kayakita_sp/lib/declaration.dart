@@ -13,6 +13,8 @@ class DeclarationScreen extends StatefulWidget {
   final String lastName;
   final String contactNumber;
   final String address;
+  final String service;
+  final bool isCertified;
 
   const DeclarationScreen({
     super.key,
@@ -23,6 +25,8 @@ class DeclarationScreen extends StatefulWidget {
     required this.lastName,
     required this.contactNumber,
     required this.address,
+    required this.isCertified,
+    required this.service,
   });
 
   @override
@@ -50,7 +54,11 @@ class _DeclarationScreenState extends State<DeclarationScreen> {
   bool _dataSharingConsent = false;
   bool _walletUpgradeConsent = false;
 
+<<<<<<< HEAD
   bool isLoading = false;
+=======
+  bool isLoading = false; 
+>>>>>>> 14c3a1dd7c58bfe33088b32eccaff98a9120b397
 
   Future<void> onSubmit() async {
     if (!_privacyNotice ||
@@ -74,14 +82,24 @@ class _DeclarationScreenState extends State<DeclarationScreen> {
     });
 
     Map<String, dynamic> workerData = {
+<<<<<<< HEAD
       "email": widget.email,
+=======
+      "email": widget.email, 
+>>>>>>> 14c3a1dd7c58bfe33088b32eccaff98a9120b397
       "password": widget.password,
       "first_name": widget.firstName,
       "middle_initial": widget.middleInitial,
       "last_name": widget.lastName,
       "contact_number": widget.contactNumber,
       "address": widget.address,
+<<<<<<< HEAD
       "username": "--",
+=======
+      "username": "--", 
+      "service_preference": widget.service,
+      "is_certified": widget.isCertified,
+>>>>>>> 14c3a1dd7c58bfe33088b32eccaff98a9120b397
 
       /*
       "consents": {

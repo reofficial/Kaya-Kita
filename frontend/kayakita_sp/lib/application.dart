@@ -161,6 +161,7 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
                             lastName: widget.lastName,
                             contactNumber: widget.contactNumber,
                             address: widget.address,
+                            service: widget.service,
                           ),
                         ),
                       );
