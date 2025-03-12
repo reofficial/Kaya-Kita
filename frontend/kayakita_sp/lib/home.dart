@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:kayakita_sp/editprofile.dart';
+import 'package:kayakita_sp/main.dart';
 import 'bookings.dart';
 import 'api_service.dart';
 import 'dart:convert';
@@ -106,7 +108,10 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: Colors.white,
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -115,10 +120,162 @@ class HomePage extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.account_circle, color: Colors.white),
-            onPressed: () {},
+            tooltip: 'Profile',
+            onPressed: () {
+              _scaffoldKey.currentState?.openEndDrawer();
+            },
           )
         ],
       ),
+
+      endDrawer: Drawer(
+        key: const Key('homeDrawer'),
+        width: MediaQuery.of(context).size.width * 0.5,
+        child: Column(
+          children: [
+            SizedBox(
+              height: 88,
+              child: DrawerHeader(
+                padding: const EdgeInsets.only(bottom: 5, left: 10, right: 10),
+                decoration: const BoxDecoration(),
+                child: Row(
+                  children: [
+                    Image.asset('assets/logofull.png', key: const Key('logo full')),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.account_circle, size: 40),
+                      onPressed: () {
+                        _scaffoldKey.currentState?.closeEndDrawer();
+                      },
+                    )
+                  ],
+                ),
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 10, bottom: 5, top: 10),
+                        child: Text(
+                          'Account',
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontFamily: 'Roboto',
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                    const SidebarButton(
+                      title: 'Edit Profile',
+                      icon: Icons.person,
+                      screen: EditProfileScreen(), // PALITAN
+                    ),
+                    const SidebarButton(
+                      title: 'Security',
+                      icon: Icons.shield,
+                      screen: null,
+                    ),
+                    const SidebarButton(
+                      title: 'Notifications',
+                      icon: Icons.notifications,
+                      screen: null,
+                    ),
+                    const SidebarButton(
+                      title: 'Privacy',
+                      icon: Icons.lock,
+                      screen: null,
+                    ),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 10, bottom: 5, top: 10),
+                        child: Text(
+                          'Support & About',
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontFamily: 'Roboto',
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                    const SidebarButton(
+                      title: 'My Subscription',
+                      icon: Icons.business_center,
+                      screen: null,
+                    ),
+                    const SidebarButton(
+                      title: 'Help & Support',
+                      icon: Icons.help,
+                      screen: null,
+                    ),
+                    const SidebarButton(
+                      title: 'Terms and Policies',
+                      icon: Icons.policy,
+                      screen: null,
+                    ),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 10, bottom: 5, top: 10),
+                        child: Text(
+                          'Cache & Cellular',
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontFamily: 'Roboto',
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                    const SidebarButton(
+                      title: 'Free up space',
+                      icon: Icons.delete,
+                      screen: null,
+                    ),
+                    const SidebarButton(
+                      title: 'Data Saver',
+                      icon: Icons.moving,
+                      screen: null,
+                    ),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 10, bottom: 5, top: 10),
+                        child: Text(
+                          'Actions',
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontFamily: 'Roboto',
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                    const SidebarButton(
+                      title: 'Report a problem',
+                      icon: Icons.flag,
+                      screen: null,
+                    ),
+                    const SidebarButton(
+                      title: 'Add account',
+                      icon: Icons.people,
+                      screen: null,
+                    ),
+                    const SidebarButton(
+                      title: 'Log out',
+                      icon: Icons.logout,
+                      screen: MyApp(),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+
       body: SingleChildScrollView( 
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -286,6 +443,38 @@ class ChatsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Center(child: Text("Chats Page"));
+  }
+}
+
+class SidebarButton extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  final Widget? screen;
+
+  const SidebarButton({
+    Key? key,
+    required this.title,
+    required this.icon,
+    this.screen,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.black),
+      title: Text(title),
+      onTap: () {
+        // Close the drawer first
+        Navigator.of(context).pop();
+        // Navigate to the provided screen if it exists
+        if (screen != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => screen!),
+          );
+        }
+      },
+    );
   }
 }
 

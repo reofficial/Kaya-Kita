@@ -134,6 +134,29 @@ class ApiService {
     return response;
   }
 
+  static Future<http.Response> getRates() async {
+    final url = Uri.parse('$baseUrl/rate');
+    final response = await _client.get(url);
+    return response;
+  }
+
+  static Future<http.Response> getRateByEmail(String email) async {
+    final url = Uri.parse('$baseUrl/rates/$email');
+    final response = await _client.get(url);
+    return response;
+  }
+
+  static Future<http.Response> updateRate(String email, double newRate) async {
+    final url = Uri.parse('$baseUrl/rates/update?email=$email&new_rate=$newRate'); 
+
+    final response = await _client.put(
+      url,
+      headers: {'Content-Type': 'application/json'},
+    );
+
+  return response;
+}
+
   // ========================= JOB LISTINGS API CALLS ========================= //
 
   static Future<http.Response> getJobListings() async {
