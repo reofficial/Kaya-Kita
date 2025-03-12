@@ -11,6 +11,7 @@ class BookingScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Bookings"),
         backgroundColor: Colors.purple,
+        automaticallyImplyLeading: false,
       ),
       body: FutureBuilder(
         future: Provider.of<BookingController>(context, listen: false).fetchBookings(),
