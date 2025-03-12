@@ -24,21 +24,18 @@ class CompletedJobScreen extends StatefulWidget {
 }
 
 class _CompletedJobScreenState extends State<CompletedJobScreen> {
-  final TextEditingController _titleController = TextEditingController();
   final TextEditingController _reviewController = TextEditingController();
   double _rating = 0;
   bool _isRatingError = false;
-  bool _isTitleError = false;
   bool _isReviewError = false;
 
   Future<void> _submitReview() async {
     setState(() {
       _isRatingError = _rating == 0;
-      _isTitleError = _titleController.text.trim().isEmpty;
       _isReviewError = _reviewController.text.trim().isEmpty;
     });
 
-    if (_isRatingError || _isTitleError || _isReviewError) return;
+    if (_isRatingError || _isReviewError) return;
 
     try {
       String currentDateTime = DateTime.now().toString();
@@ -238,31 +235,6 @@ class _CompletedJobScreenState extends State<CompletedJobScreen> {
                       ),
 
                     const SizedBox(height: 20),
-
-                    // 📝 Title Input
-                    const Text(
-                      "Title:",
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      controller: _titleController,
-                      decoration: InputDecoration(
-                        border: const OutlineInputBorder(),
-                        hintText: "Enter a title (e.g., 'Great Job!')",
-                        errorText:
-                            _isTitleError ? "⚠️ Please provide a title." : null,
-                      ),
-                      onChanged: (value) {
-                        setState(() {
-                          _isTitleError = false;
-                        });
-                      },
-                    ),
-
-                    const SizedBox(height: 20),
-
                     // 💬 Review Input
                     const Text(
                       "Leave a review:",
