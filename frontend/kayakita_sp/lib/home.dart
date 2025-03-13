@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:kayakita_sp/editprofile.dart';
 import 'package:kayakita_sp/main.dart';
-
 import 'package:provider/provider.dart';
 import 'bookings.dart';
 import 'bookingcontroller.dart';
-
 import 'api_service.dart';
 import 'dart:convert';
 
@@ -21,12 +19,14 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   String firstName = "Loading...";
+  String workerUsername = ""; // Add this line to store the worker's username
   bool _showOverlay = true;
+  List<dynamic> reviews = [];
 
   @override
   void initState() {
     super.initState();
-    fetchFirstName(widget.email);
+    fetchFirstName(widget.email); // Fetch worker details (including username)
     Provider.of<BookingController>(context, listen: false)
         .fetchBookings(widget.email);
   }
@@ -42,13 +42,41 @@ class _HomeScreenState extends State<HomeScreen> {
       );
 
       setState(() {
-        firstName = worker != null
-            ? worker['first_name'] ?? "Unknown"
-            : "Email not found";
+        if (worker != null) {
+          firstName = worker['first_name'] ?? "Unknown";
+          workerUsername = worker['username'] ?? ""; 
+        } else {
+          firstName = "Email not found";
+          workerUsername = ""; 
+        }
       });
+
+      if (workerUsername.isNotEmpty) {
+        fetchReviews(workerUsername);
+      }
     } catch (e) {
       setState(() {
         firstName = "Network Error: $e";
+        workerUsername = ""; // Reset username on error
+      });
+    }
+  }
+
+  Future<void> fetchReviews(String username) async {
+    try {
+      final response = await ApiService.getWorkerReviews(username);
+      if (response.statusCode == 200) {
+        final List<dynamic> fetchedReviews = json.decode(response.body);
+        setState(() {
+          reviews = fetchedReviews; // Update the reviews list
+        });
+      } else {
+        throw Exception("Failed to fetch reviews: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error fetching reviews: $e");
+      setState(() {
+        reviews = []; // Clear the reviews list in case of an error
       });
     }
   }
@@ -72,6 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
             _selectedIndex = 1;
           });
         },
+        reviews: reviews, // Pass reviews to HomePage
       ),
       BookingScreen(),
     ];
@@ -85,11 +114,9 @@ class _HomeScreenState extends State<HomeScreen> {
             builder: (context, controller, child) {
               if (controller.pendingBookingsCount > 0 && _showOverlay) {
                 return Positioned(
-                  // margins
                   bottom: 16,
                   left: 16,
                   right: 16,
-
                   child: Container(
                     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                     decoration: BoxDecoration(
@@ -159,15 +186,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// pages navigation
+// HomePage Widget
 class HomePage extends StatelessWidget {
   final String firstName;
-  final VoidCallback onTotalBookingsTap; // Callback for Total Bookings tap
+  final VoidCallback onTotalBookingsTap;
+  final List<dynamic> reviews; 
 
   const HomePage({
     super.key,
     required this.firstName,
     required this.onTotalBookingsTap,
+    required this.reviews,
   });
 
   @override
@@ -237,7 +266,7 @@ class HomePage extends StatelessWidget {
                     const SidebarButton(
                       title: 'Edit Profile',
                       icon: Icons.person,
-                      screen: EditProfileScreen(), // PALITAN
+                      screen: EditProfileScreen(),
                     ),
                     const SidebarButton(
                       title: 'Security',
@@ -445,10 +474,9 @@ class HomePage extends StatelessWidget {
               const SizedBox(height: 16),
               const Text("Reviews about you",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              _buildReview("assets/reviewprofile.png", "⭐⭐⭐⭐⭐",
-                  "2nd time booking, maayos po pala gawa niya."),
-              _buildReview("assets/reviewprofile.png", "⭐⭐",
-                  "Hindi ko po nagustuhan gawa niya..."),
+              ...reviews.map((review) => _buildReview(
+                  "assets/reviewprofile.png", review['rating'].toString(), review['review'],
+                )).toList(),
             ],
           ),
         ),
@@ -486,7 +514,7 @@ class HomePage extends StatelessWidget {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
-        leading: CircleAvatar(backgroundImage: AssetImage(imagePath)),
+        leading: CircleAvatar(backgroundImage: null),
         title: Text(rating, style: const TextStyle(fontSize: 16)),
         subtitle: Text(reviewText,
             style: const TextStyle(fontSize: 14, color: Colors.black87)),
@@ -495,27 +523,7 @@ class HomePage extends StatelessWidget {
   }
 }
 
-// class BookingsPage extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return const Center(child: Text("Bookings Page"));
-//   }
-// }
-
-class PaymentsPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text("Payments Page"));
-  }
-}
-
-class ChatsPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text("Chats Page"));
-  }
-}
-
+// SidebarButton Widget (unchanged)
 class SidebarButton extends StatelessWidget {
   final String title;
   final IconData icon;
@@ -534,9 +542,7 @@ class SidebarButton extends StatelessWidget {
       leading: Icon(icon, color: Colors.black),
       title: Text(title),
       onTap: () {
-        // Close the drawer first
         Navigator.of(context).pop();
-        // Navigate to the provided screen if it exists
         if (screen != null) {
           Navigator.push(
             context,

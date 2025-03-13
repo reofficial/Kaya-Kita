@@ -134,6 +134,34 @@ class ApiService {
     return response;
   }
 
+  static Future<http.Response> getWorkerReviews(String workerUsername) async {
+  try {
+    final url = Uri.parse('$baseUrl/reviews/worker/$workerUsername');
+    
+
+    print("Fetching reviews from: $url");
+    final response = await _client.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json', 
+      },
+    );
+
+    print("Response status: ${response.statusCode}");
+    print("Response body: ${response.body}");
+
+    if (response.statusCode == 200) {
+      return response;
+    } else {
+    
+      throw Exception("Failed to fetch reviews: ${response.statusCode}");
+    }
+  } catch (e) {
+    print("Error fetching reviews: $e");
+    throw Exception("Error fetching reviews: $e");
+  }
+} 
+
   // ========================= CUSTOMER API CALLS ========================= //
   static Future<http.Response> getCustomers() async {
     final url = Uri.parse('$baseUrl/customers');

@@ -53,8 +53,9 @@ class _CompletedJobScreenState extends State<CompletedJobScreen> {
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Review submitted successfully")),
+          const SnackBar(content: Text("Review submitted successfully")),
         );
+        Navigator.pop(context); // Close the screen after submission
       } else {
         throw Exception(response.body);
       }
@@ -149,7 +150,7 @@ class _CompletedJobScreenState extends State<CompletedJobScreen> {
                 ),
                 child: Row(
                   children: [
-                    CircleAvatar(
+                    const CircleAvatar(
                       radius: 30,
                     ),
                     const SizedBox(width: 10),
