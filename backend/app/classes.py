@@ -51,9 +51,9 @@ class JobListing(BaseModel):
 
 class JobCircles(BaseModel):
     ticket_number: Optional[int] = None
-    datetime: datetime
+    datetime: str
     customer: str
-    handyman: str
+    handyman: Optional[str] = "N/A"
     job_status: Optional[str] = "Ongoing"
     payment_status: Optional[str] = "Not Paid"
     
