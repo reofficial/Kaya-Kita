@@ -103,7 +103,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 ...jobs
-                    .where((job) => job["job_status"] == "Ongoing")
+                    .where((job) =>
+                        job["job_status"] == "Ongoing" ||
+                        job["job_status"] == "Accepted")
                     .map((job) => JobCircles(
                           ticketNumber: job["ticket_number"],
                           datetime: job["datetime"],
