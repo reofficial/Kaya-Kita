@@ -131,7 +131,12 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
         ),
       );
     } catch (e) {
-      throw Exception('Error creating job booking: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to book job: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
