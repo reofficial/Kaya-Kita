@@ -165,19 +165,21 @@ class JobCircles extends StatelessWidget {
       elevation: 4,
       child: InkWell(
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CompletedJobScreen(
-                ticketNumber: ticketNumber,
-                datetime: datetime,
-                customer: customer,
-                handyman: handyman,
-                jobStatus: jobStatus,
-                paymentStatus: paymentStatus,
+          if (jobStatus == 'Completed') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CompletedJobScreen(
+                  ticketNumber: ticketNumber,
+                  datetime: datetime,
+                  customer: customer,
+                  handyman: handyman,
+                  jobStatus: jobStatus,
+                  paymentStatus: paymentStatus,
+                ),
               ),
-            ),
-          );
+            );
+          }
         },
         child: Padding(
           padding: const EdgeInsets.all(12),
