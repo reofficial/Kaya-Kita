@@ -3,6 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:kayakita_sp/editprofile.dart';
 import 'package:kayakita_sp/main.dart';
 import 'package:provider/provider.dart';
+import 'package:kayakita_sp/providers/profile_provider.dart';
 import 'bookings.dart';
 import 'bookingcontroller.dart';
 import 'api_service.dart';
@@ -44,10 +45,10 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         if (worker != null) {
           firstName = worker['first_name'] ?? "Unknown";
-          workerUsername = worker['username'] ?? ""; 
+          workerUsername = worker['username'] ?? "";
         } else {
           firstName = "Email not found";
-          workerUsername = ""; 
+          workerUsername = "";
         }
       });
 
@@ -86,6 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _selectedIndex = index;
         _showOverlay = _selectedIndex == 0;
+        fetchReviews(workerUsername);
       });
     }
   }
@@ -104,6 +106,8 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       BookingScreen(),
     ];
+
+    workerUsername = Provider.of<UserProvider>(context, listen: false).username;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -190,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
 class HomePage extends StatelessWidget {
   final String firstName;
   final VoidCallback onTotalBookingsTap;
-  final List<dynamic> reviews; 
+  final List<dynamic> reviews;
 
   const HomePage({
     super.key,
@@ -474,9 +478,13 @@ class HomePage extends StatelessWidget {
               const SizedBox(height: 16),
               const Text("Reviews about you",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              ...reviews.map((review) => _buildReview(
-                  "assets/reviewprofile.png", review['rating'].toString(), review['review'],
-                )).toList(),
+              ...reviews
+                  .map((review) => _buildReview(
+                        "assets/reviewprofile.png",
+                        review['rating'].toString(),
+                        review['review'],
+                      ))
+                  .toList(),
             ],
           ),
         ),
