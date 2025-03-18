@@ -1,21 +1,16 @@
 import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:starter/api_service.dart';
+import 'mock_api_service.dart';
 
 void main() {
-  setUpAll(() async {
-    // Load the environment variables for testing
-    await dotenv.load(fileName: ".env");
-  });
 
   group('Login Tests: ', () {
     test('Login user with valid credentials returns 200', () async {
 
-      const testEmail = 'email@domain.com';
-      const testPassword = 'validpassword';
+      const testEmail = 'user1@example.com';
+      const testPassword = 'password123';
 
-      final response = await ApiService.loginUser(testEmail, testPassword);
+      final response = await MockApiService.loginUser(testEmail, testPassword);
 
       expect(response.statusCode, 200);
 
@@ -28,7 +23,7 @@ void main() {
       const testEmail = 'invalid@example.com';
       const testPassword = 'wrongpassword';
 
-      final response = await ApiService.loginUser(testEmail, testPassword);
+      final response = await MockApiService.loginUser(testEmail, testPassword);
 
       expect(response.statusCode, 401);
 
