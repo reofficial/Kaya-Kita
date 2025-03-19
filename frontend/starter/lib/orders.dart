@@ -19,13 +19,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
   @override
   void initState() {
     super.initState();
-    currentUsername =
-        Provider.of<UserProvider>(context, listen: false).username;
+    currentUsername = Provider.of<UserProvider>(context, listen: false).username;
     jobsFuture = fetchUserJobs(currentUsername);
   }
 
-  Future<List<Map<String, dynamic>>> fetchUserJobs(
-      String currentUsername) async {
+  Future<List<Map<String, dynamic>>> fetchUserJobs(String currentUsername) async {
     try {
       final response = await ApiService.getJobCircles();
       if (response.statusCode == 200) {
@@ -179,6 +177,14 @@ class JobCircles extends StatelessWidget {
                   jobStatus: jobStatus,
                   paymentStatus: paymentStatus,
                 ),
+              ),
+            );
+          } else {
+            // Show error if job is not completed
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Cannot give ratings before job is finished"),
+                backgroundColor: Colors.red,
               ),
             );
           }
