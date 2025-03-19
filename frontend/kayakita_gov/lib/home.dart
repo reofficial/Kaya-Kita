@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:kayakita_gov/certification.dart';
 import 'joblistings.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -57,9 +58,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
             Column(
               children: [
-                _inboxButton("Job Listings"),
-                _inboxButton("Disputes"),
-                _inboxButton("Certification"),
+                _inboxButton("Job Listings", JobListingsScreen()),
+                _inboxButton("Disputes", JobListingsScreen()), // PLS CHANGE WHEN DISPUTES SCREEN IS MADE
+                _inboxButton("Certification", CertificationScreen()),
               ],
             ),
             const SizedBox(height: 20),
@@ -71,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-    Widget _inboxButton(String title) {
+    Widget _inboxButton(String title, Widget screen) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: SizedBox(
@@ -83,12 +84,10 @@ class _HomeScreenState extends State<HomeScreen> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
           ),
           onPressed: () {
-            if (title == "Job Listings") {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => JobListingsScreen()),
-              );
-            }
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => screen),
+            );
           },
           child: Text(title, style: const TextStyle(fontSize: 16, color: Colors.black)),
         ),

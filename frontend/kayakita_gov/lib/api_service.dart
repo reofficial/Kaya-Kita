@@ -109,4 +109,10 @@ class ApiService {
     final response = await _client.delete(url);
     return response;
   }
+
+  static Future<http.Response> getWorkers() async {
+    final url = Uri.parse('$baseUrl/workers');
+    final response = await _client.get(url);
+    return response;
+  }
 }
