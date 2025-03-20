@@ -15,6 +15,7 @@ class OrdersScreen extends StatefulWidget {
 class _OrdersScreenState extends State<OrdersScreen> {
   late Future<List<Map<String, dynamic>>> jobsFuture;
   late String currentUsername;
+  List<Map<String, dynamic>> jobsData = [];
 
   @override
   void initState() {
@@ -28,7 +29,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
       final response = await ApiService.getJobCircles();
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-
         List<Map<String, dynamic>> userJobs = data
             .where((job) => job['customer'] == currentUsername)
             .map((job) => {
@@ -38,8 +38,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   'handyman': job['handyman'],
                   'job_status': job['job_status'],
                   'payment_status': job['payment_status'],
+                  'rating_status': job['rating_status'],
                 })
             .toList();
+        jobsData = userJobs;
         return userJobs;
       } else {
         throw Exception("Failed to load jobs (Status: ${response.statusCode})");
@@ -88,12 +90,12 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 ...jobs
                     .where((job) => job["job_status"] == "Pending")
                     .map((job) => JobCircles(
-                          ticketNumber: job["ticket_number"],
-                          datetime: job["datetime"],
-                          customer: job["customer"],
-                          handyman: job["handyman"],
-                          jobStatus: job["job_status"],
-                          paymentStatus: job["payment_status"],
+                          job: job,
+                          onRated: () {
+                            setState(() {
+                              job['rating_status'] = 'Rated';
+                            });
+                          },
                         )),
                 const SizedBox(height: 15),
                 const Text(
@@ -105,12 +107,12 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         job["job_status"] == "Ongoing" ||
                         job["job_status"] == "Accepted")
                     .map((job) => JobCircles(
-                          ticketNumber: job["ticket_number"],
-                          datetime: job["datetime"],
-                          customer: job["customer"],
-                          handyman: job["handyman"],
-                          jobStatus: job["job_status"],
-                          paymentStatus: job["payment_status"],
+                          job: job,
+                          onRated: () {
+                            setState(() {
+                              job['rating_status'] = 'Rated';
+                            });
+                          },
                         )),
                 const SizedBox(height: 15),
                 const Text(
@@ -120,13 +122,13 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 ...jobs
                     .where((job) => job["job_status"] == "Completed")
                     .map((job) => JobCircles(
-                          ticketNumber: job["ticket_number"],
-                          datetime: job["datetime"],
-                          customer: job["customer"],
-                          handyman: job["handyman"],
-                          jobStatus: job["job_status"],
-                          paymentStatus: job["payment_status"],
-                        ))
+                          job: job,
+                          onRated: () {
+                            setState(() {
+                              job['rating_status'] = 'Rated';
+                            });
+                          },
+                        )),
               ],
             ),
           );
@@ -139,23 +141,23 @@ class _OrdersScreenState extends State<OrdersScreen> {
 class JobCircles extends StatelessWidget {
   const JobCircles({
     super.key,
-    required this.ticketNumber,
-    required this.datetime,
-    required this.customer,
-    required this.handyman,
-    required this.jobStatus,
-    required this.paymentStatus,
+    required this.job,
+    required this.onRated,
   });
 
-  final int ticketNumber;
-  final String datetime;
-  final String customer;
-  final String handyman;
-  final String jobStatus;
-  final String paymentStatus;
+  final Map<String, dynamic> job;
+  final VoidCallback onRated;
 
   @override
   Widget build(BuildContext context) {
+    final int ticketNumber = job["ticket_number"];
+    final String datetime = job["datetime"];
+    final String customer = job["customer"];
+    final String handyman = job["handyman"];
+    final String jobStatus = job["job_status"];
+    final String paymentStatus = job["payment_status"];
+    final String ratingStatus = job["rating_status"];
+
     return Card(
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
@@ -164,9 +166,9 @@ class JobCircles extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 8),
       elevation: 4,
       child: InkWell(
-        onTap: () {
-          if (jobStatus == 'Completed') {
-            Navigator.push(
+        onTap: () async {
+          if (jobStatus == 'Completed' && ratingStatus == 'Unrated') {
+            final result = await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => CompletedJobScreen(
@@ -179,8 +181,17 @@ class JobCircles extends StatelessWidget {
                 ),
               ),
             );
+            if (result == 'Rated') {
+              onRated();
+            }
+          } else if (jobStatus == 'Completed' && ratingStatus == 'Rated') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Already provided rating."),
+                backgroundColor: Colors.orange,
+              ),
+            );
           } else {
-            // Show error if job is not completed
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text("Cannot give ratings before job is finished"),
@@ -212,6 +223,8 @@ class JobCircles extends StatelessWidget {
               Text("Job Status: $jobStatus"),
               const SizedBox(height: 4),
               Text("Payment Status: $paymentStatus"),
+              const SizedBox(height: 4),
+              Text("Rating Status: $ratingStatus"),
             ],
           ),
         ),

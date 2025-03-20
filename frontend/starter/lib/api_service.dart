@@ -115,6 +115,17 @@ class ApiService {
     return response;
   }
 
+  static Future<http.Response> updateJobCircle(Map<String, dynamic> updateDetails) async {
+    final url = Uri.parse('$baseUrl/job-circles/update');
+    final response = await _client.put(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(updateDetails),
+    );
+    return response;
+  }
+
+
   static Future<http.Response> postJobCircle(
       Map<String, dynamic> jobCircle) async {
     final url = Uri.parse('$baseUrl/job-circles/post');
