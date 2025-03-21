@@ -56,6 +56,7 @@ class JobCircles(BaseModel):
     handyman: Optional[str] = "N/A"
     job_status: Optional[str] = "Ongoing"
     payment_status: Optional[str] = "Not Paid"
+    rating_status: Optional[str] = "Unrated"
     
 
 class WorkerReviews(BaseModel):
