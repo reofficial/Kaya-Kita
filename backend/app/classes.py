@@ -70,3 +70,14 @@ class WorkerReviews(BaseModel):
 class WorkerRates(BaseModel):
     email: str
     rate: float
+
+class WorkerCertificationInput(BaseModel):
+    worker_username: str
+    date_of_application: datetime
+    licensing_certificate_given: str
+    is_senior: bool
+    is_pwd: bool
+    
+class WorkerCertificationDB(WorkerCertificationInput):      #Database specific schema. Not meant to be exposed
+    licensing_certificate_photo: str                    #Internal path to the licensing certificate photo
+    barangay_certificate: str                           #Internal path to the barangay certificate file
