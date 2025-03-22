@@ -2,21 +2,25 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:kayakita_gov/api_service.dart';
+import 'package:kayakita_gov/certifyworker.dart';
 
 class Worker {
   Worker({
     required this.name,
+    required this.username,
     required this.servicePreference,
     this.status = "Pending", // Default status
   });
 
   final String name;
+  final String username;
   final String servicePreference;
   String status;
 
   factory Worker.fromJson(Map<String, dynamic> worker) {
     return Worker(
       name: '${worker['first_name']} ${worker['last_name']}',
+      username: worker['username'] ?? '',
       servicePreference: worker['service_preference']
     );
   }
@@ -111,43 +115,50 @@ class _WorkerCardState extends State<WorkerCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      elevation: 6,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [ 
-                Icon(Icons.account_circle, size: 50),
-                SizedBox(width: 8),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.worker.name,
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF000E53),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => 
+            CertifyWorkerScreen(workerUsername: widget.worker.username)
+          ),
+        );
+      },
+      child: Card(
+        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        elevation: 6,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [ 
+                  Icon(Icons.account_circle, size: 50),
+                  SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.worker.name,
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF000E53),
+                        ),
                       ),
-                    ),
 
-                    Text(
-                      widget.worker.servicePreference,
-                      style: TextStyle(fontSize: 16, color: Colors.grey[800]),
-                    ),
-                  ],
-                ),
-              ]
-            ),
+                      Text(
+                        widget.worker.servicePreference,
+                        style: TextStyle(fontSize: 16, color: Colors.grey[800]),
+                      ),
+                    ],
+                  ),
+                ]
+              ),
 
-            GestureDetector(
-              onTap: () {},
-              child: Row(
+              Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
@@ -165,10 +176,10 @@ class _WorkerCardState extends State<WorkerCard> {
                   ),
                 ],
               ),
-            )
-          ]
-        )
-      ),
+            ]
+          )
+        ),
+      )
     );
   }
 }
