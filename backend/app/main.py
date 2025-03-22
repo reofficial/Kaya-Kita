@@ -1,10 +1,10 @@
 import os
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, status
 from fastapi.responses import JSONResponse, RedirectResponse
 from motor.motor_asyncio import AsyncIOMotorClient
-from typing import List
-from app.classes import Profile, InitialInfo, JobListing, LoginInfo, ProfileUpdate, WorkerReviews, JobCircles, WorkerRates
+from typing import List, Optional, Union
+from app.classes import Profile, InitialInfo, JobListing, LoginInfo, ProfileUpdate, WorkerReviews, JobCircles, WorkerRates, WorkerCertificationInput,WorkerCertificationResponse
 from app.DAO.customer_DAO import CustomerDAO
 from app.DAO.job_listing_DAO import JobListingDAO
 from app.DAO.worker_DAO import WorkerDAO
@@ -12,14 +12,16 @@ from app.DAO.official_DAO import OfficialDAO
 from app.DAO.worker_reviews_DAO import WorkerReviewsDAO
 from app.DAO.job_circles_DAO import JobCirclesDAO
 from app.DAO.worker_rates_DAO import WorkerRatesDAO
+from app.DAO.certifications_DAO import WorkerCertificationDAO
+from fastapi.staticfiles import StaticFiles
 # .\venv\Scripts\Activate
 # uvicorn app.main:app --reload
+# pip freeze > requirements.txt
 
 
 load_dotenv()
 app = FastAPI()
 MONGO_URI = os.getenv("MONGO_URI")
-
 client = AsyncIOMotorClient(MONGO_URI)
 database = client["Kaya_Kita"]
 
@@ -31,6 +33,7 @@ job_listing_dao = JobListingDAO(database)
 worker_reviews_dao = WorkerReviewsDAO(database)
 job_circle_dao = JobCirclesDAO(database)
 worker_rates_dao = WorkerRatesDAO(database)
+cert_dao = WorkerCertificationDAO(database)
 
 # The following concerns customers
 @app.get("/customers", response_model=List[Profile])
@@ -275,6 +278,81 @@ async def update_rate(email: str, new_rate: float):
 async def delete_rate(email: str):
     success = await worker_rates_dao.delete_worker_rate(email)
     return {"message": "Rate deleted successfully"} if success else {"message": "Rate not found"}
+
+#The following concerns certificates
+app.mount("/static", StaticFiles(directory="static"), name="static")
+@app.post("/certifications/create", response_model=WorkerCertificationResponse, status_code=status.HTTP_201_CREATED)
+async def create_certification(
+    worker_username: str = Form(...),
+    date_of_application: str = Form(...),
+    licensing_certificate_given: str = Form(...),
+    is_senior: bool = Form(...),
+    is_pwd: bool = Form(...),
+    licensing_certificate_photo: UploadFile = File(...),
+    barangay_certificate: UploadFile = File(...)
+):
+    input_data = WorkerCertificationInput(
+        worker_username=worker_username,
+        date_of_application=date_of_application,
+        licensing_certificate_given=licensing_certificate_given,
+        is_senior=is_senior,
+        is_pwd=is_pwd
+    )
+    cert = await cert_dao.create_certification(input_data, licensing_certificate_photo, barangay_certificate)
+    return cert
+
+# GET: List all Certifications.
+@app.get("/certifications", response_model=List[WorkerCertificationResponse])
+async def get_certifications():
+    return await cert_dao.read_certifications()
+
+# GET: Retrieve a Certification by Username.
+@app.get("/certifications/{worker_username}", response_model=Union[WorkerCertificationResponse, None])
+async def get_certification_by_username(worker_username: str):
+    cert = await cert_dao.read_certification_by_username(worker_username)
+    if not cert:
+        raise HTTPException(status_code=404, detail="Certification not found")
+    return cert
+
+# PUT: Update a Certification.
+# This endpoint accepts optional new text fields and/or new file uploads (which replace the old files).
+@app.put("/certifications/update", response_model=bool)
+async def update_certification(
+    worker_username: str = Form(...),
+    # Optional text fields
+    date_of_application: Optional[str] = Form(None),
+    licensing_certificate_given: Optional[str] = Form(None),
+    is_senior: Optional[bool] = Form(None),
+    is_pwd: Optional[bool] = Form(None),
+    # Optional new files
+    licensing_certificate_photo: Optional[UploadFile] = File(None),
+    barangay_certificate: Optional[UploadFile] = File(None)
+):
+    update_data = {}
+    if date_of_application is not None:
+        update_data["date_of_application"] = date_of_application
+    if licensing_certificate_given is not None:
+        update_data["licensing_certificate_given"] = licensing_certificate_given
+    if is_senior is not None:
+        update_data["is_senior"] = is_senior
+    if is_pwd is not None:
+        update_data["is_pwd"] = is_pwd
+
+    updated = await cert_dao.update_certification(
+        worker_username,
+        update_data,
+        licensing_certificate_photo,
+        barangay_certificate
+    )
+    if not updated:
+        raise HTTPException(status_code=404, detail="Certification not found or no changes made")
+    return True
+
+# DELETE: Delete a Certification by Username.
+@app.delete("/certifications/delete/{worker_username}", response_model=dict)
+async def delete_certification(worker_username: str):
+    success = await cert_dao.delete_certification(worker_username)
+    return {"message": "Certification deleted successfully"} if success else {"message": "Certification not found"}
 
 #Test function
 # @app.get("/")
