@@ -68,12 +68,23 @@ flutter:
     - assets/google.png
     - assets/facebook.png
     - assets/apple.png
-    - assets/philcoatofarms.png
     - assets/kamala.png
-    - assets/reviewprofile.png
-    - assets/smol_logo.png
-    - assets/emergency_icon.png
+    - assets/promos.png
+    - assets/Technology.png
+    - assets/Business.png
+    - assets/Entertainment.png
+    - assets/Default.png
+    - assets/Construction.png
+    - assets/Education.png
+    - assets/Health.png
+    - assets/Housework.png
+    - assets/Food.png
+    - assets/Transport.png
     - assets/badwords.txt
+    - assets/map.png
+    - assets/philcoatofarms.png
+    - assets/smol_logo.png
+    - assets/reviewprofile.png
     - .env
 
   #   - images/a_dot_ham.jpeg

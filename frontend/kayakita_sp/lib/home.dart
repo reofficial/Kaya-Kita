@@ -8,6 +8,7 @@ import 'bookings.dart';
 import 'bookingcontroller.dart';
 import 'api_service.dart';
 import 'dart:convert';
+import 'joblistings.dart';
 
 class HomeScreen extends StatefulWidget {
   final String email;
@@ -20,7 +21,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   String firstName = "Loading...";
-  String workerUsername = ""; // Add this line to store the worker's username
+  String workerUsername = ""; 
   bool _showOverlay = true;
   List<dynamic> reviews = [];
 
@@ -83,14 +84,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onItemTapped(int index) {
-    if (index == 0 || index == 1) {
-      setState(() {
-        _selectedIndex = index;
-        _showOverlay = _selectedIndex == 0;
-        fetchReviews(workerUsername);
-      });
+  setState(() {
+    _selectedIndex = index;
+    _showOverlay = _selectedIndex == 0;
+    if (_selectedIndex == 0) {
+      fetchReviews(workerUsername);
+    } else if (_selectedIndex == 1) {
+      fetchReviews(workerUsername);
     }
-  }
+  });
+}
 
   @override
   Widget build(BuildContext context) {
@@ -105,6 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
         reviews: reviews, // Pass reviews to HomePage
       ),
       BookingScreen(),
+      JobListingsScreen(),
     ];
 
     workerUsername = Provider.of<UserProvider>(context, listen: false).username;
@@ -175,6 +179,10 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_today),
             label: 'Bookings',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.work),
+            label: 'Job Listing',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.payment),
