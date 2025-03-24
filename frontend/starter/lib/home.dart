@@ -6,6 +6,7 @@ import 'package:starter/nearbyworkers.dart';
 import 'package:starter/newpost.dart';
 import 'package:starter/joblistings.dart';
 import 'package:starter/orders.dart';
+import 'package:starter/customerjoblistings.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,7 +21,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Handle bottom navigation bar item taps
   void _onItemTapped(int index) {
-  if (index == 2) {
+  if (index == 1 ){
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const CustomerJobListingScreen()),
+    );
+  } else if (index == 2) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const NewPostScreen()),
@@ -221,8 +227,8 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.discount),
-            label: 'Promos',
+            icon: Icon(Icons.work),
+            label: 'Listings',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.add_circle, size: 30),

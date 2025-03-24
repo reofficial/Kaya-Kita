@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:starter/api_service.dart';
 import 'dart:convert';
-
 import 'package:starter/jobedit.dart';
 import 'package:provider/provider.dart';
 import 'package:starter/joblistings.dart';
 import 'package:starter/providers/profile_provider.dart';
+import 'package:starter/jobapplicants.dart';
 
 class JobInfoScreen extends StatefulWidget {
   const JobInfoScreen({
@@ -20,18 +20,15 @@ class JobInfoScreen extends StatefulWidget {
 }
 
 class _JobInfoScreenState extends State<JobInfoScreen> {
-  late String username; // username of current user
-
+  late String username;
   List<dynamic> tag = [];
-  String authorUsername = ''; // username of post author
+  String authorUsername = '';
   String title = '';
   String description = '';
   String location = '';
   double salary = 0.0;
   String salaryFrequency = '';
   String duration = '';
-
-  // Holds the customer/contact details fetched by matching username.
   Map<String, dynamic>? contactDetails;
 
   @override
@@ -55,7 +52,6 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
           salaryFrequency = jobListing['salary_frequency'];
           duration = jobListing['duration'];
         });
-        // Now fetch contact details for the job listing author.
         await fetchContactDetails();
       }
     } catch (e) {
@@ -96,9 +92,7 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
         );
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => JobListingsScreen(),
-          ),
+          MaterialPageRoute(builder: (context) => JobListingsScreen()),
         );
       }
     } catch (e) {
@@ -136,10 +130,7 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
                         leading: IconButton(
                           icon: Icon(Icons.arrow_back, color: Colors.white),
                           onPressed: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(builder: (context) => JobListingsScreen()),
-                            );
+                            Navigator.pop(context);
                           },
                         ),
                       ),
@@ -150,7 +141,6 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
                     left: MediaQuery.of(context).size.width / 2 - 60,
                     child: CircleAvatar(
                       radius: 60,
-                      // Placeholder icon
                       child: Icon(Icons.person, size: 60),
                       backgroundColor: Colors.white,
                     ),
@@ -177,27 +167,15 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
                               SizedBox(
                                 width: double.infinity,
                                 child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
-                                      title,
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    Text(
-                                      'Job #${widget.jobId}',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xFF87027B)),
-                                    ),
+                                    Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                                    Text('Job #${widget.jobId}',
+                                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF87027B))),
                                   ],
                                 ),
                               ),
                               SizedBox(height: 8),
-                              // Constant width for the description box
                               SizedBox(
                                 width: 300,
                                 child: Container(
@@ -205,41 +183,17 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
                                   decoration: BoxDecoration(
                                     color: Colors.grey[300],
                                     borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                      color: Colors.grey[500]!,
-                                      width: 1.5,
-                                    ),
+                                    border: Border.all(color: Colors.grey[500]!, width: 1.5),
                                   ),
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        description,
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold),
-                                      ),
+                                      Text(description, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                                       SizedBox(height: 8),
-                                      Text(
-                                        'Ideal Rate: $salary/$salaryFrequency',
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            color: Color(0xFF00880C)),
-                                      ),
-                                      Text(
-                                        'Duration: $duration',
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(
-                                        'Location: $location',
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold),
-                                      ),
+                                      Text('Ideal Rate: $salary/$salaryFrequency',
+                                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF00880C))),
+                                      Text('Duration: $duration', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                                      Text('Location: $location', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                                     ],
                                   ),
                                 ),
@@ -247,26 +201,17 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
                               SizedBox(height: 12),
                               Divider(),
                               SizedBox(height: 8),
-                              // Display contact details fetched from the API.
                               contactDetails != null
                                   ? Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          'Contact Details',
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold),
-                                        ),
+                                        Text('Contact Details', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                                         SizedBox(height: 8),
                                         Row(
                                           children: [
                                             Icon(Icons.person, color: Colors.grey),
                                             SizedBox(width: 8),
-                                            Text(contactDetails!['name'] ??
-                                                contactDetails!['username'] ??
-                                                ''),
+                                            Text(contactDetails!['name'] ?? contactDetails!['username'] ?? ''),
                                           ],
                                         ),
                                         SizedBox(height: 6),
@@ -309,14 +254,9 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              authorUsername,
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
+                            Text(authorUsername, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                             SizedBox(width: 6),
-                            Icon(Icons.verified,
-                                color: Color(0xFF87027B), size: 20),
+                            Icon(Icons.verified, color: Color(0xFF87027B), size: 20),
                           ],
                         ),
                       ),
@@ -325,37 +265,62 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
                       bottom: 60,
                       left: 0,
                       right: 0,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      child: Column(
                         children: [
                           if (username == authorUsername)
                             ElevatedButton(
-                              onPressed: deleteJobListing,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFF870202),
-                                foregroundColor: Colors.white,
-                              ),
-                              child: Text('Delete Post'),
-                            ),
-                          if (username == authorUsername)
-                            ElevatedButton(
                               onPressed: () {
-                                Navigator.pushReplacement(
+                                Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => JobEditScreen(
-                                      jobId: widget.jobId,
-                                      isEditMode: true, // Set isEditMode to true
-                                    ),
+                                    builder: (context) => JobApplicantsScreen(jobId: widget.jobId),
                                   ),
                                 );
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Color(0xFF87027B),
                                 foregroundColor: Colors.white,
+                                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                               ),
-                              child: Text('Edit Post'),
+                              child: Text('View Applicants', style: TextStyle(fontSize: 16)),
                             ),
+                          SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              if (username == authorUsername)
+                                ElevatedButton(
+                                  onPressed: deleteJobListing,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(0xFF870202),
+                                    foregroundColor: Colors.white,
+                                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                  ),
+                                  child: Text('Delete Post', style: TextStyle(fontSize: 16)),
+                                ),
+                              if (username == authorUsername)
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => JobEditScreen(
+                                          jobId: widget.jobId,
+                                          isEditMode: true,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(0xFF00880C),
+                                    foregroundColor: Colors.white,
+                                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                  ),
+                                  child: Text('Edit Post', style: TextStyle(fontSize: 16)),
+                                ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -374,7 +339,6 @@ class CurvedAppBar extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     Path path = Path();
-
     double startX = 0;
     double startY = size.height * 0.75;
     double curveStartX = size.width * 0.32;
@@ -382,38 +346,17 @@ class CurvedAppBar extends CustomClipper<Path> {
     double endX = size.width;
     double controlX = size.width * 0.5;
     double controlY = size.height * 0.2;
-
     double roundness = size.width * 0.07;
 
     path.lineTo(startX, startY);
     path.lineTo(curveStartX - roundness, startY);
-
-    path.quadraticBezierTo(
-      curveStartX - roundness / 2, 
-      startY, 
-      curveStartX, 
-      startY - roundness / 2,
-    );
-
-    path.quadraticBezierTo(
-      controlX, 
-      controlY, 
-      curveEndX, 
-      startY - roundness / 2,
-    );
-
-    path.quadraticBezierTo(
-      curveEndX + roundness / 2, 
-      startY, 
-      curveEndX + roundness, 
-      startY,
-    );
-
+    path.quadraticBezierTo(curveStartX - roundness / 2, startY, curveStartX, startY - roundness / 2);
+    path.quadraticBezierTo(controlX, controlY, curveEndX, startY - roundness / 2);
+    path.quadraticBezierTo(curveEndX + roundness / 2, startY, curveEndX + roundness, startY);
     path.lineTo(endX, startY);
     path.lineTo(endX, 0);
     path.lineTo(0, 0);
     path.close();
-
     return path;
   }
 

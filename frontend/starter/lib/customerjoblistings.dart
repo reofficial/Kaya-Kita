@@ -1,47 +1,46 @@
 import 'package:flutter/material.dart';
-import 'package:starter/jobinfo.dart';
-import 'dart:convert';
-
-import 'package:starter/widgets/customappbar.dart';
-import 'package:starter/newpost.dart';
 import 'package:starter/api_service.dart';
+import 'dart:convert';
+import 'package:starter/jobinfo.dart';
+import 'package:starter/widgets/customappbar.dart';
+import 'package:provider/provider.dart';
+import 'package:starter/providers/profile_provider.dart';
 
-class JobListingsScreen extends StatefulWidget {
-  const JobListingsScreen({super.key});
+class CustomerJobListingScreen extends StatefulWidget {
+  const CustomerJobListingScreen({super.key});
 
   @override
-  State<JobListingsScreen> createState() => _JobListingsScreenState();
+  State<CustomerJobListingScreen> createState() => _CustomerJobListingScreenState();
 }
 
-class _JobListingsScreenState extends State<JobListingsScreen> {
+class _CustomerJobListingScreenState extends State<CustomerJobListingScreen> {
   late Future<List<Map<String, dynamic>>> jobsFuture;
+  late String currentUsername;
 
-  Future<List<Map<String, dynamic>>> fetchJobListings() async {
+  Future<List<Map<String, dynamic>>> fetchCustomerJobs(String username) async {
     try {
       final response = await ApiService.getJobListings();
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
+
+        // Filter jobs posted by this customer
         return data
-            .where((item) => item['is_hidden'] != true)
+            .where((item) => item['username'] == username)
             .map((item) => {
                   'job_id': item['job_id'] ?? -1,
-                  'tags': (item['tag'] as List<dynamic>?)
-                          ?.map((tag) => tag?.toString() ?? 'N/A')
-                          .toList() ??
-                      [],
+                  'tags': (item['tag'] as List<dynamic>? ?? [])
+                      .map((tag) => tag?.toString() ?? 'N/A')
+                      .toList(),
                   'title': item['job_title']?.toString() ?? 'No Title',
-                  'description':
-                      item['description']?.toString() ?? 'No Description',
+                  'description': item['description']?.toString() ?? 'No Description',
                   'location': item['location']?.toString() ?? 'No Location',
                   'salary': item['salary'] ?? -1.0,
-                  'salaryFrequency':
-                      item['salary_frequency']?.toString() ?? 'N/A',
+                  'salaryFrequency': item['salary_frequency']?.toString() ?? 'N/A',
                   'duration': item['duration']?.toString() ?? 'N/A',
                 })
             .toList();
       } else {
-        throw Exception(
-            'Failed to load jobs (Status: ${response.statusCode})');
+        throw Exception('Failed to load jobs (Status: ${response.statusCode})');
       }
     } catch (e) {
       throw Exception('Error fetching jobs: $e');
@@ -51,12 +50,13 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
   @override
   void initState() {
     super.initState();
-    jobsFuture = fetchJobListings();
+    currentUsername = Provider.of<UserProvider>(context, listen: false).username;
+    jobsFuture = fetchCustomerJobs(currentUsername);
   }
 
   void refreshJobListings() {
     setState(() {
-      jobsFuture = fetchJobListings();
+      jobsFuture = fetchCustomerJobs(currentUsername);
     });
   }
 
@@ -64,7 +64,7 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: CustomAppBar(titleText: 'Job Listings'),
+      appBar: CustomAppBar(titleText: 'My Job Listings'),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: jobsFuture,
         builder: (context, snapshot) {
@@ -75,10 +75,9 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('An error occurred while loading jobs.'),
+                  const Text('An error occurred while loading your jobs.'),
                   const SizedBox(height: 8),
-                  Text('${snapshot.error}',
-                      style: const TextStyle(color: Colors.red)),
+                  Text('${snapshot.error}', style: const TextStyle(color: Colors.red)),
                   ElevatedButton(
                     onPressed: refreshJobListings,
                     child: const Text('Retry'),
@@ -95,7 +94,7 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
                 itemCount: jobs.length,
                 itemBuilder: (context, index) {
                   final job = jobs[index];
-                  return JobListing(
+                  return CustomerJobCard(
                     jobId: job['job_id'] ?? 0,
                     tags: job['tags'] ?? [],
                     title: job['title'],
@@ -109,36 +108,16 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
               ),
             );
           } else {
-            return const Center(child: Text('No job listings available.'));
+            return const Center(child: Text('You have no job listings posted.'));
           }
         },
-      ),
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.white,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.add_circle,
-                  size: 50, color: Color(0xFF87027B)),
-              onPressed: () async {
-                await Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const NewPostScreen()),
-                );
-                refreshJobListings();
-              },
-            ),
-          ],
-        ),
       ),
     );
   }
 }
 
-class JobListing extends StatelessWidget {
-  const JobListing({
+class CustomerJobCard extends StatelessWidget {
+  const CustomerJobCard({
     super.key,
     required this.jobId,
     required this.tags,
@@ -193,9 +172,7 @@ class JobListing extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       margin: const EdgeInsets.symmetric(vertical: 8),
       elevation: 4,
       child: InkWell(
@@ -234,10 +211,7 @@ class JobListing extends StatelessWidget {
                         spacing: 4,
                         children: tags
                             .map((tag) => Chip(
-                                  label: Text(
-                                    tag,
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
+                                  label: Text(tag, style: const TextStyle(color: Colors.white)),
                                   backgroundColor: const Color(0xFF87027B),
                                 ))
                             .toList(),
@@ -245,30 +219,19 @@ class JobListing extends StatelessWidget {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(Icons.location_on,
-                            size: 14, color: Color(0xFF87027B)),
+                        const Icon(Icons.location_on, size: 14, color: Color(0xFF87027B)),
                         const SizedBox(width: 4),
-                        Text(
-                          location,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.black87,
-                          ),
-                        ),
+                        Text(location, style: const TextStyle(fontSize: 14, color: Colors.black87)),
                       ],
                     ),
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        const Icon(Icons.attach_money,
-                            size: 14, color: Color(0xFF87027B)),
+                        const Icon(Icons.attach_money, size: 14, color: Color(0xFF87027B)),
                         const SizedBox(width: 4),
                         Text(
                           '$salary / $salaryFrequency',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.black87,
-                          ),
+                          style: const TextStyle(fontSize: 14, color: Colors.black87),
                         ),
                       ],
                     ),
