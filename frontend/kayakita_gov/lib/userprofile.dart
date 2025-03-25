@@ -111,6 +111,27 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     }
   }
 
+  Future<void> _updateSuspensionStatus(String status) async {
+    try {
+      final response = await ApiService.updateUserSuspension(
+          widget.username, status, widget.isWorker);
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('User ${status.toLowerCase()} ban updated')),
+        );
+        setState(() {
+          _userDetailsFuture = _fetchUserDetails();
+        });
+      } else {
+        throw Exception('Failed to update suspension status');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error updating ban status: $e')),
+      );
+    }
+  }
+
   Future<List<Review>> _fetchReviews() async {
     try {
       final response = widget.isWorker
@@ -148,21 +169,21 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  //_updateSuspensionStatus('No');
+                  _updateSuspensionStatus('No');
                 },
                 child: const Text('Remove Ban'),
               ),
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
-                //_updateSuspensionStatus('Temporary');
+                _updateSuspensionStatus('Temporary');
               },
               child: const Text('Temporary Ban'),
             ),
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
-                //_updateSuspensionStatus('Permanent');
+                _updateSuspensionStatus('Permanent');
               },
               child: const Text('Permanent Ban'),
             ),

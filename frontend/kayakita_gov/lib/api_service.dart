@@ -126,15 +126,16 @@ class ApiService {
 
   // CERTIFICATION
   static Future<http.Response> createCertification(
-    final Map<String, dynamic> certificationData,
-    final File licensingCertificatePhoto,
-    final File barangayCertificate) async {
+      final Map<String, dynamic> certificationData,
+      final File licensingCertificatePhoto,
+      final File barangayCertificate) async {
     final url = Uri.parse('$baseUrl/certifications/create');
 
     var request = http.MultipartRequest('POST', url)
       ..fields['worker_username'] = certificationData['worker_username']
       ..fields['date_of_application'] = certificationData['date_of_application']
-      ..fields['licensing_certificate_given'] = certificationData['licensing_certificate_given']
+      ..fields['licensing_certificate_given'] =
+          certificationData['licensing_certificate_given']
       ..fields['is_senior'] = certificationData['is_senior']
       ..fields['is_pwd'] = certificationData['is_pwd']
       ..files.add(await http.MultipartFile.fromPath(
@@ -149,7 +150,7 @@ class ApiService {
     var streamedResponse = await request.send();
     var response = await http.Response.fromStream(streamedResponse);
 
-    return response; 
+    return response;
   }
 
   static Future<http.Response> getCertifications() async {
@@ -158,7 +159,8 @@ class ApiService {
     return response;
   }
 
-  static Future<http.Response> getCertificationByUsername(String workerUsername) async {
+  static Future<http.Response> getCertificationByUsername(
+      String workerUsername) async {
     final url = Uri.parse('$baseUrl/certifications/$workerUsername');
     final response = await _client.get(url);
     return response;
@@ -173,6 +175,19 @@ class ApiService {
   static Future<http.Response> getWorkerReviews(String username) async {
     final url = Uri.parse('$baseUrl/reviews/worker/$username');
     final response = await _client.get(url);
+    return response;
+  }
+
+  static Future<http.Response> updateUserSuspension(
+      String username, String status, bool isWorker) async {
+    final url = isWorker
+        ? Uri.parse('$baseUrl/update_suspension_worker')
+        : Uri.parse('$baseUrl/update_suspension_customer');
+    final response = await _client.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'username': username, 'is_suspended': status}),
+    );
     return response;
   }
 }

@@ -16,12 +16,14 @@ class Worker {
     required this.username,
     required this.servicePreference,
     required this.isCertified,
+    required this.isSuspended,
   });
 
   final String name;
   final String username;
   final String servicePreference;
   final String isCertified;
+  final String isSuspended;
 
   factory Worker.fromJson(Map<String, dynamic> worker) {
     return Worker(
@@ -29,6 +31,7 @@ class Worker {
       username: worker['username'] ?? '',
       servicePreference: worker['service_preference'] ?? '',
       isCertified: worker['is_certified'],
+      isSuspended: worker['is_suspended'],
     );
   }
 }
@@ -38,17 +41,20 @@ class Customer {
     required this.name,
     required this.username,
     required this.address,
+    required this.isSuspended,
   });
 
   final String name;
   final String username;
   final String address;
+  final String isSuspended;
 
   factory Customer.fromJson(Map<String, dynamic> customer) {
     return Customer(
       name: '${customer['first_name']} ${customer['last_name']}',
       username: customer['username'] ?? '',
       address: customer['address'] ?? '',
+      isSuspended: customer['is_suspended'],
     );
   }
 }
@@ -163,19 +169,33 @@ class WorkerCard extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: Padding(
                   padding: const EdgeInsets.only(left: 62),
-                  child: Text(
-                    'Status: ${worker.isCertified}',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: worker.isCertified == 'certified'
-                          ? Colors.green
-                          : worker.isCertified == 'denied'
-                              ? Colors.red
-                              : Colors.orange.shade700,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Certification: ${worker.isCertified}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: worker.isCertified == 'certified'
+                              ? Colors.green
+                              : worker.isCertified == 'denied'
+                                  ? Colors.red
+                                  : Colors.orange.shade700,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${worker.isSuspended} suspension',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: _getSuspensionColor(worker.isSuspended),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -184,6 +204,19 @@ class WorkerCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Color _getSuspensionColor(String status) {
+    switch (status) {
+      case 'No':
+        return Colors.green;
+      case 'Temporary':
+        return Colors.orange;
+      case 'Permanent':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
   }
 }
 
@@ -261,11 +294,39 @@ class CustomerCard extends StatelessWidget {
                   ),
                 ],
               ),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 62),
+                  child: Text(
+                    '${customer.isSuspended} suspension',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: _getSuspensionColor(customer.isSuspended),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Color _getSuspensionColor(String status) {
+    switch (status) {
+      case 'No':
+        return Colors.green;
+      case 'Temporary':
+        return Colors.orange;
+      case 'Permanent':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
   }
 }
 
