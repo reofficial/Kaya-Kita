@@ -124,34 +124,19 @@ class ApiService {
     return response;
   }
 
-  // CERTIFICATION
-  static Future<http.Response> createCertification(
-      final Map<String, dynamic> certificationData,
-      final File licensingCertificatePhoto,
-      final File barangayCertificate) async {
-    final url = Uri.parse('$baseUrl/certifications/create');
-
-    var request = http.MultipartRequest('POST', url)
-      ..fields['worker_username'] = certificationData['worker_username']
-      ..fields['date_of_application'] = certificationData['date_of_application']
-      ..fields['licensing_certificate_given'] =
-          certificationData['licensing_certificate_given']
-      ..fields['is_senior'] = certificationData['is_senior']
-      ..fields['is_pwd'] = certificationData['is_pwd']
-      ..files.add(await http.MultipartFile.fromPath(
-        'licensing_certificate_photo',
-        licensingCertificatePhoto.path,
-      ))
-      ..files.add(await http.MultipartFile.fromPath(
-        'barangay_certificate',
-        barangayCertificate.path,
-      ));
-
-    var streamedResponse = await request.send();
-    var response = await http.Response.fromStream(streamedResponse);
-
+  static Future<http.Response> updateWorker(
+      Map<String, dynamic> updateDetails) async {
+    final url = Uri.parse('$baseUrl/workers/update');
+    final response = await _client.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(updateDetails),
+    );
     return response;
   }
+
+
+  // CERTIFICATION
 
   static Future<http.Response> getCertifications() async {
     final url = Uri.parse('$baseUrl/certifications');

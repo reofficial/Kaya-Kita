@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:kayakita_sp/api_service.dart';
 import 'package:kayakita_sp/entrance.dart';
@@ -109,6 +111,7 @@ class _DeclarationScreenState extends State<DeclarationScreen> {
 
     try {
       final response = await ApiService.createWorker(workerData);
+      final response2 = await ApiService.createCertification(workerData);
 
       if (response.statusCode == 201) {
         Navigator.pushReplacement(
@@ -127,25 +130,6 @@ class _DeclarationScreenState extends State<DeclarationScreen> {
       });
     }
 
-    try {
-      final response = await ApiService.createWorker(workerData);
-
-      if (response.statusCode == 201) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) => EntranceScreen(email: widget.workerData['email'])),
-        );
-      } else {
-        _showErrorMessage("Registration failed: ${response.body}");
-      }
-    } catch (error) {
-      _showErrorMessage("An error occurred: $error");
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
   }
 
   void _showErrorMessage(String message) {
