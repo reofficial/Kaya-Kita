@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:kayakita_sp/joblistings.dart';
 import 'package:provider/provider.dart';
 import 'package:kayakita_sp/providers/profile_provider.dart';
+import 'personalinfo.dart';
+import 'package:collection/collection.dart';
 
 class JobInfoScreen extends StatefulWidget {
   final int jobId;
@@ -22,11 +24,18 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
   String salaryFrequency = '';
   String duration = '';
   Map<String, dynamic>? contactDetails;
+  String is_certified = '';
+  String service_preference = '';
+  String userEmail = '';
+  String userPassword = '';
+  String job_status = '';
+  int job_id = 0;
 
   @override
   void initState() {
     super.initState();
     fetchJobListing();
+    fetchWorkerCertification();
   }
 
   Future<void> fetchJobListing() async {
@@ -41,7 +50,9 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
           location = job['location'];
           salary = job['salary'];
           salaryFrequency = job['salary_frequency'];
-          duration = job['duration'];
+          duration = job['duration']; 
+          job_status = job['job_status']; //inadd ko lang
+          job_id = job['job_id'];
         });
         fetchContactDetails();
       }
@@ -74,9 +85,62 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
     }
   }
 
+  Future<void> fetchWorkerCertification() async {
+    try {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final username = userProvider.username;
+      final email = userProvider.email;
+
+      print("Fetching certification for username: $username, email: $email"); 
+
+      final response = await ApiService.getWorkers();
+      if (response.statusCode == 200) {
+        final List<dynamic> workers = json.decode(response.body);
+        final worker = workers.firstWhere(
+          (w) => w['username'] == username,
+          orElse: () => null, 
+        );
+
+        if (worker != null) {
+        final email = worker['email'] ?? "N/A"; 
+        final password = worker['password'] ?? "N/A"; 
+        final certStatus = worker['is_certified'] ?? "pending";
+        final servicePreference = worker['service_preference'] ?? "None";
+
+        print("Worker found - Email: $email, Password: $password, Cert Stat: $certStatus"); 
+
+        setState(() {
+          userEmail = email; 
+          userPassword = password;
+          is_certified = certStatus; 
+          service_preference = servicePreference;
+        });
+      } else {
+        print("No matching worker found for username: $username");
+      }
+    } else {
+      print("API request failed with status code: ${response.statusCode}");
+    }
+  } catch (e) {
+    print("Error fetching worker certification: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Failed to fetch worker certification: $e")),
+    );
+  }
+}
+
+
+
   @override
   Widget build(BuildContext context) {
     final username = Provider.of<UserProvider>(context, listen: false).username;
+    bool isServicePreferenceInJob = title.toLowerCase().contains(service_preference.toLowerCase()) ||
+                                  description.toLowerCase().contains(service_preference.toLowerCase());
+
+    print("Service Preference: $service_preference");
+    print("Job Title: $title");
+    print("Job Description: $description");
+    print("Match Found: $isServicePreferenceInJob");
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -147,8 +211,29 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
               ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
-              onPressed: () {
-                // TODO: Implement Apply Logic
+              onPressed: () async {
+                if (isServicePreferenceInJob && is_certified == "naur") {
+                  try {
+                    await ApiService.updateJobListing({'job_id': job_id, 'job_status': 'ongoing'}); //pano niya maiidentify what to update?
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("You're already certified. Added you to queue instead.")),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Failed to update job status: $e")),
+                    );
+                  }
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Please fill out all the relevant information.")),
+                  );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PersonalInfoScreen(email: userEmail, password: userPassword),
+                    ),
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF87027B),

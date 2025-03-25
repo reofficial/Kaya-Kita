@@ -3,6 +3,9 @@ import 'package:kayakita_sp/jobinfo.dart';
 import 'dart:convert';
 import 'package:kayakita_sp/api_service.dart';
 import 'package:kayakita_sp/widgets/customappbar.dart';
+import 'home.dart';
+import 'package:kayakita_sp/providers/profile_provider.dart';
+import 'package:provider/provider.dart';
 
 class JobListingsScreen extends StatefulWidget {
   const JobListingsScreen({super.key});
@@ -60,7 +63,20 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: CustomAppBar(titleText: 'Job Listings'),
+      appBar: AppBar(
+        title: const Text('Job Listings'),
+        automaticallyImplyLeading: false,
+      //   leading: IconButton(
+      //     icon: const Icon(Icons.arrow_back),
+      //     onPressed: () {
+      //       String email = Provider.of<UserProvider>(context, listen: false).email;
+      //       Navigator.pushReplacement(
+      //         context,
+      //         MaterialPageRoute(builder: (context) => HomeScreen(email: email)),
+      //       );
+      //     },
+      //   ),
+      ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: jobsFuture,
         builder: (context, snapshot) {

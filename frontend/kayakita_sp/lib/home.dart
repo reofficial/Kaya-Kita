@@ -9,6 +9,8 @@ import 'bookingcontroller.dart';
 import 'api_service.dart';
 import 'dart:convert';
 import 'joblistings.dart';
+import 'chat.dart';
+import 'payment.dart';
 
 class HomeScreen extends StatefulWidget {
   final String email;
@@ -109,6 +111,8 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       BookingScreen(),
       JobListingsScreen(),
+      PaymentScreen(),
+      ChatScreen(),
     ];
 
     workerUsername = Provider.of<UserProvider>(context, listen: false).username;
