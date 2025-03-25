@@ -27,6 +27,25 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
   String? selectedService;
   bool isLoading = false;
 
+  late Map<String, dynamic> workerData;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    workerData = {
+      'email': widget.email,
+      'password': widget.password,
+      'firstName': '',
+      'middleInitial': '',
+      'lastName': '',
+      'contactNumber': '',
+      'address': '',
+      'service': '',
+      'isCertified': 'pending',
+    };
+  }
+
   @override
   void dispose() {
     firstNameController.dispose();
@@ -48,20 +67,17 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
       return;
     }
 
+    workerData['firstName'] = firstNameController.text;
+    workerData['middleInitial'] = middleInitialController.text;
+    workerData['lastName'] = lastNameController.text;
+    workerData['contactNumber'] = mobileNumberController.text;
+    workerData['address'] = addressController.text;
+    workerData['service'] = selectedService!;
+
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ApplicationScreen(
-          email: widget.email,
-          password: widget.password,
-          firstName: firstNameController.text,
-          middleInitial: middleInitialController.text,
-          lastName: lastNameController.text,
-          contactNumber: mobileNumberController.text,
-          address: addressController.text,
-          service: selectedService!,
-          isCertified: false,
-        ),
+        builder: (context) => ApplicationScreen(workerData: workerData),
       ),
     );
   }

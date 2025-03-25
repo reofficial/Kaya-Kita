@@ -1,31 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:kayakita_sp/api_service.dart';
 import 'package:kayakita_sp/entrance.dart';
+import 'package:kayakita_sp/providers/profile_provider.dart';
 import 'package:kayakita_sp/widgets/customappbar.dart';
 import 'package:kayakita_sp/widgets/labeledcheckbox.dart';
+import 'package:provider/provider.dart';
 
 class DeclarationScreen extends StatefulWidget {
-  final String email;
-  final String password;
-  final String firstName;
-  final String middleInitial;
-  final String lastName;
-  final String contactNumber;
-  final String address;
-  final String service;
-  final bool isCertified;
+  final Map<String, dynamic> workerData;
+  final Map<String, dynamic> certificationData;
 
   const DeclarationScreen({
     super.key,
-    required this.email,
-    required this.password,
-    required this.firstName,
-    required this.middleInitial,
-    required this.lastName,
-    required this.contactNumber,
-    required this.address,
-    required this.isCertified,
-    required this.service,
+    required this.workerData,
+    required this.certificationData
   });
 
   @override
@@ -55,6 +43,8 @@ class _DeclarationScreenState extends State<DeclarationScreen> {
 
   bool isLoading = false;
 
+  late String workerUsername;
+
   Future<void> onSubmit() async {
     if (!_privacyNotice ||
         !_tosTransport ||
@@ -76,17 +66,19 @@ class _DeclarationScreenState extends State<DeclarationScreen> {
       isLoading = true;
     });
 
+    workerUsername = Provider.of<UserProvider>(context, listen: false).username;
+
     Map<String, dynamic> workerData = {
-      "email": widget.email,
-      "password": widget.password,
-      "first_name": widget.firstName,
-      "middle_initial": widget.middleInitial,
-      "last_name": widget.lastName,
-      "contact_number": widget.contactNumber,
-      "address": widget.address,
-      "username": "--",
-      "service_preference": widget.service,
-      "is_certified": widget.isCertified,
+      "email": widget.workerData['email'],
+      "password": widget.workerData['password'],
+      "first_name": widget.workerData['firstName'],
+      "middle_initial": widget.workerData['middleInitial'],
+      "last_name": widget.workerData['lastName'],
+      "contact_number": widget.workerData['contactNumber'],
+      "address": widget.workerData['address'],
+      "username": workerUsername,
+      "service_preference": widget.workerData['service'],
+      "is_certified": widget.workerData['isCertified'],
 
       /*
       "consents": {
@@ -122,7 +114,27 @@ class _DeclarationScreenState extends State<DeclarationScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-              builder: (context) => EntranceScreen(email: widget.email)),
+              builder: (context) => EntranceScreen(email: widget.workerData['email'])),
+        );
+      } else {
+        _showErrorMessage("Registration failed: ${response.body}");
+      }
+    } catch (error) {
+      _showErrorMessage("An error occurred: $error");
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+
+    try {
+      final response = await ApiService.createWorker(workerData);
+
+      if (response.statusCode == 201) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => EntranceScreen(email: widget.workerData['email'])),
         );
       } else {
         _showErrorMessage("Registration failed: ${response.body}");

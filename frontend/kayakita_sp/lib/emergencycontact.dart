@@ -6,27 +6,13 @@ import 'widgets/customtextfield.dart';
 import 'govissue.dart';
 
 class EmergencyContactScreen extends StatefulWidget {
-  final String email;
-  final String password;
-  final String firstName;
-  final String middleInitial;
-  final String lastName;
-  final String contactNumber;
-  final String address;
-  final String service;
-  final bool isCertified;
+  final Map<String, dynamic> workerData;
+  final Map<String, dynamic> certificationData;
 
   const EmergencyContactScreen({
     super.key,
-    required this.email,
-    required this.password,
-    required this.firstName,
-    required this.middleInitial,
-    required this.lastName,
-    required this.contactNumber,
-    required this.address,
-    required this.service,
-    required this.isCertified,
+    required this.workerData,
+    required this.certificationData
   });
 
   @override
@@ -36,8 +22,7 @@ class EmergencyContactScreen extends StatefulWidget {
 class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
   final TextEditingController emergencyNameController = TextEditingController();
   final TextEditingController relationshipController = TextEditingController();
-  final TextEditingController emergencyNumberController =
-      TextEditingController();
+  final TextEditingController emergencyNumberController = TextEditingController();
   String? isAbove56;
   bool isLoading = false;
 
@@ -64,15 +49,8 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => GovIssueScreen(
-          email: widget.email,
-          password: widget.password,
-          firstName: widget.firstName,
-          middleInitial: widget.middleInitial,
-          lastName: widget.lastName,
-          contactNumber: widget.contactNumber,
-          address: widget.address,
-          service: widget.service,
-          isCertified: widget.isCertified,
+          workerData: widget.workerData,
+          certificationData: widget.certificationData
         ),
       ),
     );

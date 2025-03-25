@@ -1,30 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:kayakita_sp/providers/profile_provider.dart';
+import 'package:provider/provider.dart';
 import 'emergencycontact.dart';
 import 'widgets/customappbar.dart';
 import 'widgets/customtextfield.dart';
+import 'package:intl/intl.dart';
 
 class ApplicationScreen extends StatefulWidget {
-  final String email;
-  final String password;
-  final String firstName;
-  final String middleInitial;
-  final String lastName;
-  final String contactNumber;
-  final String address;
-  final String service;
-  final bool isCertified;
+  final Map<String, dynamic> workerData;
 
   const ApplicationScreen({
     super.key,
-    required this.email,
-    required this.password,
-    required this.firstName,
-    required this.middleInitial,
-    required this.lastName,
-    required this.contactNumber,
-    required this.address,
-    required this.service,
-    required this.isCertified,
+    required this.workerData,
   });
 
   @override
@@ -38,10 +25,58 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
   bool _isUploadingStatus1 = false;
   bool _isUploadingStatus2 = false;
 
+  late Map<String, dynamic> certificationData;
+  late String workerUsername;
+  late String applicationDate;
+
+  @override
+  void initState() {
+    super.initState();
+    workerUsername = Provider.of<UserProvider>(context, listen: false).username;
+    
+    certificationData = {
+      'workerUsername': workerUsername,
+      'date_of_application': '',
+      'licensing_certificate_given': '',
+      'is_senior': false,
+      'is_pwd': false,
+    };
+  }
+
   @override
   void dispose() {
     _nationalityController.dispose();
     super.dispose();
+  }
+
+  void onContinue() {
+    if (_nationalityController.text.isEmpty||
+        _selectedPWDStatus == null) {
+      _showErrorMessage("⚠️ Please fill in all fields.");
+      return;
+    }
+
+    applicationDate = DateFormat("MMMM d, y - h:mm a").format(DateTime.now().toUtc().add(const Duration(hours: 8)));
+
+    //smthsmthData['nationality'] = _nationalityController.text;
+    certificationData['date_of_application'] = applicationDate;
+    certificationData['is_pwd'] = _selectedPWDStatus == "Yes" ? true : false;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EmergencyContactScreen(
+          workerData: widget.workerData,
+          certificationData: certificationData
+        ),
+      ),
+    );
+  }
+
+  void _showErrorMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   Future<void> _uploadImage(String type) async {
@@ -78,7 +113,7 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
               child: Column(
                 children: [
                   Text(
-                    'Hey ${widget.firstName}!',
+                    'Hey ${widget.workerData['firstName']}!',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -88,7 +123,7 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   Text(
-                    widget.service,
+                    widget.workerData['service'],
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: Colors.purple,
@@ -145,31 +180,7 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
                   child: const Text("Save", style: TextStyle(color: Colors.black)),
                 ),
                 ElevatedButton(
-                  onPressed: () {
-                    if (_nationalityController.text.isEmpty || _selectedPWDStatus == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text("⚠️ Please complete all required fields.")),
-                      );
-                    } else {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => EmergencyContactScreen(
-                            password: widget.password,
-                            email: widget.email,
-                            firstName: widget.firstName,
-                            middleInitial: widget.middleInitial,
-                            lastName: widget.lastName,
-                            contactNumber: widget.contactNumber,
-                            address: widget.address,
-                            service: widget.service,
-                            isCertified: widget.isCertified,
-                          ),
-                        ),
-                      );
-                    }
-                  },
+                  onPressed: onContinue,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF87027B),
                     padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),

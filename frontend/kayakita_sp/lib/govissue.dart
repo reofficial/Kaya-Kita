@@ -1,30 +1,20 @@
+import 'dart:io';
+
+//import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+//import 'package:image_picker/image_picker.dart';
 import 'widgets/customappbar.dart';
 import 'widgets/customtextfield.dart';
 import 'declaration.dart';
 
 class GovIssueScreen extends StatefulWidget {
-  final String email;
-  final String password;
-  final String firstName;
-  final String middleInitial;
-  final String lastName;
-  final String contactNumber;
-  final String address;
-  final String service;
-  final bool isCertified;
+  final Map<String, dynamic> workerData;
+  final Map<String, dynamic> certificationData;
 
   const GovIssueScreen({
     super.key,
-    required this.email,
-    required this.password,
-    required this.firstName,
-    required this.middleInitial,
-    required this.lastName,
-    required this.contactNumber,
-    required this.address,
-    required this.service,
-    required this.isCertified
+    required this.workerData,
+    required this.certificationData
   });
 
   @override
@@ -44,11 +34,38 @@ class _GovIssueScreenState extends State<GovIssueScreen> {
   bool _isLicenseUploaded = false;
   bool _isClearanceUploaded = false;
 
+  File? _licensingCertificatePhoto;
+  File? _barangayCertificate;
+
   @override
   void dispose() {
     residentialAddressController.dispose();
     super.dispose();
   }
+
+  // Future<void> _pickLicensingCertificatePhoto() async {
+  //   final ImagePicker picker = ImagePicker();
+  //   final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+  //   if (pickedFile != null) {
+  //     setState(() {
+  //       _licensingCertificatePhoto = File(pickedFile.path);
+  //     });
+  //   }
+  // }
+
+  // Future<void> _pickBarangayCertificate() async {
+  //   final result = await FilePicker.platform.pickFiles(
+  //     type: FileType.any,           
+  //     allowMultiple: false,         
+  //   );
+
+  //   if (result != null && result.files.isNotEmpty) {
+  //     setState(() {
+  //       _barangayCertificate = File(result.files.single.path!);
+  //     });
+  //   }
+  // }
 
   Future<void> _uploadImage(String type) async {
     setState(() {
@@ -84,37 +101,34 @@ class _GovIssueScreenState extends State<GovIssueScreen> {
     );
   }
 
-  bool get isCertified {
+  String get isCertified {
     if (selectedGovID == null || !_isIDUploaded || residentialAddressController.text.isEmpty || !_isBarangayUploaded || !_isLicenseUploaded) {
-      return false;
+      return "denied";
     }
     if (hasClearance == "Yes" && !_isClearanceUploaded) {
-      return false;
+      return "denied";
     }
-    return true;
+    return "pending";
   }
 
   void onNext() {
-    if (!isCertified) {
+    if (isCertified == "denied") {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("⚠️ Please complete all required fields before proceeding.")),
       );
       return;
     }
 
+    widget.workerData['is_certified'] = isCertified;
+
+    widget.certificationData['licensing_certificate_given'] = "Professional Driver's License";
+
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => DeclarationScreen(
-          email: widget.email,
-          password: widget.password,
-          firstName: widget.firstName,
-          middleInitial: widget.middleInitial,
-          lastName: widget.lastName,
-          contactNumber: widget.contactNumber,
-          address: widget.address,
-          service: widget.service,
-          isCertified: isCertified,
+          workerData: widget.workerData,
+          certificationData: widget.certificationData
         ),
       ),
     );

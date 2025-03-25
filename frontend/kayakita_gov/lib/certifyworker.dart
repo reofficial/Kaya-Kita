@@ -77,7 +77,7 @@ class _CertifyWorkerScreenState extends State<CertifyWorkerScreen> {
                     _buildInfo('Address', 'Address'),
                     Divider(height: 1, color: Colors.grey, indent: 40, endIndent: 40),
                     _buildInfo('Date of Birth', 'Birthday'),
-                    _buildInfo('Age', '${widget.workerUsername} years old'),
+                    _buildInfo('Age', '25 years old'), //'${widget.workerUsername} years old'
                     Divider(height: 1, color: Colors.grey, indent: 40, endIndent: 40),
                     _buildInfo('Emergency Contact', 'Emergency Contact'),
                     _buildInfo('Contact Number', 'Contact Number'),
