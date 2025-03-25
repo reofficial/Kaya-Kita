@@ -7,6 +7,7 @@ import 'package:starter/newpost.dart';
 import 'package:starter/joblistings.dart';
 import 'package:starter/orders.dart';
 import 'package:starter/customerjoblistings.dart';
+import 'chat.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -35,6 +36,11 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const OrdersScreen()),
+    );
+  } else if (index == 4) { // Chat Tab
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ChatScreen()),
     );
   } else {
     setState(() {

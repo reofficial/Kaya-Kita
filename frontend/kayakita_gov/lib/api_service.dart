@@ -111,6 +111,12 @@ class ApiService {
     return response;
   }
 
+  static Future<http.Response> getCustomers() async {
+    final url = Uri.parse('$baseUrl/customers');
+    final response = await _client.get(url);
+    return response;
+  }
+
   // WORKERS
   static Future<http.Response> getWorkers() async {
     final url = Uri.parse('$baseUrl/workers');
@@ -154,6 +160,18 @@ class ApiService {
 
   static Future<http.Response> getCertificationByUsername(String workerUsername) async {
     final url = Uri.parse('$baseUrl/certifications/$workerUsername');
+    final response = await _client.get(url);
+    return response;
+  }
+
+  static Future<http.Response> getCustomerReviews(String username) async {
+    final url = Uri.parse('$baseUrl/reviews/$username');
+    final response = await _client.get(url);
+    return response;
+  }
+
+  static Future<http.Response> getWorkerReviews(String username) async {
+    final url = Uri.parse('$baseUrl/reviews/worker/$username');
     final response = await _client.get(url);
     return response;
   }

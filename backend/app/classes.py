@@ -1,5 +1,5 @@
-from pydantic import BaseModel
-from typing import List, Optional
+from pydantic import BaseModel, field_validator
+from typing import List, Optional, Any
 from datetime import datetime
 
 # .updateMany({}, { $set: { new_field: "" } });
@@ -14,7 +14,8 @@ class Profile(BaseModel):
     address: str
     contact_number: str
     service_preference: Optional[str] = "N/A"
-    is_certified: Optional[bool] = False
+    is_certified: Optional[str] = "Pending"
+    is_suspended: Optional[str] = "No"
     
 
 class InitialInfo(BaseModel):
@@ -40,14 +41,39 @@ class JobListing(BaseModel):
     job_id: Optional[int] = None
     username: Optional[str] = None
     is_hidden: Optional[bool] = False
-    tag: list[str]          #list of tags for the job (e.g. catering, housework, construction, etc.)
-    job_title: str          
-    description: str
-    location: str
-    salary: float           
-    salary_frequency: str   #sample: salary = 10. salary_frequency = "hourly". therefore 10/hour is the salary
-    duration: str           #extra job information
-    worker_username: Optional[str] = None   #the username of the worker assigned to the job
+    tag: Optional[list[str]] = []          #list of tags for the job (e.g. catering, housework, construction, etc.)
+    job_title: Optional[str] = ""          
+    description: Optional[str] = ""
+    location: Optional[str] = ""
+    salary: Optional[float] = 0.0           
+    salary_frequency: Optional[str] = ""   #sample: salary = 10. salary_frequency = "hourly". therefore 10/hour is the salary
+    duration: Optional[str] = ""           #extra job information
+    worker_username: Optional[List[str]] = [] 
+    job_status: Optional[str] = "Pending"
+
+    @field_validator("worker_username", mode="before")
+    def ensure_list_for_worker_username(cls, v: Any) -> List[str]:
+        if v is None:
+            return []
+        if isinstance(v, str):
+            return [v]
+        if isinstance(v, list):
+            return v
+        raise ValueError("worker_username must be a list of strings")
+
+class JobListingUpdate(BaseModel):
+    job_id: int                             #Required field
+    username: Optional[str] = None
+    is_hidden: Optional[bool] = None
+    tag: Optional[list[str]] = None      
+    job_title: Optional[str] = None        
+    description: Optional[str] = None
+    location: Optional[str] = None
+    salary: Optional[float] = None          
+    salary_frequency: Optional[str] = None  
+    duration: Optional[str] = None
+    worker_username: Optional[list[str]] = None 
+    job_status: Optional[str] = None
 
 class JobCircles(BaseModel):
     ticket_number: Optional[int] = None
@@ -83,3 +109,11 @@ class WorkerCertificationDB(WorkerCertificationInput):      #Database specific s
     barangay_certificate: str                               #Internal path to the barangay certificate file
 
 WorkerCertificationResponse = WorkerCertificationDB
+
+class WorkerDetails(BaseModel):
+    nationality: str
+    date_of_birth: str
+    age: int
+    emergency_contact: str
+    contact_number: str
+    relationship: str
