@@ -212,9 +212,9 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: () async {
-                if (isServicePreferenceInJob && is_certified == "naur") {
+                if (isServicePreferenceInJob && is_certified == "pending") {
                   try {
-                    await ApiService.updateJobListing({'job_id': job_id, 'job_status': 'ongoing'}); //pano niya maiidentify what to update?
+                    await ApiService.updateJobListing({'job_id': job_id, 'job_status': 'accepted', 'worker_username': [username]}); 
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text("You're already certified. Added you to queue instead.")),
                     );

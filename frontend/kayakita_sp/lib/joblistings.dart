@@ -65,17 +65,17 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Job Listings'),
-        automaticallyImplyLeading: false,
-      //   leading: IconButton(
-      //     icon: const Icon(Icons.arrow_back),
-      //     onPressed: () {
-      //       String email = Provider.of<UserProvider>(context, listen: false).email;
-      //       Navigator.pushReplacement(
-      //         context,
-      //         MaterialPageRoute(builder: (context) => HomeScreen(email: email)),
-      //       );
-      //     },
-      //   ),
+        //automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            String email = Provider.of<UserProvider>(context, listen: false).email;
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomeScreen(email: email)),
+            );
+          },
+        ),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: jobsFuture,
