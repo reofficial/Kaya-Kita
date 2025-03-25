@@ -22,14 +22,16 @@ class UserDetails {
   final String middleInitial;
   final String lastName;
   final String address;
-  final String suspensionStatus;
+  final String servicePreference;
+  final String isSuspended;
 
   UserDetails({
     required this.firstName,
     required this.middleInitial,
     required this.lastName,
     required this.address,
-    required this.suspensionStatus,
+    required this.servicePreference,
+    required this.isSuspended,
   });
 
   factory UserDetails.fromJson(Map<String, dynamic> json) {
@@ -38,7 +40,8 @@ class UserDetails {
       middleInitial: json['middle_initial'] ?? '',
       lastName: json['last_name'] ?? '',
       address: json['address'] ?? '',
-      suspensionStatus: json['suspension_status'] ?? 'No',
+      servicePreference: json['service_preference'] ?? '',
+      isSuspended: json['is_suspended'] ?? 'No',
     );
   }
 }
@@ -94,7 +97,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             middleInitial: matchedUser['middle_initial'] ?? '',
             lastName: matchedUser['last_name'] ?? '',
             address: matchedUser['address'] ?? '',
-            suspensionStatus: matchedUser['is_suspended'] ?? '',
+            servicePreference: matchedUser['service_preference'] ?? '',
+            isSuspended: matchedUser['is_suspended'] ?? '',
           );
         } else {
           throw Exception('No matching user found');
@@ -134,13 +138,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Current status: ${user.suspensionStatus}'),
+              Text('Current status: ${user.isSuspended}'),
               const SizedBox(height: 20),
               const Text('Select ban option:'),
             ],
           ),
           actions: [
-            if (user.suspensionStatus != 'No')
+            if (user.isSuspended != 'No')
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
@@ -284,18 +288,32 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             ),
                           ],
                         ),
+                        // Only show service preference for workers
+                        if (widget.isWorker) ...[
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              const Icon(Icons.work, size: 20),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Service: ${user.servicePreference}',
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            ],
+                          ),
+                        ],
                         const SizedBox(height: 8),
                         Row(
                           children: [
                             const Icon(Icons.warning, size: 20),
                             const SizedBox(width: 8),
                             Text(
-                              'Is Suspended: ${user.suspensionStatus}',
+                              'Is Suspended: ${user.isSuspended}',
                               style: TextStyle(
                                 fontSize: 16,
-                                color: user.suspensionStatus == 'Permanent'
+                                color: user.isSuspended == 'Permanent'
                                     ? Colors.red
-                                    : user.suspensionStatus == 'Temporary'
+                                    : user.isSuspended == 'Temporary'
                                         ? Colors.orange
                                         : Colors.green,
                                 fontWeight: FontWeight.bold,
