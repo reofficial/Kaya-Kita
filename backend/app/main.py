@@ -4,7 +4,7 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException, status
 from fastapi.responses import JSONResponse, RedirectResponse
 from motor.motor_asyncio import AsyncIOMotorClient
 from typing import List, Optional, Union
-from app.classes import Profile, InitialInfo, JobListing, LoginInfo, ProfileUpdate, WorkerReviews, JobCircles, WorkerRates, WorkerCertificationInput,WorkerCertificationResponse
+from app.classes import Profile, InitialInfo, JobListing, LoginInfo, ProfileUpdate, WorkerReviews, JobCircles, WorkerRates, WorkerCertificationInput,WorkerCertificationResponse, JobListingUpdate
 from app.DAO.customer_DAO import CustomerDAO
 from app.DAO.job_listing_DAO import JobListingDAO
 from app.DAO.worker_DAO import WorkerDAO
@@ -172,10 +172,16 @@ async def create_job_listing(job_listing: JobListing):
         raise HTTPException(status_code=400, detail="Incomplete job listing")
     
 @app.put("/job-listings/update", response_model=dict)
-async def update_job_listing(job_listing: JobListing):
-    success = await job_listing_dao.update_job_listing(job_listing)
+async def update_job_listing(update: JobListingUpdate):
+    update_data = update.model_dump(exclude_unset=True)
+    job_id = update_data.pop("job_id")
+    print(f"[Endpoint] Received update for job_id: {job_id}")
+    print(f"[Endpoint] Update data: {update_data}")
+    success = await job_listing_dao.update_job_listing(job_id, update_data)
     if not success:
+        print(f"[Endpoint] No job listing found for job_id: {job_id}")
         raise HTTPException(status_code=404, detail="Job listing not found")
+    print(f"[Endpoint] Update successful for job_id: {job_id}")
     return {"message": "Job listing updated successfully"}
 
 @app.delete("/job-listings/delete/{job_id}", response_model=dict)
