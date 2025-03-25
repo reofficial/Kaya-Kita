@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'dart:convert';
+
+import 'api_service.dart';
+import 'package:provider/provider.dart';
+import '/providers/profile_provider.dart';
+
 import 'package:kayakita_gov/certification.dart';
 import 'package:kayakita_gov/manageusers.dart';
-import 'joblistings.dart';
+import 'package:kayakita_gov/joblistings.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,6 +19,50 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  String? firstName;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserData();
+  }
+
+  Future<void> _fetchUserData() async {
+    try {
+      final profileProvider = Provider.of<UserProvider>(context, listen: false);
+      final username = profileProvider.username;
+
+      // Fetch officials data from API
+      final response = await ApiService.getOfficials();
+      List<dynamic> officials = json.decode(response.body);
+
+      // Find the official with matching username
+      final user = officials.firstWhere(
+        (official) => official['username'] == username,
+        orElse: () => {},
+      );
+
+      if (user.isNotEmpty && mounted) {
+        setState(() {
+          firstName = user['first_name'];
+          isLoading = false;
+        });
+      } else if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+      // Handle error appropriately
+      debugPrint('Error fetching user data: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,8 +97,8 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Good day, Rowena!",
+            Text(
+              "Good day, $firstName!",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
