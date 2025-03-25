@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'dart:convert';
+
+import 'api_service.dart';
+import 'package:provider/provider.dart';
+import '/providers/profile_provider.dart';
+
 import 'package:kayakita_sp/editprofile.dart';
 import 'package:kayakita_sp/main.dart';
-import 'package:provider/provider.dart';
-import 'package:kayakita_sp/providers/profile_provider.dart';
-import 'bookings.dart';
-import 'bookingcontroller.dart';
-import 'api_service.dart';
-import 'dart:convert';
-import 'joblistings.dart';
-import 'chat.dart';
-import 'payment.dart';
+import 'package:kayakita_sp/bookings.dart';
+import 'package:kayakita_sp/bookingcontroller.dart';
+import 'package:kayakita_sp/joblistings.dart';
+import 'package:kayakita_sp/chat.dart';
+import 'package:kayakita_sp/payment.dart';
 
 class HomeScreen extends StatefulWidget {
   final String email;
@@ -23,46 +25,58 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   String firstName = "Loading...";
-  String workerUsername = ""; 
+  String workerUsername = "";
   bool _showOverlay = true;
   List<dynamic> reviews = [];
+  bool _isLoading = true;
+  bool _isSuspended = false;
+  String? _suspensionType;
 
   @override
   void initState() {
     super.initState();
-    fetchFirstName(widget.email); // Fetch worker details (including username)
+    _checkUserStatus();
     Provider.of<BookingController>(context, listen: false)
         .fetchBookings(widget.email);
   }
 
-  Future<void> fetchFirstName(String email) async {
+  Future<void> _checkUserStatus() async {
     try {
       final response = await ApiService.getWorkers();
       final List<dynamic> workers = json.decode(response.body);
 
       final worker = workers.firstWhere(
-        (worker) => worker['email'] == email,
+        (worker) => worker['email'] == widget.email,
         orElse: () => null,
       );
 
-      setState(() {
-        if (worker != null) {
-          firstName = worker['first_name'] ?? "Unknown";
-          workerUsername = worker['username'] ?? "";
-        } else {
-          firstName = "Email not found";
-          workerUsername = "";
-        }
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          if (worker != null) {
+            firstName = worker['first_name'] ?? "Unknown";
+            workerUsername = worker['username'] ?? "";
+            _isSuspended = worker['is_suspended'] == 'Temporary' ||
+                worker['is_suspended'] == 'Permanent';
+            _suspensionType = worker['is_suspended'];
+          } else {
+            firstName = "Email not found";
+            workerUsername = "";
+          }
+        });
+      }
 
-      if (workerUsername.isNotEmpty) {
+      if (workerUsername.isNotEmpty && !_isSuspended) {
         fetchReviews(workerUsername);
       }
     } catch (e) {
-      setState(() {
-        firstName = "Network Error: $e";
-        workerUsername = ""; // Reset username on error
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          firstName = "Network Error: $e";
+          workerUsername = "";
+        });
+      }
     }
   }
 
@@ -72,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
       if (response.statusCode == 200) {
         final List<dynamic> fetchedReviews = json.decode(response.body);
         setState(() {
-          reviews = fetchedReviews; // Update the reviews list
+          reviews = fetchedReviews;
         });
       } else {
         throw Exception("Failed to fetch reviews: ${response.statusCode}");
@@ -80,34 +94,97 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       print("Error fetching reviews: $e");
       setState(() {
-        reviews = []; // Clear the reviews list in case of an error
+        reviews = [];
       });
     }
   }
 
   void _onItemTapped(int index) {
-  setState(() {
-    _selectedIndex = index;
-    _showOverlay = _selectedIndex == 0;
-    if (_selectedIndex == 0) {
-      fetchReviews(workerUsername);
-    } else if (_selectedIndex == 1) {
-      fetchReviews(workerUsername);
-    }
-  });
-}
+    if (_isSuspended) return;
+
+    setState(() {
+      _selectedIndex = index;
+      _showOverlay = _selectedIndex == 0;
+      if (_selectedIndex == 0 || _selectedIndex == 1) {
+        fetchReviews(workerUsername);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_isSuspended) {
+      return _buildSuspendedScreen();
+    }
+
+    return _buildNormalScreen();
+  }
+
+  Widget _buildSuspendedScreen() {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.block, size: 80, color: Colors.red),
+              const SizedBox(height: 20),
+              Text(
+                'Account Suspended',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red[700],
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Your account has been $_suspensionType suspended.',
+                style: const TextStyle(fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'Please contact support for more information.',
+                style: TextStyle(fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const MyApp()),
+                  );
+                },
+                child: const Text('Logout'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNormalScreen() {
     final List<Widget> _screens = [
       HomePage(
         firstName: firstName,
         onTotalBookingsTap: () {
+          if (_isSuspended) return;
           setState(() {
             _selectedIndex = 1;
           });
         },
-        reviews: reviews, // Pass reviews to HomePage
+        reviews: reviews,
       ),
       BookingScreen(),
       JobListingsScreen(),
@@ -122,49 +199,52 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Stack(
         children: [
           _screens[_selectedIndex],
-          Consumer<BookingController>(
-            builder: (context, controller, child) {
-              if (controller.pendingBookingsCount > 0 && _showOverlay) {
-                return Positioned(
-                  bottom: 16,
-                  left: 16,
-                  right: 16,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.purple,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 6,
-                          offset: Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "You have ${controller.pendingBookingsCount} pending Job Bookings",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+          if (!_isSuspended)
+            Consumer<BookingController>(
+              builder: (context, controller, child) {
+                if (controller.pendingBookingsCount > 0 && _showOverlay) {
+                  return Positioned(
+                    bottom: 16,
+                    left: 16,
+                    right: 16,
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.purple,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 6,
+                            offset: Offset(0, 3),
                           ),
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.chevron_right, color: Colors.white),
-                          onPressed: () => {_onItemTapped(1)},
-                        ),
-                      ],
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "You have ${controller.pendingBookingsCount} pending Job Bookings",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          IconButton(
+                            icon:
+                                Icon(Icons.chevron_right, color: Colors.white),
+                            onPressed: () => {_onItemTapped(1)},
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              }
-              return SizedBox.shrink();
-            },
-          ),
+                  );
+                }
+                return SizedBox.shrink();
+              },
+            ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
