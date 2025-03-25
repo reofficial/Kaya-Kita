@@ -88,6 +88,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
         'duration': selectedDuration,
         'username': username,
         'is_hidden': containsBadWords,
+        'job_status': 'pending', //added default value
       };
 
       final response = await ApiService.postJobListing(jobListing);
