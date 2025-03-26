@@ -173,7 +173,7 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
     print("Job Description: $description");
     print("Match Found: $isServicePreferenceInJob");
 
-    if (isServicePreferenceInJob && is_certified == "pending") {
+    if (isServicePreferenceInJob && is_certified == "certified") {
       try {
         await ApiService.updateJobListing({
           'job_id': job_id,
