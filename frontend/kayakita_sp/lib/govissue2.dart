@@ -90,6 +90,7 @@ class _GovIssueCertificationScreenState extends State<GovIssueCertificationScree
     }
 
     widget.workerData['is_certified'] = isCertified;
+    print(widget.workerData['is_certified']);
     widget.certificationData['licensing_certificate_given'] = "Professional Driver's License";
 
     Navigator.push(

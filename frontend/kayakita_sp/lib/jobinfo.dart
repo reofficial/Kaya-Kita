@@ -30,6 +30,7 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
   String service_preference = '';
   String userEmail = '';
   String userPassword = '';
+  String deny_reason = '';
 
   @override
   void initState() {
@@ -103,13 +104,39 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
             userPassword = worker['password'] ?? '';
             is_certified = worker['is_certified'] ?? "pending";
             service_preference = worker['service_preference'] ?? "None";
+            deny_reason = worker['deny_reason'] ?? "None";
           });
+         // await fetchDenyReason();
         }
+        print("Deny Reason: $deny_reason");
       }
     } catch (e) {
       print("Failed to fetch worker certification: $e");
     }
   }
+
+  // Future<void> fetchDenyReason() async {
+  //   try {
+  //     final response = await ApiService.getSecondJob();
+  //     if (response.statusCode == 200) {
+  //       final List<dynamic> jobs = json.decode(response.body);
+
+  //       // Find job entry where email matches userEmail
+  //       final job = jobs.firstWhere(
+  //         (j) => j['email'] == userEmail,
+  //         orElse: () => null,
+  //       );
+
+  //       if (job != null) {
+  //         setState(() {
+  //           deny_reason = job['deny_reason'] ?? "None";
+  //         });
+  //       }
+  //     }
+  //   } catch (e) {
+  //     print("Failed to fetch deny reason: $e");
+  //   }
+  // }
 
   bool isFreelanceCategory() {
     if (tags.isEmpty) return false;
@@ -119,6 +146,52 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
 
   Future<void> applyToJob() async {
     final username = Provider.of<UserProvider>(context, listen: false).username;
+
+    print("Deny Reason: $deny_reason");
+    if (deny_reason.toLowerCase() == "expired") {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Certification Expired"),
+          content: const Text("Certification expired. Please renew it."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Okay"),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    bool isServicePreferenceInJob = title.toLowerCase().contains(service_preference.toLowerCase()) ||
+        description.toLowerCase().contains(service_preference.toLowerCase());
+
+    print("Service Preference: $service_preference");
+    print("Job Title: $title");
+    print("Job Description: $description");
+    print("Match Found: $isServicePreferenceInJob");
+
+    if (isServicePreferenceInJob && is_certified == "pending") {
+      try {
+        await ApiService.updateJobListing({
+          'job_id': job_id,
+          'job_status': 'accepted',
+          'worker_username': [username],
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("You're already certified. Added you to queue instead.")),
+        );
+        return;
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to apply: $e")),
+        );
+        return;
+      }
+    }
 
     if (isFreelanceCategory()) {
       try {

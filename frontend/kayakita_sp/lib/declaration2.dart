@@ -55,20 +55,21 @@ class _DeclarationCertificationScreenState extends State<DeclarationCertificatio
 
     Map<String, dynamic> updateData = {
       "current_email": widget.workerData['email'],
-      "first_name": widget.workerData['firstName'],
-      "middle_initial": widget.workerData['middleInitial'],
-      "last_name": widget.workerData['lastName'],
+      "first_name": widget.workerData['first_name'],
+      "middle_initial": widget.workerData['middle_initial'],
+      "last_name": widget.workerData['last_name'],
       "email": widget.workerData['email'],
-      "contact_number": widget.workerData['contactNumber'],
+      "contact_number": widget.workerData['contact_number'],
       "address": widget.workerData['address'],
       "username": workerUsername,
-      "service_preference": widget.workerData['service'],
-      "is_certified": widget.workerData['isCertified'],
+      "service_preference": widget.workerData['service_preference'],
+      "is_certified": widget.workerData['is_certified'],
     };
+    print("is_certified: ${widget.workerData['is_certified']}");
 
     try {
-      final response = await ApiService.updateWorker(updateData);
-      if (response.statusCode == 200) {
+      final response = await ApiService.postSecondJob(updateData);
+      if (response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Thank you for applying! We’ll get back to you as soon as we can."),

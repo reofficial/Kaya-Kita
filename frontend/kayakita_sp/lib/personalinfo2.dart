@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'application2.dart';
 import 'widgets/customappbar.dart';
 import 'widgets/customtextfield.dart';
+import 'api_service.dart';
+import 'dart:convert';
+import 'register.dart';
+
 
 class PersonalCertificationInfoScreen extends StatefulWidget {
   final String email;
@@ -26,25 +30,77 @@ class _PersonalCertificationInfoScreenState extends State<PersonalCertificationI
 
   String? selectedService;
   bool isLoading = false;
+  List<String> availableServices = ["", "Rider", "Driver", "PasaBuy", "Barber", "Carpenter"];
 
   late Map<String, dynamic> workerData;
 
   @override
-  void initState() {
-    super.initState();
+void initState() {
+  super.initState();
+  workerData = {
+    'email': widget.email,
+    'password': widget.password,
+    'firstName': '',
+    'middleInitial': '',
+    'lastName': '',
+    'contactNumber': '',
+    'address': '',
+    'service': '',
+    'is_certified': 'pending',
+  };
 
-    workerData = {
-      'email': widget.email,
-      'password': widget.password,
-      'firstName': '',
-      'middleInitial': '',
-      'lastName': '',
-      'contactNumber': '',
-      'address': '',
-      'service': '',
-      'isCertified': 'pending',
-    };
+  _loadWorkerData();
+}
+
+  Future<void> _loadWorkerData() async {
+  setState(() {
+    isLoading = true;
+  });
+
+  try {
+    final workerResponse = await ApiService.getWorkers();
+    if (workerResponse.statusCode == 200) {
+      final List<dynamic> workers = jsonDecode(workerResponse.body);
+
+      final existingWorker = workers.firstWhere(
+        (worker) => worker['email'] == widget.email,
+        orElse: () => null,
+      );
+
+      if (existingWorker != null) {
+        setState(() {
+          workerData = existingWorker;
+          firstNameController.text = existingWorker['first_name'] ?? '';
+          middleInitialController.text = existingWorker['middle_initial'] ?? '';
+          lastNameController.text = existingWorker['last_name'] ?? '';
+          mobileNumberController.text = existingWorker['contact_number'] ?? '';
+          addressController.text = existingWorker['address'] ?? '';
+
+          selectedService = existingWorker['service_preference']?.toString() ?? '';
+
+          if (selectedService != null && selectedService!.isNotEmpty) {
+            availableServices.remove(selectedService);
+          }
+          print("Available Services: $availableServices");
+        });
+        print("Available Services: $availableServices");
+      }
+
+    } else {
+      _showErrorMessage("Failed to load worker data.");
+    }
+  } catch (e) {
+    _showErrorMessage("An error occurred: $e");
+  } finally {
+    setState(() {
+      isLoading = false;
+    });
   }
+}
+
+
+
+
 
   @override
   void dispose() {
@@ -92,7 +148,16 @@ class _PersonalCertificationInfoScreenState extends State<PersonalCertificationI
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: CustomAppBar(titleText: 'Certification Information'),
+      appBar: AppBar(
+        title: const Text('Personal Information'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
@@ -114,6 +179,7 @@ class _PersonalCertificationInfoScreenState extends State<PersonalCertificationI
             const SizedBox(height: 10),
             CustomTextField(hintText: 'Address', controller: addressController),
             const SizedBox(height: 20),
+
             Text(
               'Select Service',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -126,18 +192,18 @@ class _PersonalCertificationInfoScreenState extends State<PersonalCertificationI
               decoration: InputDecoration(
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                 filled: true,
-                fillColor: Colors.purple.shade50,
+                fillColor: Colors.purple.shade50, 
               ),
-              value: selectedService,
+              value: availableServices.contains(selectedService) ? selectedService : null,
               hint: const Text("Choose a service"),
-              items: ["Rider", "Driver", "PasaBuy", "Barber", "Carpenter"].map((String service) {
+              items: availableServices.where((s) => s.isNotEmpty).map((String service) {
                 return DropdownMenuItem<String>(
                   value: service,
                   child: Text(
                     service,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF87027B),
+                      color: Color(0xFF87027B), 
                     ),
                   ),
                 );
@@ -148,12 +214,14 @@ class _PersonalCertificationInfoScreenState extends State<PersonalCertificationI
                 });
               },
             ),
+
             const SizedBox(height: 40),
+
             Center(
               child: ElevatedButton(
                 onPressed: isLoading ? null : onContinue,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF87027B),
+                  backgroundColor: const Color(0xFF87027B), 
                   padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
                 ),
                 child: isLoading

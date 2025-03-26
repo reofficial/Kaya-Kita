@@ -267,6 +267,23 @@ class ApiService {
     return response;
   }
 
+   static Future<http.Response> postSecondJob(
+    Map<String, dynamic> jobDetails) async {
+      final url = Uri.parse('$baseUrl/service_preference/register');
+      final response = await _client.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(jobDetails),
+      );
+      return response;
+    }
+
+    static Future<http.Response> getSecondJob() async {
+      final url = Uri.parse('$baseUrl/service_preference');
+      final response = await _client.get(url);
+      return response;
+    }
+
   // static Future<http.Response> createCertification(
   //   final Map<String, dynamic> certificationData,
   //   //final File licensingCertificatePhoto,
