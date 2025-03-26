@@ -51,6 +51,10 @@ class _CertifyWorkerScreenState extends State<CertifyWorkerScreen> {
         'is_certified': worker['is_certified']
       };
 
+      if (worker['is_certified'] == 'denied') {
+        updateDetails['deny_reason'] = worker['deny_reason'];
+      }
+
       final response = await ApiService.updateWorker(updateDetails);
       print(response.statusCode);
 
@@ -59,7 +63,7 @@ class _CertifyWorkerScreenState extends State<CertifyWorkerScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(
             worker['is_certified'] == 'accepted' ? "Certification accepted successfully."
-            : worker['is_certified'] == 'denied' ? "Certification denied successfully."
+            : worker['is_certified'] == 'denied' ? "Certification denied successfully. \nReason: ${worker['deny_reason']}"
             : 'Certification status reset successfully.')),
         );
 
@@ -195,12 +199,14 @@ class _CertifyWorkerScreenState extends State<CertifyWorkerScreen> {
       child: ElevatedButton(
         onPressed: !isLoading
           ? () {
-              setState(() {
-                worker['is_certified'] = label == 'Accept' 
-                  ? 'accepted' 
-                  : 'denied';
-              });
-              updateCertification();
+              if (label == 'Deny') {
+                _showDenialReasonDialog();
+              } else {
+                setState(() {
+                  worker['is_certified'] = 'accepted';
+                });
+                updateCertification();
+              }
             }
           : null,
         style: ElevatedButton.styleFrom(
@@ -209,7 +215,7 @@ class _CertifyWorkerScreenState extends State<CertifyWorkerScreen> {
         ),
         child: Text(
           label, 
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 16
           ),
@@ -217,6 +223,82 @@ class _CertifyWorkerScreenState extends State<CertifyWorkerScreen> {
       )
     );
   }
+
+    void _showDenialReasonDialog() {
+  String? selectedReason;
+  List<String> reasons = [
+    'Expired',
+    'Fake Certificate',
+    'Inappropriate Submission',
+    'Others'
+  ];
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: const Text('Select a reason for denial'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: reasons.map((reason) {
+                return RadioListTile<String>(
+                  title: Text(reason),
+                  value: reason,
+                  groupValue: selectedReason,
+                  onChanged: (value) {
+                    setState(() {
+                      selectedReason = value;
+                    });
+                  },
+                );
+              }).toList(),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: selectedReason != null
+                    ? () {
+                        setState(() {
+                          worker['is_certified'] = 'denied';
+                          worker['deny_reason'] = selectedReason;
+                        });
+                        updateCertification();
+                        Navigator.pop(context);
+                      }
+                    : null,
+                child: const Text('Confirm'),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+
+  Widget _buildReasonOption(String reason) {
+    return SimpleDialogOption(
+      onPressed: () {
+        setState(() {
+          worker['is_certified'] = 'denied';
+          worker['deny_reason'] = reason;
+        });
+        updateCertification();
+        Navigator.pop(context); 
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Text(reason),
+      ),
+    );
+  }
+
+
 
   Widget _buildButtonLong(String label, Color bgColor) {
     return SizedBox(
