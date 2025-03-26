@@ -16,6 +16,10 @@ class Profile(BaseModel):
     service_preference: Optional[str] = "N/A"
     is_certified: Optional[str] = "Pending"
     is_suspended: Optional[str] = "No"
+
+class UpdateSuspension(BaseModel):
+    username: str
+    is_suspended: str
     
 
 class InitialInfo(BaseModel):
@@ -34,6 +38,7 @@ class ProfileUpdate(BaseModel):
     email: str
     contact_number: str
     address: str
+    is_certified: str
 
 # The following are classes that concerns job listings
 
@@ -117,3 +122,10 @@ class WorkerDetails(BaseModel):
     emergency_contact: str
     contact_number: str
     relationship: str
+
+class ServicePreference(BaseModel):
+    username: str
+    service_preference: str
+    is_suspended: str
+    is_certified: str
+    

@@ -4,7 +4,7 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException, status
 from fastapi.responses import JSONResponse, RedirectResponse
 from motor.motor_asyncio import AsyncIOMotorClient
 from typing import List, Optional, Union
-from app.classes import Profile, InitialInfo, JobListing, LoginInfo, ProfileUpdate, WorkerReviews, JobCircles, WorkerRates, WorkerCertificationInput,WorkerCertificationResponse, JobListingUpdate
+from app.classes import Profile, InitialInfo, JobListing, LoginInfo, ProfileUpdate, WorkerReviews, JobCircles, WorkerRates, WorkerCertificationInput,WorkerCertificationResponse, JobListingUpdate, UpdateSuspension, ServicePreference
 from app.DAO.customer_DAO import CustomerDAO
 from app.DAO.job_listing_DAO import JobListingDAO
 from app.DAO.worker_DAO import WorkerDAO
@@ -13,6 +13,7 @@ from app.DAO.worker_reviews_DAO import WorkerReviewsDAO
 from app.DAO.job_circles_DAO import JobCirclesDAO
 from app.DAO.worker_rates_DAO import WorkerRatesDAO
 from app.DAO.certifications_DAO import WorkerCertificationDAO
+from app.DAO.worker_additional_preference_DAO import WorkerAdditionalPreferenceDAO
 from fastapi.staticfiles import StaticFiles
 # .\venv\Scripts\Activate
 # uvicorn app.main:app --reload
@@ -34,6 +35,7 @@ worker_reviews_dao = WorkerReviewsDAO(database)
 job_circle_dao = JobCirclesDAO(database)
 worker_rates_dao = WorkerRatesDAO(database)
 cert_dao = WorkerCertificationDAO(database)
+preference_dao = WorkerAdditionalPreferenceDAO(database)
 
 # The following concerns customers
 @app.get("/customers", response_model=List[Profile])
@@ -136,6 +138,37 @@ async def worker_login(info: LoginInfo):
 async def update_worker(updateDetails: ProfileUpdate):
     await worker_dao.update_worker(updateDetails)
     return JSONResponse(status_code=200, content={"message": "worker updated successfully"})
+
+#The following concerns extra service preference
+
+@app.get("/service_preference", response_model=List[ServicePreference])
+async def get_service_preference_all():
+    return await preference_dao.get_all_preferences()
+@app.post("/service_preference/create", status_code=status.HTTP_201_CREATED)
+async def create_service_preference(pref: ServicePreference):
+    await preference_dao.create_extra_preference(pref)
+    return JSONResponse(status_code=201, content={"message": "Service preference created successfully"})
+
+@app.get("/service_preference/{username}", response_model=ServicePreference)
+async def get_service_preference(username: str):
+    pref = await preference_dao.get_preference_by_username(username)
+    if not pref:
+        raise HTTPException(status_code=404, detail="Service preference not found")
+    return pref
+
+@app.put("/service_preference/{username}")
+async def update_service_preference(username: str, pref: ServicePreference):
+    result = await preference_dao.update_preference(username, pref)
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Service preference not found or not updated")
+    return JSONResponse(status_code=200, content={"message": "Service preference updated successfully"})
+
+@app.delete("/service_preference/{username}", status_code=status.HTTP_200_OK)
+async def delete_service_preference(username: str):
+    result = await preference_dao.delete_preference(username)
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Service preference not found")
+    return JSONResponse(status_code=200, content={"message": "Service preference deleted successfully"})
 
 #The following concerns job listings
 @app.get("/job-listings", response_model=List[JobListing])
@@ -353,6 +386,17 @@ async def update_certification(
     if not updated:
         raise HTTPException(status_code=404, detail="Certification not found or no changes made")
     return True
+
+#Specific POST for updating is_suspended
+@app.post("/update_suspension_customer", status_code=status.HTTP_200_OK)
+async def update_suspension_customer(updateDetails: UpdateSuspension):
+    await customer_dao.update_suspension(updateDetails)
+    return JSONResponse(status_code=200, content={"message": "Customer updated successfully"})
+
+@app.post("/update_suspension_worker", status_code=status.HTTP_200_OK)
+async def update_suspension_worker(updateDetails: UpdateSuspension):
+    await worker_dao.update_suspension(updateDetails)
+    return JSONResponse(status_code=200, content={"message": "Customer updated successfully"})
 
 # DELETE: Delete a Certification by Username.
 @app.delete("/certifications/delete/{worker_username}", response_model=dict)

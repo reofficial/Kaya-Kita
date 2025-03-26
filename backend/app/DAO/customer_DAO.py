@@ -1,5 +1,5 @@
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from app.classes import Profile, ProfileUpdate
+from app.classes import Profile, ProfileUpdate, UpdateSuspension
 from typing import List, Optional
 
 class CustomerDAO:
@@ -20,6 +20,10 @@ class CustomerDAO:
         #update the customer associated with the email
         print(updateDetails.model_dump())
         await self.collection.update_one({"email": updateDetails.current_email}, {"$set": updateDetails.model_dump(exclude={"current_email"})})
+    
+    async def update_suspension(self, updateDetails: UpdateSuspension) -> None:
+        print(updateDetails.model_dump())
+        await self.collection.update_one({"username": updateDetails.username}, {"$set": updateDetails.model_dump(exclude={"username"})})
     
     async def delete_customer(self, username: str) -> None:
         await self.collection.delete_one({"username": username})
