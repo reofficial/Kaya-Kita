@@ -9,19 +9,20 @@ class Worker {
     required this.name,
     required this.username,
     required this.servicePreference,
-    this.status = "Pending", // Default status
+    required this.status, // Default status
   });
 
   final String name;
   final String username;
   final String servicePreference;
-  String status;
+  final String status;
 
   factory Worker.fromJson(Map<String, dynamic> worker) {
     return Worker(
       name: '${worker['first_name']} ${worker['last_name']}',
       username: worker['username'] ?? '',
-      servicePreference: worker['service_preference']
+      servicePreference: worker['service_preference'],
+      status: worker['is_certified']
     );
   }
 }
@@ -104,9 +105,9 @@ class _WorkerCardState extends State<WorkerCard> {
 
   Color _getColor(String status) {
     switch (status) {
-      case 'Denied':
-        return Colors.grey;
-      case 'Certified':
+      case 'denied':
+        return Colors.red;
+      case 'accepted':
         return Colors.green;
       default:
         return Colors.purple;
@@ -162,7 +163,9 @@ class _WorkerCardState extends State<WorkerCard> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    widget.worker.status,
+                    widget.worker.status == 'accepted' ? 'Certified'
+                    : widget.worker.status == 'denied' ? 'Denied'
+                    : 'Pending',
                     style: TextStyle(
                       fontSize: 16,
                       color: _getColor(widget.worker.status)

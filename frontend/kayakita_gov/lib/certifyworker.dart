@@ -58,9 +58,9 @@ class _CertifyWorkerScreenState extends State<CertifyWorkerScreen> {
       
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(
-            worker['is_certified'] == 'ongoing' ? 
-            "Certification accepted successfully."
-            : "Certification denied successfully.")),
+            worker['is_certified'] == 'accepted' ? "Certification accepted successfully."
+            : worker['is_certified'] == 'denied' ? "Certification denied successfully."
+            : 'Certification status reset successfully.')),
         );
 
       }
@@ -114,7 +114,7 @@ class _CertifyWorkerScreenState extends State<CertifyWorkerScreen> {
             const Text('Applied on October 8, 2024'),
             const SizedBox(height: 10),
             Text(
-              worker['is_certified'] == 'ongoing'
+              worker['is_certified'] == 'accepted'
                   ? 'Certified until October 8, 2025'
                   : worker['is_certified'] == 'denied'
                       ? 'Denied Certification'
@@ -132,7 +132,7 @@ class _CertifyWorkerScreenState extends State<CertifyWorkerScreen> {
                 ],
               )
             :
-              worker['is_certified'] == 'ongoing' ?
+              worker['is_certified'] == 'accepted' ?
                 _buildButtonLong('Revoke', Colors.red)
                 : _buildButtonLong('Reapply', Colors.green),
             const SizedBox(height: 10),
@@ -197,7 +197,7 @@ class _CertifyWorkerScreenState extends State<CertifyWorkerScreen> {
           ? () {
               setState(() {
                 worker['is_certified'] = label == 'Accept' 
-                  ? 'ongoing' 
+                  ? 'accepted' 
                   : 'denied';
               });
               updateCertification();
