@@ -6,6 +6,12 @@ import 'package:flutter/material.dart';
 import 'widgets/customappbar.dart';
 import 'widgets/customtextfield.dart';
 import 'declaration.dart';
+import 'decalaration2.dart';
+import 'api_service.dart';
+import 'package:provider/provider.dart';
+import 'package:kayakita_sp/providers/profile_provider.dart';
+import 'dart:convert';
+
 
 class GovIssueScreen extends StatefulWidget {
   final Map<String, dynamic> workerData;
@@ -111,7 +117,7 @@ class _GovIssueScreenState extends State<GovIssueScreen> {
     return "pending";
   }
 
-  void onNext() {
+  void onNext() async {
     if (isCertified == "denied") {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("⚠️ Please complete all required fields before proceeding.")),
@@ -123,16 +129,42 @@ class _GovIssueScreenState extends State<GovIssueScreen> {
 
     widget.certificationData['licensing_certificate_given'] = "Professional Driver's License";
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => DeclarationScreen(
-          workerData: widget.workerData,
-          certificationData: widget.certificationData
+   final userProvider = Provider.of<UserProvider>(context, listen: false);
+  String email = userProvider.email; // Get email from Provider
+
+  try {
+    final response = await ApiService.getWorkers();
+
+    if (response.statusCode == 200) {
+      List<dynamic> workers = json.decode(response.body);
+      bool emailExists = workers.any((worker) => worker['email'] == email);
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => emailExists
+              ? SecondDeclarationScreen(
+                  workerData: widget.workerData,
+                  certificationData: widget.certificationData,
+                )
+              : DeclarationScreen(
+                  workerData: widget.workerData,
+                  certificationData: widget.certificationData,
+                ),
         ),
-      ),
+      );
+    } else {
+      // Handle non-200 responses
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: ${response.statusCode} - ${response.body}")),
+      );
+    }
+  } catch (error) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Error fetching workers: $error")),
     );
   }
+}
 
   @override
   Widget build(BuildContext context) {

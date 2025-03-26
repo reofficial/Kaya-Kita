@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:kayakita_sp/joblistings.dart';
 import 'package:provider/provider.dart';
 import 'package:kayakita_sp/providers/profile_provider.dart';
-import 'personalinfo.dart';
+import 'personalinfo2.dart';
 import 'package:collection/collection.dart';
 
 class JobInfoScreen extends StatefulWidget {
@@ -230,7 +230,7 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => PersonalInfoScreen(email: userEmail, password: userPassword),
+                      builder: (context) => SecondPersonalInfoScreen(email: userEmail, password: userPassword),
                     ),
                   );
                 }

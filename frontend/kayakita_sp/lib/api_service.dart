@@ -266,4 +266,16 @@ class ApiService {
     );
     return response;
   }
+
+  static Future<http.Response> createSecondJob(
+    Map<String, dynamic> jobDetails) async {
+  final url = Uri.parse('$baseUrl/service_preference');
+  final response = await _client.post(
+    url,
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode(jobDetails),
+  );
+  return response;
+}
+
 }
