@@ -1,32 +1,36 @@
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from app.classes import ServicePreference
-from typing import Optional
+from typing import List, Optional
 
 class WorkerAdditionalPreferenceDAO:
     def __init__(self, db: AsyncIOMotorDatabase):
         self.collection = db["AdditionalServicePreferences"]
     
     #CRUD operations
-    async def create_extra_preference(self, worker: ServicePreference) -> None:
-        await self.collection.insert_one(worker.model_dump())
+    async def create_service_preference(self, service_preference: ServicePreference) -> None:
+        await self.collection.insert_one(service_preference.model_dump())
     
-    # Read: get a service preference by username
-    async def get_preference_by_username(self, username: str) -> Optional[dict]:
-        return await self.collection.find_one({"username": username})
+    async def read_service_preference(self) -> List[ServicePreference]:
+        service_preference_cursor = self.collection.find()
+        service_preference = await service_preference_cursor.to_list(length=None)
+        return [ServicePreference(**service_preference) for service_preference in service_preference]
     
-    #Read: get all preferences
-    async def get_all_preferences(self):
-        preference_cursor = self.collection.find()
-        preferences = await preference_cursor.to_list(length=None)
-        return [ServicePreference(**p) for p in preferences]
-    
-    # Update: update the service preference for a given username
-    async def update_preference(self, username: str, pref: ServicePreference):
-        return await self.collection.update_one(
-            {"username": username},
-            {"$set": pref.model_dump(exclude={"username"})}
-        )
-    
-    # Delete: delete the service preference for a given username
-    async def delete_preference(self, username: str):
-        return await self.collection.delete_one({"username": username})
+    async def update_service_preference(self, updateDetails: ServicePreference) -> None:
+        #update the service_preference associated with the email
+        print(updateDetails.model_dump())
+        await self.collection.update_one({"email": updateDetails.current_email}, {"$set": updateDetails.model_dump(exclude={"current_email"})})
+
+    #Helper functions
+    async def get_all_service_preference(self) -> List[ServicePreference]:
+        service_preference_cursor = self.collection.find()
+        service_preference = await service_preference_cursor.to_list(length=None)
+        return [ServicePreference(**service_preference) for service_preference in service_preference]
+
+    async def find_by_email(self, email: str) -> Optional[ServicePreference]:
+        service_preference_data = await self.collection.find_one({"email": email})
+        return ServicePreference(**service_preference_data) if service_preference_data else None
+
+    async def find_by_contact_number(self, contact_number: str) -> Optional[ServicePreference]:
+        #check if exact contact number is already in use
+        worker_data = await self.collection.find_one({"contact_number": contact_number})        
+        return ServicePreference(**worker_data) if worker_data else None

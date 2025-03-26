@@ -124,8 +124,13 @@ class WorkerDetails(BaseModel):
     relationship: str
 
 class ServicePreference(BaseModel):
-    username: str
-    service_preference: str
-    is_suspended: str
+    current_email:str
+    first_name: str
+    middle_initial: str
+    last_name: str
+    email: str
+    contact_number: str
+    address: str
+    service_preference:str
     is_certified: str
     
