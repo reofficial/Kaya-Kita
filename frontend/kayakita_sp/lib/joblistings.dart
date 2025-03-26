@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kayakita_sp/jobinfo.dart';
 import 'dart:convert';
 import 'package:kayakita_sp/api_service.dart';
-import 'package:kayakita_sp/widgets/customappbar.dart';
+// import 'package:kayakita_sp/widgets/customappbar.dart';
 import 'home.dart';
 import 'package:kayakita_sp/providers/profile_provider.dart';
 import 'package:provider/provider.dart';
@@ -23,7 +23,10 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         return data
-            .where((item) => item['is_hidden'] != true)
+            // ** ONLY SHOW JOB LISTINGS THAT ALLOW APPLICANTS
+            .where((item) => (item['is_hidden'] != true &&
+                item['job_status'] != 'ongoing' &&
+                item['job_status'] != 'completed'))
             .map((item) => {
                   'job_id': item['job_id'] ?? -1,
                   'tags': (item['tag'] as List<dynamic>? ?? [])
@@ -69,7 +72,8 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            String email = Provider.of<UserProvider>(context, listen: false).email;
+            String email =
+                Provider.of<UserProvider>(context, listen: false).email;
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => HomeScreen(email: email)),
@@ -89,7 +93,8 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
                 children: [
                   const Text('An error occurred while loading jobs.'),
                   const SizedBox(height: 8),
-                  Text('${snapshot.error}', style: const TextStyle(color: Colors.red)),
+                  Text('${snapshot.error}',
+                      style: const TextStyle(color: Colors.red)),
                   ElevatedButton(
                     onPressed: refreshJobListings,
                     child: const Text('Retry'),
@@ -191,7 +196,8 @@ class JobListing extends StatelessWidget {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => JobInfoScreen(jobId: jobId)),
+            MaterialPageRoute(
+                builder: (context) => JobInfoScreen(jobId: jobId)),
           );
         },
         child: Row(
@@ -234,19 +240,24 @@ class JobListing extends StatelessWidget {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(Icons.location_on, size: 14, color: Color(0xFF87027B)),
+                        const Icon(Icons.location_on,
+                            size: 14, color: Color(0xFF87027B)),
                         const SizedBox(width: 4),
-                        Text(location, style: const TextStyle(fontSize: 14, color: Colors.black87)),
+                        Text(location,
+                            style: const TextStyle(
+                                fontSize: 14, color: Colors.black87)),
                       ],
                     ),
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        const Icon(Icons.attach_money, size: 14, color: Color(0xFF87027B)),
+                        const Icon(Icons.attach_money,
+                            size: 14, color: Color(0xFF87027B)),
                         const SizedBox(width: 4),
                         Text(
                           '$salary / $salaryFrequency',
-                          style: const TextStyle(fontSize: 14, color: Colors.black87),
+                          style: const TextStyle(
+                              fontSize: 14, color: Colors.black87),
                         ),
                       ],
                     ),

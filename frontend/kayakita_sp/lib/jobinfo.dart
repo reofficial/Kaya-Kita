@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:kayakita_sp/api_service.dart';
+// import 'package:kayakita_sp/home.dart';
 import 'package:provider/provider.dart';
 import 'package:kayakita_sp/providers/profile_provider.dart';
 import 'personalinfo2.dart';
@@ -15,22 +16,25 @@ class JobInfoScreen extends StatefulWidget {
 }
 
 class _JobInfoScreenState extends State<JobInfoScreen> {
+  int jobId = 0;
   String authorUsername = '';
+  List<dynamic> tags = [];
   String title = '';
   String description = '';
   String location = '';
   double salary = 0.0;
   String salaryFrequency = '';
   String duration = '';
-  Map<String, dynamic>? contactDetails;
-  List<dynamic> tags = [];
-  int job_id = 0;
+  List<dynamic> workerUsername = [];
+  String jobStatus = '';
 
-  String is_certified = '';
-  String service_preference = '';
+  Map<String, dynamic>? contactDetails;
+
+  String isCertified = '';
+  String servicePreference = '';
   String userEmail = '';
   String userPassword = '';
-  String deny_reason = '';
+  String denyReason = '';
 
   @override
   void initState() {
@@ -45,15 +49,17 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
       if (response.statusCode == 200) {
         final Map<String, dynamic> job = json.decode(response.body)[0];
         setState(() {
+          jobId = job['job_id'];
           authorUsername = job['username'];
+          tags = job['tag'] ?? [];
           title = job['job_title'];
           description = job['description'];
           location = job['location'];
           salary = job['salary'].toDouble();
           salaryFrequency = job['salary_frequency'];
           duration = job['duration'];
-          job_id = job['job_id'];
-          tags = job['tag'] ?? [];
+          workerUsername = job['worker_username'];
+          jobStatus = job['job_status'];
         });
         fetchContactDetails();
       }
@@ -102,13 +108,13 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
           setState(() {
             userEmail = worker['email'] ?? '';
             userPassword = worker['password'] ?? '';
-            is_certified = worker['is_certified'] ?? "pending";
-            service_preference = worker['service_preference'] ?? "None";
-            deny_reason = worker['deny_reason'] ?? "None";
+            isCertified = worker['is_certified'] ?? "pending";
+            servicePreference = worker['service_preference'] ?? "None";
+            denyReason = worker['deny_reason'] ?? "None";
           });
-         // await fetchDenyReason();
+          // await fetchDenyReason();
         }
-        print("Deny Reason: $deny_reason");
+        print("Deny Reason: $denyReason");
       }
     } catch (e) {
       print("Failed to fetch worker certification: $e");
@@ -138,17 +144,27 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
   //   }
   // }
 
-  bool isFreelanceCategory() {
-    if (tags.isEmpty) return false;
-    final freelanceTags = ["entertainment", "housework", "food"];
-    return freelanceTags.contains(tags.first.toString().toLowerCase());
-  }
-
   Future<void> applyToJob() async {
     final username = Provider.of<UserProvider>(context, listen: false).username;
 
-    print("Deny Reason: $deny_reason");
-    if (deny_reason.toLowerCase() == "expired") {
+    fetchJobListing(); // ** IMPORTANT: REFETCH JOB LISTING TO CHECK IF JOB STATUS CHANGED
+
+    // ** Cancel applyToJob if 'job_status' is not open to applications.
+    if (jobStatus.toLowerCase() != "pending" &&
+        jobStatus.toLowerCase() != "accepted") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text("Failed to apply: Job listing has already closed.")),
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const JobListingsScreen()),
+      );
+      return;
+    }
+
+    // print("Deny Reason: $deny_reason");
+    if (denyReason.toLowerCase() == "expired") {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -165,25 +181,30 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
       return;
     }
 
-    bool isServicePreferenceInJob = title.toLowerCase().contains(service_preference.toLowerCase()) ||
-        description.toLowerCase().contains(service_preference.toLowerCase());
+    bool isServicePreferenceInJob =
+        title.toLowerCase().contains(servicePreference.toLowerCase()) ||
+            description.toLowerCase().contains(servicePreference.toLowerCase());
 
-    print("Service Preference: $service_preference");
-    print("Job Title: $title");
-    print("Job Description: $description");
-    print("Match Found: $isServicePreferenceInJob");
+    // print("Service Preference: $service_preference");
+    // print("Job Title: $title");
+    // print("Job Description: $description");
+    // print("Match Found: $isServicePreferenceInJob");
 
-    if (isServicePreferenceInJob && is_certified == "certified") {
+    if (isServicePreferenceInJob && isCertified == "certified") {
       try {
-        await ApiService.updateJobListing({
-          'job_id': job_id,
+        workerUsername.add(username);
+        final response = await ApiService.updateJobListing({
+          'job_id': jobId,
           'job_status': 'accepted',
-          'worker_username': [username],
+          'worker_username': workerUsername,
         });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("You're already certified. Added you to queue instead.")),
-        );
+        if (response.statusCode == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text(
+                    "You're already certified. Added you to queue instead.")),
+          );
+        }
         return;
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -193,12 +214,20 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
       }
     }
 
-    if (isFreelanceCategory()) {
+    // ** CHECK IF JOB CATEGORY REQUIRES CERTIFICATION
+    bool requiresCertification() {
+      if (tags.isEmpty) return false;
+      final checkTags = ["Construction", "Health", "Transport"];
+      return tags.any((tag) => checkTags.contains(tag));
+    }
+
+    if (!requiresCertification()) {
       try {
+        workerUsername.add(username);
         final response = await ApiService.updateJobListing({
-          'job_id': job_id,
+          'job_id': jobId,
           'job_status': 'accepted',
-          'worker_username': [username],
+          'worker_username': workerUsername,
         });
         if (response.statusCode == 200) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -217,20 +246,23 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
         );
       }
     } else {
-      if (is_certified == "certified") {
+      if (isCertified == "certified") {
         try {
+          workerUsername.add(username);
           final response = await ApiService.updateJobListing({
-            'job_id': job_id,
-            'job_status': 'pending',
-            'worker_username': [username],
+            'job_id': jobId,
+            'job_status': 'accepted',
+            'worker_username': workerUsername,
           });
           if (response.statusCode == 200) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Application submitted successfully")),
+              const SnackBar(
+                  content: Text("Application submitted successfully")),
             );
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const JobListingsScreen()),
+              MaterialPageRoute(
+                  builder: (context) => const JobListingsScreen()),
             );
           } else {
             throw Exception('Failed to update job listing');
@@ -244,7 +276,8 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => PersonalCertificationInfoScreen(email: userEmail, password: userPassword),
+            builder: (context) => PersonalCertificationInfoScreen(
+                email: userEmail, password: userPassword),
           ),
         );
       }
@@ -263,7 +296,8 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
           onPressed: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const JobListingsScreen()),
+              MaterialPageRoute(
+                  builder: (context) => const JobListingsScreen()),
             );
           },
         ),
@@ -277,7 +311,9 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
               backgroundImage: AssetImage('assets/reviewprofile.png'),
             ),
             const SizedBox(height: 8),
-            Text(authorUsername, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(authorUsername,
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const Icon(Icons.verified, color: Color(0xFF87027B), size: 18),
             const SizedBox(height: 16),
             Container(
@@ -290,11 +326,15 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  Text(title,
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   Text(description),
                   const SizedBox(height: 12),
-                  Text('Ideal Rate: ₱${salary.toStringAsFixed(2)}/$salaryFrequency', style: const TextStyle(color: Colors.green)),
+                  Text(
+                      'Ideal Rate: ₱${salary.toStringAsFixed(2)}/$salaryFrequency',
+                      style: const TextStyle(color: Colors.green)),
                   Text('Duration: $duration'),
                   Text('Location: $location'),
                 ],
@@ -312,11 +352,14 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('About Customer', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    const Text('About Customer',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
                     Text(contactDetails!['email'] ?? ''),
                     Text(contactDetails!['address'] ?? ''),
-                    Text('Booked ${contactDetails!['book_count'] ?? 0} services so far'),
+                    Text(
+                        'Booked ${contactDetails!['book_count'] ?? 0} services so far'),
                   ],
                 ),
               ),
@@ -325,11 +368,14 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
               onPressed: applyToJob,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF87027B),
-                padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 60, vertical: 14),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30)),
               ),
               icon: const Icon(Icons.send, color: Colors.white),
-              label: const Text('Apply', style: TextStyle(fontSize: 16, color: Colors.white)),
+              label: const Text('Apply',
+                  style: TextStyle(fontSize: 16, color: Colors.white)),
             ),
           ],
         ),
