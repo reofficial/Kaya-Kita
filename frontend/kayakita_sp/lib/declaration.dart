@@ -111,7 +111,7 @@ class _DeclarationScreenState extends State<DeclarationScreen> {
 
     try {
       final response = await ApiService.createWorker(workerData);
-      final response2 = await ApiService.createCertification(workerData);
+      // final response2 = await ApiService.createCertification(workerData);
 
       if (response.statusCode == 201) {
         Navigator.pushReplacement(
