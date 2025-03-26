@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:kayakita_sp/api_service.dart';
-// import 'package:kayakita_sp/home.dart';
 import 'package:provider/provider.dart';
 import 'package:kayakita_sp/providers/profile_provider.dart';
 import 'personalinfo2.dart';
@@ -284,6 +283,12 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
     }
   }
 
+  // ** CHECK IF WORKER HAS ALREADY APPLIED TO JOB LISTING
+  bool hasAlreadyApplied() {
+    final username = Provider.of<UserProvider>(context, listen: false).username;
+    return workerUsername.contains(username);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -364,19 +369,20 @@ class _JobInfoScreenState extends State<JobInfoScreen> {
                 ),
               ),
             const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: applyToJob,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF87027B),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 60, vertical: 14),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30)),
+            if (!hasAlreadyApplied())
+              ElevatedButton.icon(
+                onPressed: applyToJob,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF87027B),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 60, vertical: 14),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30)),
+                ),
+                icon: const Icon(Icons.send, color: Colors.white),
+                label: const Text('Apply',
+                    style: TextStyle(fontSize: 16, color: Colors.white)),
               ),
-              icon: const Icon(Icons.send, color: Colors.white),
-              label: const Text('Apply',
-                  style: TextStyle(fontSize: 16, color: Colors.white)),
-            ),
           ],
         ),
       ),
