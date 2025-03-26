@@ -86,6 +86,7 @@ flutter:
     - assets/philcoatofarms.png
     - assets/smol_logo.png
     - assets/reviewprofile.png
+    - assets/emergency_icon.png
     - .env
 
   #   - images/a_dot_ham.jpeg
