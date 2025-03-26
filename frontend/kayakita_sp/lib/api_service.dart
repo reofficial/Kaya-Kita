@@ -267,6 +267,38 @@ class ApiService {
     return response;
   }
 
+  static Future<http.Response> createCertification(
+    final Map<String, dynamic> certificationData,
+    //final File licensingCertificatePhoto,
+    //final File barangayCertificate
+    ) async {
+    final url = Uri.parse('$baseUrl/certifications/create');
+
+    final File tempFile = await File('assets/tempFile.txt').create();
+    await tempFile.writeAsString('');
+
+    var request = http.MultipartRequest('POST', url)
+    ..fields['worker_username'] = certificationData['worker_username']
+    ..fields['date_of_application'] = certificationData['date_of_application']
+    ..fields['licensing_certificate_given'] = certificationData['licensing_certificate_given']
+    ..fields['is_senior'] = certificationData['is_senior']
+    ..fields['is_pwd'] = certificationData['is_pwd']
+    
+    ..files.add(await http.MultipartFile.fromPath(
+      'licensing_certificate_photo', tempFile.path,
+    ))
+    ..files.add(await http.MultipartFile.fromPath(
+      'barangay_certificate', tempFile.path,
+    ));
+
+    var streamedResponse = await request.send();
+    var response = await http.Response.fromStream(streamedResponse);
+
+    await tempFile.delete();
+
+    return response;
+  }
+
   static Future<http.Response> createSecondJob(
     Map<String, dynamic> jobDetails) async {
   final url = Uri.parse('$baseUrl/service_preference');

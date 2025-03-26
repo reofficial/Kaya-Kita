@@ -39,7 +39,6 @@ dependencies:
   flutter_dotenv: ^5.2.1
   provider: ^6.1.2
   fl_chart: ^0.70.2
-  file_picker: ^9.2.1
 
 dev_dependencies:
   flutter_test:

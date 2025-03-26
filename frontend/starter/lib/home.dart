@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:starter/jobcategories.dart';
+import 'dart:convert';
+
+import 'api_service.dart';
+import 'package:provider/provider.dart';
+import '/providers/profile_provider.dart';
+
 import 'package:starter/main.dart';
+import 'package:starter/jobcategories.dart';
 import 'package:starter/editprofile.dart';
 import 'package:starter/nearbyworkers.dart';
 import 'package:starter/newpost.dart';
 import 'package:starter/joblistings.dart';
 import 'package:starter/orders.dart';
 import 'package:starter/customerjoblistings.dart';
-import 'chat.dart';
+import 'package:starter/chat.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,39 +24,147 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  int _selectedIndex = 0; // Track the selected index
+  int _selectedIndex = 0;
+  bool _isLoading = true;
+  bool _isSuspended = false;
+  String? _suspensionType;
+  String? _userName;
 
-  // Handle bottom navigation bar item taps
-  void _onItemTapped(int index) {
-  if (index == 1 ){
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const CustomerJobListingScreen()),
-    );
-  } else if (index == 2) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const NewPostScreen()),
-    );
-  } else if (index == 3) { // If "Orders" is selected
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const OrdersScreen()),
-    );
-  } else if (index == 4) { // Chat Tab
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const ChatScreen()),
-    );
-  } else {
-    setState(() {
-      _selectedIndex = index;
-    });
+  @override
+  void initState() {
+    super.initState();
+    _checkUserStatus();
   }
-}
+
+  Future<void> _checkUserStatus() async {
+    try {
+      final username =
+          Provider.of<UserProvider>(context, listen: false).username;
+
+      final response = await ApiService.getCustomers();
+      List<dynamic> customers = json.decode(response.body);
+
+      final customer = customers.firstWhere(
+        (c) => c['username'] == username,
+        orElse: () => {},
+      );
+
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          if (customer.isNotEmpty) {
+            _userName = customer['name'] ?? 'User'; // Adjust field name
+            _isSuspended = customer['is_suspended'] == 'Temporary' ||
+                customer['is_suspended'] == 'Permanent';
+            _suspensionType = customer['is_suspended'];
+          }
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+      debugPrint('Error checking user status: $e');
+    }
+  }
+
+  void _onItemTapped(int index) {
+    if (_isSuspended) return;
+
+    if (index == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => const CustomerJobListingScreen()),
+      );
+    } else if (index == 2) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const NewPostScreen()),
+      );
+    } else if (index == 3) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const OrdersScreen()),
+      );
+    } else if (index == 4) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const ChatScreen()),
+      );
+    } else {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_isSuspended) {
+      return _buildSuspendedScreen();
+    }
+
+    return _buildNormalScreen();
+  }
+
+  Widget _buildSuspendedScreen() {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.block, size: 80, color: Colors.red),
+              const SizedBox(height: 20),
+              Text(
+                'Account Suspended',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red[700],
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Your account has been $_suspensionType suspended.',
+                style: const TextStyle(fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'Please contact support for more information.',
+                style: TextStyle(fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const MyApp()),
+                  );
+                },
+                child: const Text('Logout'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNormalScreen() {
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.white,
@@ -64,7 +178,8 @@ class _HomeScreenState extends State<HomeScreen> {
         elevation: 0,
         actions: <Widget>[
           IconButton(
-            icon: const Icon(Icons.account_circle, size: 40, color: Color(0xFFE8F0FE)),
+            icon: const Icon(Icons.account_circle,
+                size: 40, color: Color(0xFFE8F0FE)),
             tooltip: 'Profile',
             onPressed: () {
               _scaffoldKey.currentState?.openEndDrawer();
@@ -84,7 +199,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 decoration: const BoxDecoration(),
                 child: Row(
                   children: [
-                    Image.asset('assets/logofull.png', key: const Key('logo full')),
+                    Image.asset('assets/logofull.png',
+                        key: const Key('logo full')),
                     const Spacer(),
                     IconButton(
                       icon: const Icon(Icons.account_circle, size: 40),
@@ -103,7 +219,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 10, bottom: 5, top: 10),
+                        padding:
+                            const EdgeInsets.only(left: 10, bottom: 5, top: 10),
                         child: Text(
                           'Account',
                           style: TextStyle(
@@ -136,7 +253,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 10, bottom: 5, top: 10),
+                        padding:
+                            const EdgeInsets.only(left: 10, bottom: 5, top: 10),
                         child: Text(
                           'Support & About',
                           style: TextStyle(
@@ -164,7 +282,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 10, bottom: 5, top: 10),
+                        padding:
+                            const EdgeInsets.only(left: 10, bottom: 5, top: 10),
                         child: Text(
                           'Cache & Cellular',
                           style: TextStyle(
@@ -187,7 +306,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 10, bottom: 5, top: 10),
+                        padding:
+                            const EdgeInsets.only(left: 10, bottom: 5, top: 10),
                         child: Text(
                           'Actions',
                           style: TextStyle(
@@ -207,10 +327,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       icon: Icons.people,
                       screen: null,
                     ),
-                    const SidebarButton(
+                    SidebarButton(
                       title: 'Log out',
                       icon: Icons.logout,
                       screen: MyApp(),
+                      onTap: () {},
                     ),
                   ],
                 ),
@@ -220,10 +341,10 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex, // Highlight the active tab
-        onTap: _onItemTapped, // Handle tab changes
-        selectedItemColor: const Color(0xFF87027B), // Color for the active tab
-        unselectedItemColor: Colors.grey, // Color for inactive tabs
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        selectedItemColor: const Color(0xFF87027B),
+        unselectedItemColor: Colors.grey,
         showSelectedLabels: true,
         showUnselectedLabels: true,
         type: BottomNavigationBarType.fixed,
@@ -253,12 +374,10 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Top Section (Wallet, etc.)
             Padding(
               padding: const EdgeInsets.all(15),
               child: Column(
                 children: [
-                  // Wallet Section
                   Container(
                     padding: const EdgeInsets.all(15),
                     decoration: BoxDecoration(
@@ -286,7 +405,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  // Explore Section
                   GridView.count(
                     crossAxisCount: 3,
                     shrinkWrap: true,
@@ -300,14 +418,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       _buildExploreItem("More", Icons.more_horiz),
                     ],
                   ),
-                  // Promos Section
                   Container(
                     padding: const EdgeInsets.all(15),
                     margin: const EdgeInsets.only(top: 0),
                     child: Stack(
                       alignment: Alignment.bottomRight,
                       children: [
-                        // Image
                         ClipRRect(
                           borderRadius: BorderRadius.circular(12),
                           child: Image.asset(
@@ -319,9 +435,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Padding(
                           padding: const EdgeInsets.only(right: 10, bottom: 10),
                           child: TextButton(
-                            onPressed: () {
-                              // Handle submit entry
-                            },
+                            onPressed: () {},
                             style: TextButton.styleFrom(
                               backgroundColor: Colors.white.withOpacity(0.8),
                               shape: RoundedRectangleBorder(
@@ -343,16 +457,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-            // Job Listings Section 
             GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const JobListingsScreen(),
-                  ),
-                );
-              },
+              onTap: _isSuspended
+                  ? null
+                  : () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const JobListingsScreen(),
+                        ),
+                      );
+                    },
               child: Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -372,7 +487,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ),
-                margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                margin:
+                    const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -420,28 +536,25 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       children: [
         ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => 
-                  title == 'More'? const JobCategoriesScreen() : NearbyWorkersScreen(jobName: title)
+            onPressed: _isSuspended
+                ? null
+                : () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => title == 'More'
+                              ? const JobCategoriesScreen()
+                              : NearbyWorkersScreen(jobName: title)),
+                    );
+                  },
+            style: ElevatedButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
-            );
-          },
-          style: ElevatedButton.styleFrom(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16), // Adjust corner radius
+              padding: const EdgeInsets.all(10),
+              minimumSize: const Size(40, 40),
             ),
-            padding: const EdgeInsets.all(10), // Ensures a square-like shape
-            minimumSize: const Size(40, 40),
-          ),
-          child: Icon(
-            icon, 
-            size: 40, 
-            color: Colors.grey[700]
-          )
-        ),
+            child: Icon(icon, size: 40, color: Colors.grey[700])),
         const SizedBox(height: 5),
         Text(
           title,
@@ -502,12 +615,14 @@ class SidebarButton extends StatelessWidget {
   final String title;
   final IconData icon;
   final Widget? screen;
+  final VoidCallback? onTap;
 
   const SidebarButton({
     Key? key,
     required this.title,
     required this.icon,
     this.screen,
+    this.onTap,
   }) : super(key: key);
 
   @override
@@ -516,10 +631,10 @@ class SidebarButton extends StatelessWidget {
       leading: Icon(icon, color: Colors.black),
       title: Text(title),
       onTap: () {
-        // Close the drawer first
         Navigator.of(context).pop();
-        // Navigate to the provided screen if it exists
-        if (screen != null) {
+        if (onTap != null) {
+          onTap!();
+        } else if (screen != null) {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => screen!),
