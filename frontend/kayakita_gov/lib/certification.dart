@@ -118,7 +118,7 @@ class _WorkerCardState extends State<WorkerCard> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => 
             CertifyWorkerScreen(workerUsername: widget.worker.username)

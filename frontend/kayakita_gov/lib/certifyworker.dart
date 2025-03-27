@@ -82,6 +82,17 @@ class _CertifyWorkerScreenState extends State<CertifyWorkerScreen> {
         title: const Text('Certify Worker', style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF000E53),
         iconTheme: const IconThemeData(color: Colors.white),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF000000)),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CertificationScreen()
+              ),
+            );
+          },
+        ),
       ),
 
       body: FutureBuilder<void>(
