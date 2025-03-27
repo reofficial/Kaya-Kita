@@ -135,10 +135,9 @@ class _CertifyWorkerScreenState extends State<CertifyWorkerScreen> {
                   _buildButton('Accept', Colors.green),
                 ],
               )
-            :
-              worker['is_certified'] == 'accepted' ?
-                _buildButtonLong('Revoke', Colors.red)
-                : _buildButtonLong('Reapply', Colors.green),
+            :worker['is_certified'] == 'denied' ?
+                _buildButtonLong('Reapply', Colors.green)
+                : _buildButtonLong('Revoke', Colors.red),
             const SizedBox(height: 10),
             _customContainer(
               Column(
@@ -237,7 +236,7 @@ class _CertifyWorkerScreenState extends State<CertifyWorkerScreen> {
     context: context,
     builder: (BuildContext context) {
       return StatefulBuilder(
-        builder: (context, setState) {
+        builder: (dialogContext, setDialogState) {
           return AlertDialog(
             title: const Text('Select a reason for denial'),
             content: Column(
@@ -248,7 +247,7 @@ class _CertifyWorkerScreenState extends State<CertifyWorkerScreen> {
                   value: reason,
                   groupValue: selectedReason,
                   onChanged: (value) {
-                    setState(() {
+                    setDialogState(() {
                       selectedReason = value;
                     });
                   },
@@ -257,18 +256,20 @@ class _CertifyWorkerScreenState extends State<CertifyWorkerScreen> {
             ),
             actions: [
               TextButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => Navigator.pop(dialogContext),
                 child: const Text('Cancel'),
               ),
               TextButton(
                 onPressed: selectedReason != null
-                    ? () {
+                    ? () async {
                         setState(() {
                           worker['is_certified'] = 'denied';
                           worker['deny_reason'] = selectedReason;
                         });
-                        updateCertification();
-                        Navigator.pop(context);
+
+                        Navigator.pop(dialogContext); 
+                        await updateCertification(); 
+                        setState(() {}); 
                       }
                     : null,
                 child: const Text('Confirm'),
