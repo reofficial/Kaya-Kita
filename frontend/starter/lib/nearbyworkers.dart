@@ -48,10 +48,11 @@ class _NearbyWorkersScreenState extends State<NearbyWorkersScreen> {
         final List<dynamic> data = json.decode(response.body);
         return data
             .where((item) =>
-                item['is_certified'] == "accepted" &&
-                (item['service_preference'] == widget.jobName ||
-                    item['service_preference'] == 'N/A' ||
-                    item['service_preference'] == ''))
+                item['is_certified'] == "accepted" 
+                // && (item['service_preference'] == widget.jobName ||
+                //     item['service_preference'] == 'N/A' ||
+                //     item['service_preference'] == '')
+                )
             .map((item) => {
                   'name':
                       (item['first_name'] != null && item['last_name'] != null)
