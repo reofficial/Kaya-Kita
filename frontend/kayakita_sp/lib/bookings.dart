@@ -74,7 +74,7 @@ class BookingScreen extends StatelessWidget {
     String payment,
     Color statusColor,
     String? actions,
-    bool is_certified,
+    String is_certified,
   ) {
     return Card(
       elevation: 4,
@@ -174,10 +174,10 @@ class BookingScreen extends StatelessWidget {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                        if (!is_certified) {
+                        if (is_certified != 'accepted') {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text("Certification expired."),
+                              content: Text("Error: invalid certification"),
                               backgroundColor: Colors.red,
                               duration: Duration(seconds: 2),
                             ),
@@ -196,10 +196,10 @@ class BookingScreen extends StatelessWidget {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        if (!is_certified) {
+                        if (is_certified != 'accepted') {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text("Certification expired."),
+                              content: Text("Error: invalid certification"),
                               backgroundColor: Colors.red,
                               duration: Duration(seconds: 2),
                             ),
@@ -226,10 +226,10 @@ class BookingScreen extends StatelessWidget {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                        if (!is_certified) {
+                        if (is_certified != 'accepted') {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text("Certification expired."),
+                              content: Text("Error: invalid certification"),
                               backgroundColor: Colors.red,
                               duration: Duration(seconds: 2),
                             ),

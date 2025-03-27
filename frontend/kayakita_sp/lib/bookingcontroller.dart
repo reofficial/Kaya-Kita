@@ -18,10 +18,8 @@ class BookingController extends ChangeNotifier {
         List<dynamic> customersData = jsonDecode(customersResponse.body);
         List<dynamic> workersData = jsonDecode(workersResponse.body);
 
-        Map<String, bool> handymanCertificationMap = {
-          for (var worker in workersData)
-            worker["username"]: worker["is_certified"] == true
-        };
+        final matchedWorker = workersData
+            .firstWhere((item) => item['username'] == handymanUsername);
 
         Map<String, String> customerAddressMap = {
           for (var customer in customersData)
@@ -46,7 +44,7 @@ class BookingController extends ChangeNotifier {
             "payment": booking["payment_status"],
             "statusColor": _getStatusColor(booking["job_status"]),
             "actions": "Pending",
-            "is_certified": handymanCertificationMap[handymanUsername] ?? false,
+            "is_certified": matchedWorker['is_certified'],
           };
         }).toList();
 
