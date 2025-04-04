@@ -136,7 +136,8 @@ async def worker_login(info: LoginInfo):
     
 @app.post("/workers/update", status_code=status.HTTP_200_OK)
 async def update_worker(updateDetails: ProfileUpdate):
-    await worker_dao.update_worker(updateDetails)
+    update_data = updateDetails.model_dump(exclude_unset=True)
+    await worker_dao.update_worker(update_data)
     return JSONResponse(status_code=200, content={"message": "worker updated successfully"})
 
 #The following concerns extra service preference

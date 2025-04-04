@@ -21,10 +21,11 @@ class WorkerAdditionalPreferenceDAO:
         return [ServicePreference(**p) for p in preferences]
     
     # Update: update the service preference for a given username
-    async def update_preference(self, username: str, pref: ServicePreference):
+    async def update_service_preference(self, pref: ServicePreference):
+        # Use the email field as the identifier and exclude it from the update data.
         return await self.collection.update_one(
-            {"username": username},
-            {"$set": pref.model_dump(exclude={"username"})}
+            {"email": pref.email},
+            {"$set": pref.model_dump(exclude={"email"})}
         )
     
     # Delete: delete the service preference for a given username

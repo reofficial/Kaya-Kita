@@ -16,10 +16,17 @@ class WorkerDAO:
         workers = await workers_cursor.to_list(length=None)
         return [Profile(**worker) for worker in workers]
     
-    async def update_worker(self, updateDetails: ProfileUpdate) -> None:
-        #update the worker associated with the email
-        print(updateDetails.model_dump())
-        await self.collection.update_one({"email": updateDetails.current_email}, {"$set": updateDetails.model_dump(exclude={"current_email"})})
+    async def update_worker(self, updateDetails: dict) -> None:
+        # Extract the current email from the dictionary
+        current_email = updateDetails.get("current_email")
+        if not current_email:
+            raise ValueError("current_email is required for updating the worker.")
+        
+        # Exclude the current_email field from the update data
+        update_fields = {key: value for key, value in updateDetails.items() if key != "current_email"}
+        
+        print(update_fields)
+        await self.collection.update_one({"email": current_email}, {"$set": update_fields})
     
     async def update_suspension(self, updateDetails: UpdateSuspension) -> None:
         print(updateDetails.model_dump())

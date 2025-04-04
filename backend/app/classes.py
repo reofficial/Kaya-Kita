@@ -16,6 +16,7 @@ class Profile(BaseModel):
     service_preference: Optional[str] = "N/A"
     is_certified: Optional[str] = "Pending"
     is_suspended: Optional[str] = "No"
+    deny_reason: Optional[str] = ""
 
 class UpdateSuspension(BaseModel):
     username: str
@@ -39,6 +40,7 @@ class ProfileUpdate(BaseModel):
     contact_number: str
     address: str
     is_certified: str
+    deny_reason: Optional[str] = None
 
 # The following are classes that concerns job listings
 
