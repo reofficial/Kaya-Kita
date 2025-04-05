@@ -175,4 +175,29 @@ class ApiService {
     );
     return response;
   }
+
+  static Future<http.Response> getAuditLogs(String username) async {
+    final url = Uri.parse('$baseUrl/logs/$username');
+    final response = await _client.get(url);
+    return response;
+  }
+
+  static Future<http.Response> createLog({required String officialUsername, required String leg,}) async {
+    final url = Uri.parse('$baseUrl/logs/create');
+  
+    return await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'accept': 'application/json',
+      },
+      body: json.encode({
+        'official_username': officialUsername,
+        'leg': leg,
+      }),
+    );
+  }
+
+
 }
+
