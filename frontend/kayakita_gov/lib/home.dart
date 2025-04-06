@@ -63,76 +63,83 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    key: _scaffoldKey,
-    backgroundColor: Colors.white,
-    appBar: AppBar(
-      automaticallyImplyLeading: false,
-      title: const Text(
-        "U.P. Campus, Quezon City",
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: _scaffoldKey,
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: const Text(
+          "U.P. Campus, Quezon City",
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
-      ),
-      backgroundColor: const Color(0xFF000E53),
-      elevation: 0,
-      actions: <Widget>[
-        IconButton(
-          icon: const Icon(
-            Icons.account_circle,
-            size: 40,
-            color: Color(0xFFE8F0FE),
-          ),
-          tooltip: 'Profile',
-          onPressed: () {
-            _scaffoldKey.currentState?.openEndDrawer();
-          },
-        ),
-      ],
-    ),
-    body: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Good day, $firstName!",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+        backgroundColor: const Color(0xFF000E53),
+        elevation: 0,
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(
+              Icons.account_circle,
+              size: 40,
+              color: Color(0xFFE8F0FE),
             ),
+            tooltip: 'Profile',
+            onPressed: () {
+              _scaffoldKey.currentState?.openEndDrawer();
+            },
           ),
-          const SizedBox(height: 10),
-          const Text(
-            "Inbox",
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 5),
-          Column(
-            children: [
-              _inboxButton("Job Listings", JobListingsScreen()),
-              _inboxButton("Certification", CertificationScreen()),
-              _inboxButton("Manage Users", ManageUsersScreen()),
-              _inboxButtonWithUsername(
-                "Audit Logs", 
-                (username) => AuditLogsScreen(username: username),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          _servicesCard(),
         ],
       ),
-    ),
-  );
-}
+      body: SingleChildScrollView( // Wrap the body with a SingleChildScrollView
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // User Greeting
+            isLoading
+                ? const CircularProgressIndicator()
+                : Text(
+                    "Good day, $firstName!",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+            const SizedBox(height: 10),
+
+            // Inbox Section
+            const Text(
+              "Inbox",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 5),
+            Column(
+              children: [
+                _inboxButton("Job Listings", JobListingsScreen()),
+                _inboxButton("Certification", CertificationScreen()),
+                _inboxButton("Manage Users", ManageUsersScreen()),
+                _inboxButtonWithUsername(
+                  "Audit Logs",
+                  (username) => AuditLogsScreen(username: username),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Services Card Section
+            _servicesCard(),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _inboxButton(String title, Widget screen) {
     return Padding(
@@ -160,30 +167,30 @@ Widget build(BuildContext context) {
   }
 
   Widget _inboxButtonWithUsername(String title, Widget Function(String) builder) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 5),
-    child: SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.grey[300],
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.grey[300],
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape:
+                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+          ),
+          onPressed: () {
+            final profileProvider = Provider.of<UserProvider>(context, listen: false);
+            final username = profileProvider.username;
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => builder(username)),
+            );
+          },
+          child: Text(title, style: const TextStyle(fontSize: 16, color: Colors.black)),
         ),
-        onPressed: () {
-          final profileProvider = Provider.of<UserProvider>(context, listen: false);
-          final username = profileProvider.username;
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => builder(username)),
-          );
-        },
-        child: Text(title, style: const TextStyle(fontSize: 16, color: Colors.black)),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _servicesCard() {
     return Card(
