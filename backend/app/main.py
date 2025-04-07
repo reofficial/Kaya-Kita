@@ -4,7 +4,7 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException, status
 from fastapi.responses import JSONResponse, RedirectResponse
 from motor.motor_asyncio import AsyncIOMotorClient
 from typing import List, Optional, Union
-from app.classes import Profile, InitialInfo, JobListing, LoginInfo, ProfileUpdate, WorkerReviews, JobCircles, WorkerRates, WorkerCertificationInput,WorkerCertificationResponse, JobListingUpdate, UpdateSuspension, ServicePreference
+from app.classes import Profile, InitialInfo, JobListing, LoginInfo, ProfileUpdate, WorkerReviews, JobCircles, WorkerRates, WorkerCertificationInput,WorkerCertificationResponse, JobListingUpdate, UpdateSuspension, ServicePreference, AuditLog, Disputes
 from app.DAO.customer_DAO import CustomerDAO
 from app.DAO.job_listing_DAO import JobListingDAO
 from app.DAO.worker_DAO import WorkerDAO
@@ -14,6 +14,8 @@ from app.DAO.job_circles_DAO import JobCirclesDAO
 from app.DAO.worker_rates_DAO import WorkerRatesDAO
 from app.DAO.certifications_DAO import WorkerCertificationDAO
 from app.DAO.worker_additional_preference_DAO import WorkerAdditionalPreferenceDAO
+from app.DAO.audit_logs_DAO import AuditLogDAO
+from app.DAO.disputes_DAO import DisputesDAO
 from fastapi.staticfiles import StaticFiles
 # .\venv\Scripts\Activate
 # uvicorn app.main:app --reload
@@ -36,6 +38,8 @@ job_circle_dao = JobCirclesDAO(database)
 worker_rates_dao = WorkerRatesDAO(database)
 cert_dao = WorkerCertificationDAO(database)
 preference_dao = WorkerAdditionalPreferenceDAO(database)
+audit_logs_dao = AuditLogDAO(database)
+disputes_dao = DisputesDAO(database)
 
 # The following concerns customers
 @app.get("/customers", response_model=List[Profile])
@@ -429,6 +433,45 @@ async def update_suspension_worker(updateDetails: UpdateSuspension):
 async def delete_certification(worker_username: str):
     success = await cert_dao.delete_certification(worker_username)
     return {"message": "Certification deleted successfully"} if success else {"message": "Certification not found"}
+
+# The following concerns logs:
+@app.post("/logs/create", response_model=AuditLog)
+async def create_log(log: AuditLog):
+    return await audit_logs_dao.create_audit_log(log)
+
+@app.get("/logs", response_model=List[AuditLog])
+async def get_logs():
+    return await audit_logs_dao.read_audit_logs()
+
+@app.get("/logs/{official_username}", response_model=AuditLog | None)
+async def get_log_by_username(official_username: str):
+    return await audit_logs_dao.read_audit_log_by_username(official_username)
+
+#The following handles disputes
+@app.post("/disputes/create", response_model=Disputes)
+async def create_dispute(dispute: Disputes):
+    return await disputes_dao.create_dispute(dispute)
+
+@app.get("/disputes", response_model=List[Disputes])
+async def get_disputes():
+    return await disputes_dao.read_disputes()
+
+@app.get("/disputes/worker/{worker_username}", response_model=Disputes | None)
+async def get_dispute_by_worker_username(worker_username: str):
+    return await disputes_dao.read_dispute_by_worker_username(worker_username)
+
+@app.get("/disputes/customer/{customer_username}", response_model=Disputes | None)
+async def get_dispute_by_customer_username(customer_username: str):
+    return await disputes_dao.read_dispute_by_customer_username(customer_username)
+
+@app.put("/disputes/update", response_model=Disputes)
+async def update_dispute(dispute: Disputes):
+    return await disputes_dao.update_dispute(dispute)
+
+@app.delete("/disputes/delete/{dispute_id}", response_model=dict)
+async def delete_dispute(dispute_id: int):
+    success = await disputes_dao.delete_dispute(dispute_id)
+    return {"message": "Dispute deleted successfully"} if success else {"message": "Dispute not found"}
 
 #Test function
 # @app.get("/")
