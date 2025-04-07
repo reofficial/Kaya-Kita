@@ -141,9 +141,10 @@ class AuditLog(BaseModel):
     log: str
 
 class Disputes(BaseModel):
-    dispute_id: int
+    dispute_id: Optional[int] = None
     worker_username: str
     customer_username: str
-    reason: str
-    solution: str
-    created_at: datetime
+    reason: Optional[str] = None
+    solution: Optional[str] = None
+    description: Optional[str] = None
+    created_at: datetime | Optional[str] = None

@@ -34,10 +34,23 @@ class DisputesDAO:
         dispute = await self.collection.find_one({"customer_username": customer_username})
         return Disputes(**dispute) if dispute else None
     
-    async def update_dispute(self, dispute: Disputes) -> Disputes:
-        dispute_data = dispute.model_dump()
-        await self.collection.update_one({"dispute_id": dispute.dispute_id}, {"$set": dispute_data})
-        return Disputes(**dispute_data)
+    async def update_dispute(self, dispute: Disputes) -> Optional[Disputes]:
+    # Filter out None values from the dispute data
+        dispute_data = {
+            key: value for key, value in dispute.model_dump().items()
+            if value is not None and key != "dispute_id"
+        }
+        
+        # Update only the non-None fields
+        if dispute_data:
+            await self.collection.update_one(
+                {"dispute_id": dispute.dispute_id}, 
+                {"$set": dispute_data}
+            )
+        
+        # Fetch the updated document
+        updated_dispute = await self.collection.find_one({"dispute_id": dispute.dispute_id})
+        return Disputes(**updated_dispute) if updated_dispute else None
     
     async def delete_dispute(self, dispute_id: int):
         result = await self.collection.delete_one({"dispute_id": dispute_id})
