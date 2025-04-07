@@ -4,9 +4,11 @@ import 'package:starter/completedjob.dart';
 import 'package:starter/providers/profile_provider.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
+import 'disputestat.dart';
 
 class OrdersScreen extends StatefulWidget {
-  const OrdersScreen({super.key});
+  final bool? raised_dispute;
+  const OrdersScreen({super.key, this.raised_dispute});
 
   @override
   State<OrdersScreen> createState() => _OrdersScreenState();
@@ -14,17 +16,24 @@ class OrdersScreen extends StatefulWidget {
 
 class _OrdersScreenState extends State<OrdersScreen> {
   late Future<List<Map<String, dynamic>>> jobsFuture;
+  late Future<List<int>> disputeTicketNumbersFuture;
   late String currentUsername;
   List<Map<String, dynamic>> jobsData = [];
 
   @override
   void initState() {
     super.initState();
-    currentUsername = Provider.of<UserProvider>(context, listen: false).username;
+    currentUsername =
+        Provider.of<UserProvider>(context, listen: false).username;
     jobsFuture = fetchUserJobs(currentUsername);
+    disputeTicketNumbersFuture = fetchDisputeTicketNumbers()
+      ..then((ticketNumbers) {
+        print("Fetched dispute ticket numbers: $ticketNumbers");
+      });
   }
 
-  Future<List<Map<String, dynamic>>> fetchUserJobs(String currentUsername) async {
+  Future<List<Map<String, dynamic>>> fetchUserJobs(
+      String currentUsername) async {
     try {
       final response = await ApiService.getJobCircles();
       if (response.statusCode == 200) {
@@ -51,6 +60,25 @@ class _OrdersScreenState extends State<OrdersScreen> {
     }
   }
 
+  Future<List<int>> fetchDisputeTicketNumbers() async {
+    try {
+      final response = await ApiService.getDisputes();
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        final ticketNumbers = data
+            .map<int>((dispute) => dispute['ticket_number'] as int)
+            .toSet() // removes duplicates
+            .toList();
+        return ticketNumbers;
+      } else {
+        throw Exception('Failed to load disputes: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching disputes: $e');
+      return [];
+    }
+  }
+
   void refreshOrders() {
     setState(() {
       jobsFuture = fetchUserJobs(currentUsername);
@@ -67,70 +95,85 @@ class _OrdersScreenState extends State<OrdersScreen> {
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: jobsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+        builder: (context, jobsSnapshot) {
+          if (jobsSnapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text("No orders found"));
+          } else if (jobsSnapshot.hasError) {
+            return Center(child: Text("Error: ${jobsSnapshot.error}"));
           }
 
-          final jobs = snapshot.data!;
+          return FutureBuilder<List<int>>(
+            future: disputeTicketNumbersFuture,
+            builder: (context, disputeSnapshot) {
+              if (disputeSnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (disputeSnapshot.hasError) {
+                return Center(child: Text("Error: ${disputeSnapshot.error}"));
+              }
 
-          return RefreshIndicator(
-            onRefresh: () async => refreshOrders(),
-            child: ListView(
-              padding: const EdgeInsets.all(12),
-              children: [
-                const Text(
-                  "Pending Orders",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              final disputeTicketNumbers = disputeSnapshot.data ?? [];
+              final disputeTicketSet =
+                  disputeTicketNumbers.toSet(); // fast lookup
+              final jobs = jobsSnapshot.data ?? [];
+
+              return RefreshIndicator(
+                onRefresh: () async => refreshOrders(),
+                child: ListView(
+                  padding: const EdgeInsets.all(12),
+                  children: [
+                    const Text("Pending Orders",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                    ...jobs
+                        .where((job) => job["job_status"] == "Pending")
+                        .map((job) => JobCircles(
+                              job: job,
+                              onRated: () {
+                                setState(() {
+                                  job['rating_status'] = 'Rated';
+                                });
+                              },
+                              raised_dispute: disputeTicketSet
+                                  .contains(job["ticket_number"]),
+                            )),
+                    const SizedBox(height: 15),
+                    const Text("Ongoing Orders",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                    ...jobs
+                        .where((job) =>
+                            job["job_status"] == "Ongoing" ||
+                            job["job_status"] == "Accepted")
+                        .map((job) => JobCircles(
+                              job: job,
+                              onRated: () {
+                                setState(() {
+                                  job['rating_status'] = 'Rated';
+                                });
+                              },
+                              raised_dispute: disputeTicketSet
+                                  .contains(job["ticket_number"]),
+                            )),
+                    const SizedBox(height: 15),
+                    const Text("Completed Orders",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                    ...jobs
+                        .where((job) => job["job_status"] == "Completed")
+                        .map((job) => JobCircles(
+                              job: job,
+                              onRated: () {
+                                setState(() {
+                                  job['rating_status'] = 'Rated';
+                                });
+                              },
+                              raised_dispute: disputeTicketSet
+                                  .contains(job["ticket_number"]),
+                            )),
+                  ],
                 ),
-                ...jobs
-                    .where((job) => job["job_status"] == "Pending")
-                    .map((job) => JobCircles(
-                          job: job,
-                          onRated: () {
-                            setState(() {
-                              job['rating_status'] = 'Rated';
-                            });
-                          },
-                        )),
-                const SizedBox(height: 15),
-                const Text(
-                  "Ongoing Orders",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                ...jobs
-                    .where((job) =>
-                        job["job_status"] == "Ongoing" ||
-                        job["job_status"] == "Accepted")
-                    .map((job) => JobCircles(
-                          job: job,
-                          onRated: () {
-                            setState(() {
-                              job['rating_status'] = 'Rated';
-                            });
-                          },
-                        )),
-                const SizedBox(height: 15),
-                const Text(
-                  "Completed Orders",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                ...jobs
-                    .where((job) => job["job_status"] == "Completed")
-                    .map((job) => JobCircles(
-                          job: job,
-                          onRated: () {
-                            setState(() {
-                              job['rating_status'] = 'Rated';
-                            });
-                          },
-                        )),
-              ],
-            ),
+              );
+            },
           );
         },
       ),
@@ -143,10 +186,12 @@ class JobCircles extends StatelessWidget {
     super.key,
     required this.job,
     required this.onRated,
+    required this.raised_dispute,
   });
 
   final Map<String, dynamic> job;
   final VoidCallback onRated;
+  final bool raised_dispute;
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +212,15 @@ class JobCircles extends StatelessWidget {
       elevation: 4,
       child: InkWell(
         onTap: () async {
-          if (jobStatus == 'Completed' && ratingStatus == 'Unrated') {
+          if (jobStatus == 'Completed' && raised_dispute == true) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                    "Already raised a dispute. \nDuplicate disputes are not allowed."),
+                backgroundColor: Colors.red,
+              ),
+            );
+          } else if (jobStatus == 'Completed' && ratingStatus == 'Unrated') {
             final result = await Navigator.push(
               context,
               MaterialPageRoute(
@@ -194,7 +247,8 @@ class JobCircles extends StatelessWidget {
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text("Cannot give ratings before job is finished"),
+                content: Text(
+                    "Cannot give ratings/raise disputes before job is finished"),
                 backgroundColor: Colors.red,
               ),
             );
@@ -202,29 +256,64 @@ class JobCircles extends StatelessWidget {
         },
         child: Padding(
           padding: const EdgeInsets.all(12),
-          child: Column(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "Ticket #$ticketNumber",
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF87027B),
+              // Left-side job info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Ticket #$ticketNumber",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF87027B),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text("Date: $datetime"),
+                    Text("Customer: $customer"),
+                    Text("Handyman: $handyman"),
+                    Text("Job Status: $jobStatus"),
+                    Text("Payment Status: $paymentStatus"),
+                    Text("Rating Status: $ratingStatus"),
+                  ],
                 ),
               ),
-              const SizedBox(height: 4),
-              Text("Date: $datetime"),
-              const SizedBox(height: 4),
-              Text("Customer: $customer"),
-              const SizedBox(height: 4),
-              Text("Handyman: $handyman"),
-              const SizedBox(height: 4),
-              Text("Job Status: $jobStatus"),
-              const SizedBox(height: 4),
-              Text("Payment Status: $paymentStatus"),
-              const SizedBox(height: 4),
-              Text("Rating Status: $ratingStatus"),
+
+              // Right-side dispute badge
+              if (raised_dispute)
+                InkWell(
+                  onTap: () {
+                    // TODO: Navigate to your dispute status screen or perform an action
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            DisputeStatusScreen(ticketNumber: ticketNumber),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade100,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      "View Dispute Status",
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),

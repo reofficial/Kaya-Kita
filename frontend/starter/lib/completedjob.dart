@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:starter/api_service.dart';
 import 'dart:convert';
+import 'dispute.dart';
 
 class CompletedJobScreen extends StatefulWidget {
   const CompletedJobScreen({
@@ -61,7 +62,7 @@ class _CompletedJobScreenState extends State<CompletedJobScreen> {
           "handyman": widget.handyman,
           "job_status": widget.jobStatus,
           "payment_status": widget.paymentStatus,
-          "rating_status": "Rated"  // ✅ Mark as Rated
+          "rating_status": "Rated" // ✅ Mark as Rated
         });
 
         if (updateResponse.statusCode == 200) {
@@ -85,7 +86,9 @@ class _CompletedJobScreenState extends State<CompletedJobScreen> {
   @override
   Widget build(BuildContext context) {
     String workerName = widget.handyman;
+    String customerName = widget.customer;
     String jobTime = widget.datetime;
+    int ticketNumber = widget.ticketNumber;
     double workerRate = 100.0;
     double hoursWorked = 4.5;
     double tip = 50.0;
@@ -137,12 +140,15 @@ class _CompletedJobScreenState extends State<CompletedJobScreen> {
                   children: [
                     const Text(
                       "Receipt",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
-                    _buildReceiptRow("Worker Rate", "P $workerRate x $hoursWorked hours"),
+                    _buildReceiptRow(
+                        "Worker Rate", "P $workerRate x $hoursWorked hours"),
                     _buildReceiptRow("Tip", "P $tip", hasLink: true),
-                    _buildReceiptRow("Total", "P $totalAmount", isBold: true, color: Colors.purple),
+                    _buildReceiptRow("Total", "P $totalAmount",
+                        isBold: true, color: Colors.purple),
                   ],
                 ),
               ),
@@ -154,25 +160,71 @@ class _CompletedJobScreenState extends State<CompletedJobScreen> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const CircleAvatar(radius: 30),
                     const SizedBox(width: 10),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text("Worker", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                        Row(
-                          children: [
-                            Text(
-                              workerName,
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Worker",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
                             ),
-                            const SizedBox(width: 5),
-                            const Icon(Icons.verified, color: Colors.purple, size: 18),
-                          ],
+                          ),
+                          Row(
+                            children: [
+                              Text(
+                                workerName,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              const Icon(
+                                Icons.verified,
+                                color: Colors.purple,
+                                size: 18,
+                              ),
+                            ],
+                          ),
+                          const Text(
+                            "View profile",
+                            style: TextStyle(
+                              color: Colors.purple,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: 120,
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => DisputeScreen(
+                                worker_username: workerName,
+                                customer_username: customerName,
+                                created_at: DateTime.now(),
+                                ticket_number: ticketNumber,
+                              ),
+                            ),
+                          );
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: Colors.red,
                         ),
-                        const Text("View profile", style: TextStyle(color: Colors.purple, fontSize: 14)),
-                      ],
+                        child: const Text("Start Dispute"),
+                      ),
                     ),
                   ],
                 ),
@@ -189,7 +241,8 @@ class _CompletedJobScreenState extends State<CompletedJobScreen> {
                   children: [
                     const Text(
                       "Submit Feedback",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),
                     Row(
@@ -222,7 +275,8 @@ class _CompletedJobScreenState extends State<CompletedJobScreen> {
                     const SizedBox(height: 20),
                     const Text(
                       "Leave a review:",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),
                     TextField(
@@ -231,7 +285,8 @@ class _CompletedJobScreenState extends State<CompletedJobScreen> {
                       decoration: InputDecoration(
                         border: const OutlineInputBorder(),
                         hintText: "Write your review here...",
-                        errorText: _isReviewError ? "⚠️ Please write a review." : null,
+                        errorText:
+                            _isReviewError ? "⚠️ Please write a review." : null,
                       ),
                       onChanged: (value) {
                         setState(() {
@@ -242,12 +297,55 @@ class _CompletedJobScreenState extends State<CompletedJobScreen> {
                     const SizedBox(height: 20),
                     Center(
                       child: ElevatedButton(
-                        onPressed: _submitReview,
+                        onPressed: () async {
+                          final shouldSubmit = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text("Confirm Submission"),
+                              content: Text.rich(
+                                TextSpan(
+                                  text: 'By submitting this review, you will ',
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                      text:
+                                          'no longer be able to start a dispute',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          ' for a refund or a redo of the work.',
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
+                                  child: const Text("Cancel"),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.purple),
+                                  child: const Text("Yes, Submit"),
+                                ),
+                              ],
+                            ),
+                          );
+
+                          if (shouldSubmit == true) {
+                            _submitReview();
+                          }
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.purple,
-                          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 40, vertical: 12),
                         ),
-                        child: const Text("Submit Review", style: TextStyle(color: Colors.white)),
+                        child: const Text("Submit Review",
+                            style: TextStyle(color: Colors.white)),
                       ),
                     ),
                   ],
@@ -260,14 +358,19 @@ class _CompletedJobScreenState extends State<CompletedJobScreen> {
     );
   }
 
-  Widget _buildReceiptRow(String label, String value, {bool isBold = false, Color? color, bool hasLink = false}) {
+  Widget _buildReceiptRow(String label, String value,
+      {bool isBold = false, Color? color, bool hasLink = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: const TextStyle(fontSize: 16)),
-          Text(value, style: TextStyle(fontSize: 16, fontWeight: isBold ? FontWeight.bold : FontWeight.normal, color: color ?? Colors.black)),
+          Text(value,
+              style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+                  color: color ?? Colors.black)),
         ],
       ),
     );

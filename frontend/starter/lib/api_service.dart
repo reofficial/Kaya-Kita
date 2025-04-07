@@ -115,7 +115,8 @@ class ApiService {
     return response;
   }
 
-  static Future<http.Response> updateJobCircle(Map<String, dynamic> updateDetails) async {
+  static Future<http.Response> updateJobCircle(
+      Map<String, dynamic> updateDetails) async {
     final url = Uri.parse('$baseUrl/job-circles/update');
     final response = await _client.put(
       url,
@@ -124,7 +125,6 @@ class ApiService {
     );
     return response;
   }
-
 
   static Future<http.Response> postJobCircle(
       Map<String, dynamic> jobCircle) async {
@@ -151,6 +151,34 @@ class ApiService {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(reviewDetails),
     );
+    return response;
+  }
+
+  static Future<http.Response> postDispute(
+      Map<String, dynamic> jobListing) async {
+    final url = Uri.parse('$baseUrl/disputes/create');
+    final response = await _client.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(jobListing),
+    );
+    return response;
+  }
+
+  static Future<http.Response> updateDisputes(
+      Map<String, dynamic> updateDetails) async {
+    final url = Uri.parse('$baseUrl/disputes/update');
+    final response = await _client.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(updateDetails),
+    );
+    return response;
+  }
+
+  static Future<http.Response> getDisputes() async {
+    final url = Uri.parse('$baseUrl/disputes');
+    final response = await _client.get(url);
     return response;
   }
 }
