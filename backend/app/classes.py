@@ -135,4 +135,15 @@ class ServicePreference(BaseModel):
     address: str
     service_preference:str
     is_certified: str
-    
+
+class AuditLog(BaseModel):
+    official_username: str
+    log: str
+
+class Disputes(BaseModel):
+    dispute_id: int
+    worker_username: str
+    customer_username: str
+    reason: str
+    solution: str
+    created_at: datetime
