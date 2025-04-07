@@ -464,7 +464,7 @@ async def get_dispute_by_worker_username(worker_username: str):
 async def get_dispute_by_customer_username(customer_username: str):
     return await disputes_dao.read_dispute_by_customer_username(customer_username)
 
-@app.post("/disputes/update", response_model=Disputes)
+@app.put("/disputes/update", response_model=Disputes)
 async def update_dispute(dispute: Disputes):
     return await disputes_dao.update_dispute(dispute)
 
