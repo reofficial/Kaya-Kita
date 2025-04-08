@@ -142,9 +142,11 @@ class AuditLog(BaseModel):
 
 class Disputes(BaseModel):
     dispute_id: Optional[int] = None
-    worker_username: str
-    customer_username: str
+    ticket_number: Optional[int] = None
+    worker_username: Optional[str] = None
+    customer_username: Optional[str] = None
     reason: Optional[str] = None
     solution: Optional[str] = None
     description: Optional[str] = None
+    dispute_status: Optional[str] = "Under Review"
     created_at: datetime | Optional[str] = None

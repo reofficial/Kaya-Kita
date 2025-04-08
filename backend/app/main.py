@@ -464,9 +464,11 @@ async def get_dispute_by_worker_username(worker_username: str):
 async def get_dispute_by_customer_username(customer_username: str):
     return await disputes_dao.read_dispute_by_customer_username(customer_username)
 
-@app.put("/disputes/update", response_model=Disputes)
+@app.post("/disputes/update", response_model=Disputes)
 async def update_dispute(dispute: Disputes):
-    return await disputes_dao.update_dispute(dispute)
+    await disputes_dao.update_dispute(dispute)
+    
+    return JSONResponse(status_code=200, content={"message": "Dispute updated successfully"})
 
 @app.delete("/disputes/delete/{dispute_id}", response_model=dict)
 async def delete_dispute(dispute_id: int):
