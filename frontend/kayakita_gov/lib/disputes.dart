@@ -18,9 +18,10 @@ class _DisputesScreenState extends State<DisputesScreen> {
   final List<String> _allowedStatuses = [
     'Under Review',
     'Resolved',
-    'Rejected'
+    'Rejected',
+    'Expired',
   ];
-  Map<String, bool> _updatingStatus = {};
+  final Map<String, bool> _updatingStatus = {};
 
   @override
   void initState() {
@@ -209,7 +210,6 @@ class _DisputesScreenState extends State<DisputesScreen> {
   }
 
   Widget _buildDisputeCard(Map<String, dynamic> dispute) {
-    final disputeId = dispute['dispute_id'].toString();
     final currentStatus = dispute['dispute_status'];
     final createdAt = dispute['created_at'] as DateTime?;
     final formattedDate = createdAt != null
@@ -233,10 +233,7 @@ class _DisputesScreenState extends State<DisputesScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Chip(
-                  label: Text(currentStatus),
-                  backgroundColor: _getStatusColor(currentStatus),
-                ),
+                _buildStatusDropdown(dispute, currentStatus),
               ],
             ),
             const SizedBox(height: 8),
@@ -261,47 +258,70 @@ class _DisputesScreenState extends State<DisputesScreen> {
               'Created: $formattedDate',
               style: const TextStyle(color: Colors.grey, fontSize: 12),
             ),
-            const SizedBox(height: 12),
-            // Status update section
-            _buildStatusUpdateSection(dispute, currentStatus),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildStatusUpdateSection(
+  Widget _buildStatusDropdown(
       Map<String, dynamic> dispute, String currentStatus) {
     final disputeId = dispute['dispute_id'].toString();
+    final isUpdating = _updatingStatus[disputeId] == true;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Update Status:',
-          style: TextStyle(fontWeight: FontWeight.bold),
+    return PopupMenuButton<String>(
+      onSelected: (newStatus) => _updateDisputeStatus(dispute, newStatus),
+      itemBuilder: (BuildContext context) {
+        return _allowedStatuses.map((String status) {
+          return PopupMenuItem<String>(
+            value: status,
+            child: Text(status),
+          );
+        }).toList();
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: _getStatusColor(currentStatus),
+          borderRadius: BorderRadius.circular(20),
         ),
-        const SizedBox(height: 8),
-        if (_updatingStatus[disputeId] == true)
-          const LinearProgressIndicator()
-        else
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: _allowedStatuses.map((status) {
-              return ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      status == currentStatus ? _getStatusColor(status) : null,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isUpdating)
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
-                onPressed: status == currentStatus
-                    ? null
-                    : () => _updateDisputeStatus(dispute, status),
-                child: Text(status),
-              );
-            }).toList(),
-          ),
-      ],
+              )
+            else
+              Text(
+                currentStatus,
+                style: const TextStyle(color: Colors.black),
+              ),
+            const Icon(Icons.arrow_drop_down, color: Colors.black),
+          ],
+        ),
+      ),
     );
+  }
+
+  Color _getStatusColor(String? status) {
+    switch (status) {
+      case 'Under Review':
+        return Colors.orange[100]!;
+      case 'Resolved':
+        return Colors.green[100]!;
+      case 'Expired':
+        return Colors.blueGrey[100]!;
+      case 'Rejected':
+        return Colors.red[100]!;
+      default:
+        return Colors.grey[200]!;
+    }
   }
 
   Widget _buildUserInfoRow({required IconData icon, required String label}) {
@@ -326,18 +346,5 @@ class _DisputesScreenState extends State<DisputesScreen> {
         const SizedBox(height: 8),
       ],
     );
-  }
-
-  Color _getStatusColor(String? status) {
-    switch (status) {
-      case 'Under Review':
-        return Colors.orange[100]!;
-      case 'Resolved':
-        return Colors.green[100]!;
-      case 'Rejected':
-        return Colors.red[100]!;
-      default:
-        return Colors.grey[200]!;
-    }
   }
 }
