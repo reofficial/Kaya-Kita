@@ -4,7 +4,7 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException, status
 from fastapi.responses import JSONResponse, RedirectResponse
 from motor.motor_asyncio import AsyncIOMotorClient
 from typing import List, Optional, Union
-from app.classes import Profile, InitialInfo, JobListing, LoginInfo, ProfileUpdate, WorkerReviews, JobCircles, WorkerRates, WorkerCertificationInput,WorkerCertificationResponse, JobListingUpdate, UpdateSuspension, ServicePreference, AuditLog, Disputes
+from app.classes import Profile, InitialInfo, JobListing, LoginInfo, ProfileUpdate, WorkerReviews, JobCircles, WorkerRates, WorkerCertificationInput,WorkerCertificationResponse, JobListingUpdate, UpdateSuspension, ServicePreference, AuditLog, Disputes, DisputesUpdate, DisputeWithChat, DisputeWithChatUpdate
 from app.DAO.customer_DAO import CustomerDAO
 from app.DAO.job_listing_DAO import JobListingDAO
 from app.DAO.worker_DAO import WorkerDAO
@@ -16,6 +16,7 @@ from app.DAO.certifications_DAO import WorkerCertificationDAO
 from app.DAO.worker_additional_preference_DAO import WorkerAdditionalPreferenceDAO
 from app.DAO.audit_logs_DAO import AuditLogDAO
 from app.DAO.disputes_DAO import DisputesDAO
+from app.DAO.dispute_with_chat import DisputeWithChatDAO
 from fastapi.staticfiles import StaticFiles
 # .\venv\Scripts\Activate
 # uvicorn app.main:app --reload
@@ -40,6 +41,7 @@ cert_dao = WorkerCertificationDAO(database)
 preference_dao = WorkerAdditionalPreferenceDAO(database)
 audit_logs_dao = AuditLogDAO(database)
 disputes_dao = DisputesDAO(database)
+chats_dao = DisputeWithChatDAO(database)
 
 # The following concerns customers
 @app.get("/customers", response_model=List[Profile])
@@ -464,8 +466,8 @@ async def get_dispute_by_worker_username(worker_username: str):
 async def get_dispute_by_customer_username(customer_username: str):
     return await disputes_dao.read_dispute_by_customer_username(customer_username)
 
-@app.post("/disputes/update", response_model=Disputes)
-async def update_dispute(dispute: Disputes):
+@app.post("/disputes/update", response_model=DisputesUpdate)
+async def update_dispute(dispute: DisputesUpdate):
     await disputes_dao.update_dispute(dispute)
     
     return JSONResponse(status_code=200, content={"message": "Dispute updated successfully"})
@@ -473,6 +475,34 @@ async def update_dispute(dispute: Disputes):
 @app.delete("/disputes/delete/{dispute_id}", response_model=dict)
 async def delete_dispute(dispute_id: int):
     success = await disputes_dao.delete_dispute(dispute_id)
+    return {"message": "Dispute deleted successfully"} if success else {"message": "Dispute not found"}
+
+#The following handles escalated disputes with chat
+@app.post("/chat/create", response_model=DisputeWithChat)
+async def create_chat(dispute: DisputeWithChat):
+    return await chats_dao.create_dispute(dispute)
+
+@app.get("/chat", response_model=List[DisputeWithChat])
+async def get_chat():
+    return await chats_dao.read_dispute_with_chat()
+
+@app.get("/chat/worker/{worker_username}", response_model=DisputeWithChat | None)
+async def get_chat_by_worker_username(worker_username: str):
+    return await chats_dao.read_dispute_by_worker_username(worker_username)
+
+@app.get("/chat/customer/{customer_username}", response_model=DisputeWithChat | None)
+async def get_chat_by_customer_username(customer_username: str):
+    return await chats_dao.read_dispute_by_customer_username(customer_username)
+
+@app.post("/chat/update", response_model=DisputeWithChatUpdate)
+async def update_chat(dispute: DisputeWithChatUpdate):
+    await chats_dao.update_dispute(dispute)
+    
+    return JSONResponse(status_code=200, content={"message": "Dispute updated successfully"})
+
+@app.delete("/chat/delete/{dispute_id}", response_model=dict)
+async def delete_chat(dispute_id: int):
+    success = await chats_dao.delete_dispute(dispute_id)
     return {"message": "Dispute deleted successfully"} if success else {"message": "Dispute not found"}
 
 #Test function

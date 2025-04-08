@@ -141,6 +141,17 @@ class AuditLog(BaseModel):
     log: str
 
 class Disputes(BaseModel):
+    dispute_id: Optional[int] = 0
+    ticket_number: int
+    worker_username: str
+    customer_username: str
+    reason: str
+    solution: str
+    description: str
+    dispute_status: Optional[str] = "Under Review"  #Default pag walang nilagay
+    created_at: datetime | str
+
+class DisputesUpdate(BaseModel):        #all fields are optional, for updating purposes
     dispute_id: Optional[int] = None
     ticket_number: Optional[int] = None
     worker_username: Optional[str] = None
@@ -148,5 +159,19 @@ class Disputes(BaseModel):
     reason: Optional[str] = None
     solution: Optional[str] = None
     description: Optional[str] = None
-    dispute_status: Optional[str] = "Under Review"
+    dispute_status: Optional[str] = None
     created_at: datetime | Optional[str] = None
+
+class DisputeWithChat(BaseModel):
+    dispute_id: int
+    customer_username: str          #redundant field?
+    worker_username: str            #redundant field?
+    official_username: str
+    chat: List[dict]
+
+class DisputeWithChatUpdate(BaseModel):
+    dispute_id: Optional[int] = None
+    customer_username: Optional[str] = None
+    worker_username: Optional[str] = None
+    official_username: Optional[str] = None
+    chat: Optional[List[dict]] = None
