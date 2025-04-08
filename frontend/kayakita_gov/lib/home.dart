@@ -9,6 +9,7 @@ import '/providers/profile_provider.dart';
 import 'package:kayakita_gov/certification.dart';
 import 'package:kayakita_gov/manageusers.dart';
 import 'package:kayakita_gov/joblistings.dart';
+import 'package:kayakita_gov/disputes.dart';
 import 'package:kayakita_gov/auditlogs.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -94,7 +95,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView( // Wrap the body with a SingleChildScrollView
+      body: SingleChildScrollView(
+        // Wrap the body with a SingleChildScrollView
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,6 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 _inboxButton("Job Listings", JobListingsScreen()),
                 _inboxButton("Certification", CertificationScreen()),
                 _inboxButton("Manage Users", ManageUsersScreen()),
+                _inboxButton("Disputes", DisputesScreen()),
                 _inboxButtonWithUsername(
                   "Audit Logs",
                   (username) => AuditLogsScreen(username: username),
@@ -166,27 +169,30 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _inboxButtonWithUsername(String title, Widget Function(String) builder) {
+  Widget _inboxButtonWithUsername(
+      String title, Widget Function(String) builder) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: SizedBox(
         width: double.infinity,
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.grey[300],
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape:
-                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+            backgroundColor: Colors.grey[300],
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
           ),
           onPressed: () {
-            final profileProvider = Provider.of<UserProvider>(context, listen: false);
+            final profileProvider =
+                Provider.of<UserProvider>(context, listen: false);
             final username = profileProvider.username;
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => builder(username)),
             );
           },
-          child: Text(title, style: const TextStyle(fontSize: 16, color: Colors.black)),
+          child: Text(title,
+              style: const TextStyle(fontSize: 16, color: Colors.black)),
         ),
       ),
     );

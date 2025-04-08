@@ -135,7 +135,6 @@ class ApiService {
     return response;
   }
 
-
   // CERTIFICATION
 
   static Future<http.Response> getCertifications() async {
@@ -182,9 +181,12 @@ class ApiService {
     return response;
   }
 
-  static Future<http.Response> createLog({required String officialUsername, required String leg,}) async {
+  static Future<http.Response> createLog({
+    required String officialUsername,
+    required String leg,
+  }) async {
     final url = Uri.parse('$baseUrl/logs/create');
-  
+
     return await http.post(
       url,
       headers: {
@@ -198,6 +200,9 @@ class ApiService {
     );
   }
 
-
+  static Future<http.Response> getDisputes() async {
+    final url = Uri.parse('$baseUrl/disputes');
+    final response = await http.get(url);
+    return response;
+  }
 }
-
