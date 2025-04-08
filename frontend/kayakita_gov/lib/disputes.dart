@@ -15,6 +15,12 @@ class _DisputesScreenState extends State<DisputesScreen> {
   List<Map<String, dynamic>> _disputes = [];
   bool _isLoading = true;
   String _errorMessage = '';
+  final List<String> _allowedStatuses = [
+    'Under Review',
+    'Resolved',
+    'Rejected'
+  ];
+  Map<String, bool> _updatingStatus = {};
 
   @override
   void initState() {
@@ -60,6 +66,7 @@ class _DisputesScreenState extends State<DisputesScreen> {
         if (_isValidDispute(dispute)) {
           dispute['created_at'] = _parseDateTime(dispute['created_at']);
           validDisputes.add(dispute);
+          _updatingStatus[dispute['dispute_id'].toString()] = false;
         }
       } catch (e) {
         continue;
@@ -76,7 +83,8 @@ class _DisputesScreenState extends State<DisputesScreen> {
     if (dispute['dispute_id'] == null) return false;
     if (dispute['ticket_number'] == null) return false;
     if (dispute['reason'] == null || dispute['reason'].isEmpty) return false;
-    if (dispute['description'] == null || dispute['description'].isEmpty) {
+    if (dispute['description'] == null) return false;
+    if (dispute['solution'] == null || dispute['solution'].isEmpty) {
       return false;
     }
     if (dispute['dispute_status'] == null || dispute['reason'].isEmpty) {
@@ -104,11 +112,61 @@ class _DisputesScreenState extends State<DisputesScreen> {
     }
   }
 
+  Future<void> _updateDisputeStatus(
+      Map<String, dynamic> dispute, String newStatus) async {
+    final disputeId = dispute['dispute_id'].toString();
+
+    setState(() {
+      _updatingStatus[disputeId] = true;
+    });
+
+    try {
+      final updateDetails = {
+        'dispute_id': dispute['dispute_id'],
+        'dispute_status': newStatus,
+      };
+
+      final response = await ApiService.updateDispute(updateDetails);
+
+      if (response.statusCode == 200) {
+        setState(() {
+          final index = _disputes
+              .indexWhere((d) => d['dispute_id'].toString() == disputeId);
+          if (index != -1) {
+            _disputes[index]['dispute_status'] = newStatus;
+          }
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Status updated to $newStatus')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update status: ${response.body}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error updating status: ${e.toString()}')),
+      );
+    } finally {
+      setState(() {
+        _updatingStatus[disputeId] = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Disputes'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _fetchDisputes,
+          ),
+        ],
       ),
       body: _buildBody(),
     );
@@ -151,6 +209,8 @@ class _DisputesScreenState extends State<DisputesScreen> {
   }
 
   Widget _buildDisputeCard(Map<String, dynamic> dispute) {
+    final disputeId = dispute['dispute_id'].toString();
+    final currentStatus = dispute['dispute_status'];
     final createdAt = dispute['created_at'] as DateTime?;
     final formattedDate = createdAt != null
         ? DateFormat('MMM dd, yyyy - hh:mm a').format(createdAt)
@@ -174,8 +234,8 @@ class _DisputesScreenState extends State<DisputesScreen> {
                   ),
                 ),
                 Chip(
-                  label: Text(dispute['dispute_status']),
-                  backgroundColor: _getStatusColor(dispute['dispute_status']),
+                  label: Text(currentStatus),
+                  backgroundColor: _getStatusColor(currentStatus),
                 ),
               ],
             ),
@@ -201,9 +261,46 @@ class _DisputesScreenState extends State<DisputesScreen> {
               'Created: $formattedDate',
               style: const TextStyle(color: Colors.grey, fontSize: 12),
             ),
+            const SizedBox(height: 12),
+            // Status update section
+            _buildStatusUpdateSection(dispute, currentStatus),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildStatusUpdateSection(
+      Map<String, dynamic> dispute, String currentStatus) {
+    final disputeId = dispute['dispute_id'].toString();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Update Status:',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        if (_updatingStatus[disputeId] == true)
+          const LinearProgressIndicator()
+        else
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: _allowedStatuses.map((status) {
+              return ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      status == currentStatus ? _getStatusColor(status) : null,
+                ),
+                onPressed: status == currentStatus
+                    ? null
+                    : () => _updateDisputeStatus(dispute, status),
+                child: Text(status),
+              );
+            }).toList(),
+          ),
+      ],
     );
   }
 

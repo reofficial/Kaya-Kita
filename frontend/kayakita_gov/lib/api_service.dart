@@ -187,12 +187,9 @@ class ApiService {
   }) async {
     final url = Uri.parse('$baseUrl/logs/create');
 
-    return await http.post(
+    return await _client.post(
       url,
-      headers: {
-        'Content-Type': 'application/json',
-        'accept': 'application/json',
-      },
+      headers: {'Content-Type': 'application/json'},
       body: json.encode({
         'official_username': officialUsername,
         'leg': leg,
@@ -202,7 +199,18 @@ class ApiService {
 
   static Future<http.Response> getDisputes() async {
     final url = Uri.parse('$baseUrl/disputes');
-    final response = await http.get(url);
+    final response = await _client.get(url);
+    return response;
+  }
+
+  static Future<http.Response> updateDispute(
+      Map<String, dynamic> updateDetails) async {
+    final url = Uri.parse('$baseUrl/disputes/update');
+    final response = await _client.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(updateDetails),
+    );
     return response;
   }
 }
