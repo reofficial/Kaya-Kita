@@ -10,7 +10,14 @@ class DisputesDAO:
     
     async def create_dispute(self, dispute: Disputes):
     # Automatically assigns dispute id
+        last_dispute = await self.collection.find_one(
+            {}, sort=[("dispute_id", -1)]
+        )
+        new_id = (last_dispute["dispute_id"] + 1) if last_dispute else 0
+        
         dispute_data = dispute.model_dump()
+        dispute_data["dispute_id"] = new_id
+        
         await self.collection.insert_one(dispute_data)
         return Disputes(**dispute_data)
     

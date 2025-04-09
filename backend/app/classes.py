@@ -17,10 +17,12 @@ class Profile(BaseModel):
     is_certified: Optional[str] = "Pending"
     is_suspended: Optional[str] = "No"
     deny_reason: Optional[str] = ""
+    suspension_reason: Optional[str] = "N/A"
 
 class UpdateSuspension(BaseModel):
     username: str
     is_suspended: str
+    suspension_reason: str
     
 
 class InitialInfo(BaseModel):
