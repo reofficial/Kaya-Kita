@@ -1,8 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'api_service.dart';
-// import 'viewpost.dart';
+
+import 'package:kayakita_gov/api_service.dart';
+import 'package:kayakita_gov/log_service.dart';
+import 'package:provider/provider.dart';
+import 'providers/profile_provider.dart';
 
 class JobListing {
   JobListing({
@@ -175,20 +178,28 @@ class JobListingCard extends StatefulWidget {
 
 class _JobListingCardState extends State<JobListingCard> {
   Future<void> deleteJobListing() async {
+    final officialUsername =
+        Provider.of<UserProvider>(context, listen: false).username;
+
     try {
       final response = await ApiService.deleteJobListing(widget.job.id);
       if (response.statusCode == 200) {
+        final logContent = "Deleted job listing #${widget.job.id}";
+
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Job Listing deleted successfully.")),
+          SnackBar(content: Text(logContent)),
         );
+
+        LogService.postLogWithUsername(
+            username: officialUsername, logContent: logContent);
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => JobListingsScreen(),
           ),
         );
-      }
-      else {
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Job Listing does not exist.")),
         );

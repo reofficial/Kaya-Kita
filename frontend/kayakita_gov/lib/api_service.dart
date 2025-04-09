@@ -170,12 +170,22 @@ class ApiService {
     final response = await _client.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'username': username, 'is_suspended': status, 'suspension_reason': reason}),
+      body: jsonEncode({
+        'username': username,
+        'is_suspended': status,
+        'suspension_reason': reason
+      }),
     );
     return response;
   }
 
-  static Future<http.Response> getAuditLogs(String username) async {
+  static Future<http.Response> getAuditLogs() async {
+    final url = Uri.parse('$baseUrl/logs');
+    final response = await _client.get(url);
+    return response;
+  }
+
+  static Future<http.Response> getAuditLogsByUsername(String username) async {
     final url = Uri.parse('$baseUrl/logs/$username');
     final response = await _client.get(url);
     return response;
@@ -183,7 +193,7 @@ class ApiService {
 
   static Future<http.Response> createLog({
     required String officialUsername,
-    required String leg,
+    required String log,
   }) async {
     final url = Uri.parse('$baseUrl/logs/create');
 
@@ -192,7 +202,7 @@ class ApiService {
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
         'official_username': officialUsername,
-        'leg': leg,
+        'log': log,
       }),
     );
   }

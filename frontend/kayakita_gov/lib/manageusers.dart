@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:convert';
-import 'api_service.dart';
+
+import 'package:kayakita_gov/api_service.dart';
+import 'package:kayakita_gov/log_service.dart';
+import 'package:provider/provider.dart';
+import 'providers/profile_provider.dart';
+
 import 'userprofile.dart';
 
 class Worker {
-  Worker({
-    required this.name,
-    required this.username,
-    required this.servicePreference,
-    required this.isCertified,
-    required this.isSuspended,
-    required this.suspensionReason
-  });
+  Worker(
+      {required this.name,
+      required this.username,
+      required this.servicePreference,
+      required this.isCertified,
+      required this.isSuspended,
+      required this.suspensionReason});
 
   final String name;
   final String username;
@@ -23,24 +27,22 @@ class Worker {
 
   factory Worker.fromJson(Map<String, dynamic> worker) {
     return Worker(
-      name: '${worker['first_name'] ?? ''} ${worker['last_name'] ?? ''}',
-      username: worker['username'] ?? '',
-      servicePreference: worker['service_preference'] ?? '',
-      isCertified: worker['is_certified'] ?? '',
-      isSuspended: worker['is_suspended'] ?? 'No',
-      suspensionReason: worker['deny_reason'] ?? ''
-    );
+        name: '${worker['first_name'] ?? ''} ${worker['last_name'] ?? ''}',
+        username: worker['username'] ?? '',
+        servicePreference: worker['service_preference'] ?? '',
+        isCertified: worker['is_certified'] ?? '',
+        isSuspended: worker['is_suspended'] ?? 'No',
+        suspensionReason: worker['deny_reason'] ?? '');
   }
 }
 
 class Customer {
-  Customer({
-    required this.name,
-    required this.username,
-    required this.address,
-    required this.isSuspended,
-    required this.suspensionReason
-  });
+  Customer(
+      {required this.name,
+      required this.username,
+      required this.address,
+      required this.isSuspended,
+      required this.suspensionReason});
 
   final String name;
   final String username;
@@ -50,12 +52,11 @@ class Customer {
 
   factory Customer.fromJson(Map<String, dynamic> customer) {
     return Customer(
-      name: '${customer['first_name'] ?? ''} ${customer['last_name'] ?? ''}',
-      username: customer['username'] ?? '',
-      address: customer['address'] ?? '',
-      isSuspended: customer['is_suspended'] ?? 'No',
-      suspensionReason: customer['deny_reason'] ?? ''
-    );
+        name: '${customer['first_name'] ?? ''} ${customer['last_name'] ?? ''}',
+        username: customer['username'] ?? '',
+        address: customer['address'] ?? '',
+        isSuspended: customer['is_suspended'] ?? 'No',
+        suspensionReason: customer['deny_reason'] ?? '');
   }
 }
 
@@ -112,13 +113,27 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     return Future.value();
   }
 
-  Future<void> _updateSuspension(String username, bool isWorker, String status, String reason) async {
+  Future<void> _updateSuspension(
+      String username, bool isWorker, String status, String reason) async {
+    final officialUsername =
+        Provider.of<UserProvider>(context, listen: false).username;
+
     try {
-      final response = await ApiService.updateUserSuspension(username, status, reason, isWorker);
+      final response = await ApiService.updateUserSuspension(
+          username, status, reason, isWorker);
+
       if (response.statusCode == 200) {
+        final logContent = reason == ''
+            ? 'Updated user "$username" suspension status to "$status"'
+            : 'Updated user "$username" suspension status to "$status" with reason "$reason"';
+
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Updated suspension status to "$status"')),
+          SnackBar(content: Text(logContent)),
         );
+
+        LogService.postLogWithUsername(
+            username: officialUsername, logContent: logContent);
+
         _refreshData();
       } else {
         throw Exception('Failed with status ${response.statusCode}');
@@ -130,7 +145,8 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     }
   }
 
-  Future<void> _showBanOptionsDialog(String username, bool isWorker, String currentStatus) async {
+  Future<void> _showBanOptionsDialog(
+      String username, bool isWorker, String currentStatus) async {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -149,7 +165,8 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                _updateSuspension(username, isWorker, 'Permanent', 'Violation of policy');
+                _updateSuspension(
+                    username, isWorker, 'Permanent', 'Violation of policy');
               },
               child: const Text("Make Permanent"),
             ),
@@ -165,7 +182,8 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                _updateSuspension(username, isWorker, 'Permanent', 'Violation of policy');
+                _updateSuspension(
+                    username, isWorker, 'Permanent', 'Violation of policy');
               },
               child: const Text("Permanent Ban"),
             ),
@@ -217,7 +235,8 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             onPressed: () {
               if (formKey.currentState!.validate()) {
                 Navigator.of(context).pop();
-                _updateSuspension(username, isWorker, 'Temporary', selectedReason!);
+                _updateSuspension(
+                    username, isWorker, 'Temporary', selectedReason!);
               }
             },
             child: const Text("Continue"),
@@ -230,14 +249,16 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   Widget _buildWorkerCard(Worker worker) {
     return WorkerCard(
       worker: worker,
-      onTapManage: () => _showBanOptionsDialog(worker.username, true, worker.isSuspended),
+      onTapManage: () =>
+          _showBanOptionsDialog(worker.username, true, worker.isSuspended),
     );
   }
 
   Widget _buildCustomerCard(Customer customer) {
     return CustomerCard(
       customer: customer,
-      onTapManage: () => _showBanOptionsDialog(customer.username, false, customer.isSuspended),
+      onTapManage: () =>
+          _showBanOptionsDialog(customer.username, false, customer.isSuspended),
     );
   }
 
@@ -248,7 +269,8 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
       child: Scaffold(
         backgroundColor: Colors.grey.shade200,
         appBar: AppBar(
-          title: const Text('Manage Users', style: TextStyle(color: Colors.white)),
+          title:
+              const Text('Manage Users', style: TextStyle(color: Colors.white)),
           backgroundColor: const Color(0xFF000E53),
           iconTheme: const IconThemeData(color: Colors.white),
           bottom: TabBar(
@@ -441,11 +463,14 @@ class _UserCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 6),
-                        Text(subtitle, style: TextStyle(fontSize: 14, color: Colors.grey[800])),
+                        Text(subtitle,
+                            style: TextStyle(
+                                fontSize: 14, color: Colors.grey[800])),
                       ],
                     ),
                   ),
-                  const Icon(Icons.arrow_forward_ios, size: 20, color: Colors.grey),
+                  const Icon(Icons.arrow_forward_ios,
+                      size: 20, color: Colors.grey),
                 ],
               ),
               const SizedBox(height: 8),
@@ -457,7 +482,8 @@ class _UserCard extends StatelessWidget {
                     if (extra != null)
                       Text(
                         extra!,
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.bold),
                       ),
                     const SizedBox(height: 4),
                     Text(

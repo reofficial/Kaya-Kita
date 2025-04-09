@@ -8,12 +8,11 @@ class UserProfileScreen extends StatefulWidget {
   final bool isWorker;
   final String suspension_reason;
 
-  const UserProfileScreen({
-    super.key,
-    required this.username,
-    required this.isWorker,
-    required this.suspension_reason
-  });
+  const UserProfileScreen(
+      {super.key,
+      required this.username,
+      required this.isWorker,
+      required this.suspension_reason});
 
   @override
   State<UserProfileScreen> createState() => _UserProfileScreenState();
@@ -113,27 +112,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     }
   }
 
-  Future<void> _updateSuspensionStatus(String status) async {
-    try {
-      final response = await ApiService.updateUserSuspension(
-          widget.username, status, widget.suspension_reason, widget.isWorker,);
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('User ${status.toLowerCase()} ban updated')),
-        );
-        setState(() {
-          _userDetailsFuture = _fetchUserDetails();
-        });
-      } else {
-        throw Exception('Failed to update suspension status');
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error updating ban status: $e')),
-      );
-    }
-  }
-
   Future<List<Review>> _fetchReviews() async {
     try {
       final response = widget.isWorker
@@ -149,54 +127,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     } catch (e) {
       throw Exception('Error fetching reviews: $e');
     }
-  }
-
-  void _showBanDialog(UserDetails user) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Manage User Ban'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Current status: ${user.isSuspended}'),
-              const SizedBox(height: 20),
-              const Text('Select ban option:'),
-            ],
-          ),
-          actions: [
-            if (user.isSuspended != 'No')
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _updateSuspensionStatus('No');
-                },
-                child: const Text('Remove Ban'),
-              ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                _updateSuspensionStatus('Temporary');
-              },
-              child: const Text('Temporary Ban'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                _updateSuspensionStatus('Permanent');
-              },
-              child: const Text('Permanent Ban'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   Widget _buildRatingStars(int rating) {
@@ -290,11 +220,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.gavel),
-                              onPressed: () => _showBanDialog(user),
-                              tooltip: 'Manage Ban',
                             ),
                           ],
                         ),
