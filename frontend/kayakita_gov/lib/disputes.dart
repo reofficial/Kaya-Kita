@@ -3,6 +3,9 @@ import 'package:intl/intl.dart';
 import 'dart:convert';
 
 import 'api_service.dart';
+import 'package:provider/provider.dart';
+import 'providers/profile_provider.dart';
+import 'disputechat.dart';
 
 class DisputesScreen extends StatefulWidget {
   const DisputesScreen({super.key});
@@ -22,6 +25,8 @@ class _DisputesScreenState extends State<DisputesScreen> {
     'Expired',
   ];
   final Map<String, bool> _updatingStatus = {};
+  final Map<int, bool> _hasChat = {}; // Track which disputes have chats
+  bool _loadingChatInfo = false;
 
   @override
   void initState() {
@@ -34,24 +39,60 @@ class _DisputesScreenState extends State<DisputesScreen> {
       _isLoading = true;
       _errorMessage = '';
       _disputes = [];
+      _loadingChatInfo = true;
     });
 
     try {
-      final response = await ApiService.getDisputes();
+      // First fetch disputes
+      final disputesResponse = await ApiService.getDisputes();
 
-      if (response.statusCode == 200) {
-        final List<dynamic> rawData = jsonDecode(response.body);
+      if (disputesResponse.statusCode == 200) {
+        final List<dynamic> rawData = jsonDecode(disputesResponse.body);
         _processData(rawData);
+
+        // Then check for existing chats
+        await _checkExistingChats();
       } else {
         setState(() {
           _isLoading = false;
-          _errorMessage = 'Server error: ${response.statusCode}';
+          _loadingChatInfo = false;
+          _errorMessage = 'Server error: ${disputesResponse.statusCode}';
         });
       }
     } catch (e) {
       setState(() {
         _isLoading = false;
+        _loadingChatInfo = false;
         _errorMessage = 'Network error: ${e.toString()}';
+      });
+    }
+  }
+
+  Future<void> _checkExistingChats() async {
+    try {
+      final currentUser =
+          Provider.of<UserProvider>(context, listen: false).username;
+      final chatsResponse = await ApiService.getChats();
+
+      if (chatsResponse.statusCode == 200) {
+        final List<dynamic> chats = jsonDecode(chatsResponse.body);
+
+        // Reset chat info
+        _hasChat.clear();
+
+        // Check each chat to see if it matches any dispute and has current user as official
+        for (var chat in chats) {
+          if (chat['official_username'] == currentUser) {
+            _hasChat[chat['dispute_id']] = true;
+          }
+        }
+      }
+    } catch (e) {
+      // If chat check fails, just continue without chat info
+      debugPrint('Error checking chats: $e');
+    } finally {
+      setState(() {
+        _loadingChatInfo = false;
       });
     }
   }
@@ -215,6 +256,7 @@ class _DisputesScreenState extends State<DisputesScreen> {
     final formattedDate = createdAt != null
         ? DateFormat('MMM dd, yyyy - hh:mm a').format(createdAt)
         : 'Date not available';
+    final disputeId = dispute['dispute_id'];
 
     return Card(
       margin: const EdgeInsets.all(8.0),
@@ -254,9 +296,38 @@ class _DisputesScreenState extends State<DisputesScreen> {
             if (dispute['solution'] != null && dispute['solution'].isNotEmpty)
               _buildLabeledText('Solution:', dispute['solution']),
             const SizedBox(height: 12),
-            Text(
-              'Created: $formattedDate',
-              style: const TextStyle(color: Colors.grey, fontSize: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Created: $formattedDate',
+                  style: const TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+                if (_loadingChatInfo)
+                  const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                else if (_hasChat[disputeId] == true)
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DisputeChatScreen(
+                            disputeId: disputeId,
+                          ),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      minimumSize: const Size(0, 30),
+                    ),
+                    child: const Text('View Chat'),
+                  ),
+              ],
             ),
           ],
         ),

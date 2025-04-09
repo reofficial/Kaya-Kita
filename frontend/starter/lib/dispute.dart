@@ -3,18 +3,18 @@ import 'api_service.dart';
 import 'orders.dart';
 
 class DisputeScreen extends StatefulWidget {
-  final String worker_username;
-  final String customer_username;
-  final DateTime created_at;
-  final int ticket_number;
+  final String workerUsername;
+  final String customerUsername;
+  final DateTime createdAt;
+  final int ticketNumber;
 
   const DisputeScreen({
-    Key? key,
-    required this.worker_username,
-    required this.customer_username,
-    required this.created_at,
-    required this.ticket_number,
-  }) : super(key: key);
+    super.key,
+    required this.workerUsername,
+    required this.customerUsername,
+    required this.createdAt,
+    required this.ticketNumber,
+  });
 
   @override
   State<DisputeScreen> createState() => _DisputeScreenState();
@@ -128,18 +128,18 @@ class _DisputeScreenState extends State<DisputeScreen> {
 
                 try {
                   final response = await ApiService.postDispute({
-                    "worker_username": widget.worker_username,
-                    "customer_username": widget.customer_username,
-                    "ticket_number": widget.ticket_number,
+                    "workerUsername": widget.workerUsername,
+                    "customerUsername": widget.customerUsername,
+                    "ticketNumber": widget.ticketNumber,
                     "reason": reason,
                     "solution": solution,
                     "description": description,
-                    "created_at": widget.created_at.toIso8601String(),
+                    "createdAt": widget.createdAt.toIso8601String(),
                   });
 
                   if (response.statusCode == 200) {
                     final updateResponse = await ApiService.updateDisputes({
-                      "ticket_number": widget.ticket_number,
+                      "ticketNumber": widget.ticketNumber,
                       "dispute_status": "Under Review",
                     });
 

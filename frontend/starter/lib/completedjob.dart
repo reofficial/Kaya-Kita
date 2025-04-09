@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:starter/api_service.dart';
-import 'dart:convert';
 import 'dispute.dart';
 
 class CompletedJobScreen extends StatefulWidget {
@@ -211,10 +210,10 @@ class _CompletedJobScreenState extends State<CompletedJobScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => DisputeScreen(
-                                worker_username: workerName,
-                                customer_username: customerName,
-                                created_at: DateTime.now(),
-                                ticket_number: ticketNumber,
+                                workerUsername: workerName,
+                                customerUsername: customerName,
+                                createdAt: DateTime.now(),
+                                ticketNumber: ticketNumber,
                               ),
                             ),
                           );

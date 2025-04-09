@@ -223,4 +223,42 @@ class ApiService {
     );
     return response;
   }
+
+  static Future<http.Response> getChats() async {
+    final url = Uri.parse('$baseUrl/chat');
+    final response = await _client.get(url);
+    return response;
+  }
+
+  static Future<http.Response> createChat(
+      Map<String, dynamic> chatDetails) async {
+    final url = Uri.parse('$baseUrl/chat/create');
+    final response = await _client.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(chatDetails),
+    );
+    return response;
+  }
+
+  static Future<http.Response> updateChat(
+    Map<String, dynamic> chatDetails,
+    String newMessage,
+    String username,
+  ) async {
+    final newMessageEntry = {username: newMessage};
+    final updatedChat = Map<String, dynamic>.from(chatDetails);
+    updatedChat['chat'] = [
+      ...chatDetails['chat'] ?? [],
+      newMessageEntry,
+    ];
+
+    final url = Uri.parse('$baseUrl/chat/update');
+    final response = await _client.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(updatedChat),
+    );
+    return response;
+  }
 }
