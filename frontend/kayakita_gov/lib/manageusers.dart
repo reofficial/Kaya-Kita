@@ -11,6 +11,7 @@ class Worker {
     required this.servicePreference,
     required this.isCertified,
     required this.isSuspended,
+    required this.suspensionReason
   });
 
   final String name;
@@ -18,6 +19,7 @@ class Worker {
   final String servicePreference;
   final String isCertified;
   final String isSuspended;
+  final String suspensionReason;
 
   factory Worker.fromJson(Map<String, dynamic> worker) {
     return Worker(
@@ -26,6 +28,7 @@ class Worker {
       servicePreference: worker['service_preference'] ?? '',
       isCertified: worker['is_certified'] ?? '',
       isSuspended: worker['is_suspended'] ?? 'No',
+      suspensionReason: worker['deny_reason'] ?? ''
     );
   }
 }
@@ -36,12 +39,14 @@ class Customer {
     required this.username,
     required this.address,
     required this.isSuspended,
+    required this.suspensionReason
   });
 
   final String name;
   final String username;
   final String address;
   final String isSuspended;
+  final String suspensionReason;
 
   factory Customer.fromJson(Map<String, dynamic> customer) {
     return Customer(
@@ -49,6 +54,7 @@ class Customer {
       username: customer['username'] ?? '',
       address: customer['address'] ?? '',
       isSuspended: customer['is_suspended'] ?? 'No',
+      suspensionReason: customer['deny_reason'] ?? ''
     );
   }
 }
@@ -106,9 +112,9 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     return Future.value();
   }
 
-  Future<void> _updateSuspension(String username, bool isWorker, String status) async {
+  Future<void> _updateSuspension(String username, bool isWorker, String status, String reason) async {
     try {
-      final response = await ApiService.updateUserSuspension(username, status, isWorker);
+      final response = await ApiService.updateUserSuspension(username, status, reason, isWorker);
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Updated suspension status to "$status"')),
@@ -135,7 +141,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                _updateSuspension(username, isWorker, 'No');
+                _updateSuspension(username, isWorker, 'No', '');
               },
               child: const Text("Reinstate"),
             ),
@@ -143,7 +149,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                _updateSuspension(username, isWorker, 'Permanent');
+                _updateSuspension(username, isWorker, 'Permanent', 'Violation of policy');
               },
               child: const Text("Make Permanent"),
             ),
@@ -151,7 +157,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                _updateSuspension(username, isWorker, 'Temporary');
+                _showBanReasonDialog(username, isWorker);
               },
               child: const Text("Temporary Ban"),
             ),
@@ -159,10 +165,63 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                _updateSuspension(username, isWorker, 'Permanent');
+                _updateSuspension(username, isWorker, 'Permanent', 'Violation of policy');
               },
               child: const Text("Permanent Ban"),
             ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showBanReasonDialog(String username, bool isWorker) async {
+    String? selectedReason;
+    final reasons = [
+      'Violation of Policy',
+      'Abusive Behavior',
+      'Other',
+    ];
+
+    final formKey = GlobalKey<FormState>();
+
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Reason for Temporary Ban"),
+        content: Form(
+          key: formKey,
+          child: DropdownButtonFormField<String>(
+            decoration: const InputDecoration(
+              labelText: "Select a reason",
+              border: OutlineInputBorder(),
+            ),
+            items: reasons.map((reason) {
+              return DropdownMenuItem(
+                value: reason,
+                child: Text(reason),
+              );
+            }).toList(),
+            onChanged: (value) {
+              selectedReason = value;
+            },
+            validator: (value) =>
+                value == null ? 'Please select a reason' : null,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (formKey.currentState!.validate()) {
+                Navigator.of(context).pop();
+                _updateSuspension(username, isWorker, 'Temporary', selectedReason!);
+              }
+            },
+            child: const Text("Continue"),
+          ),
         ],
       ),
     );
@@ -279,6 +338,7 @@ class WorkerCard extends StatelessWidget {
           builder: (context) => UserProfileScreen(
             username: worker.username,
             isWorker: true,
+            suspension_reason: worker.suspensionReason,
           ),
         ),
       ),
@@ -311,6 +371,7 @@ class CustomerCard extends StatelessWidget {
           builder: (context) => UserProfileScreen(
             username: customer.username,
             isWorker: false,
+            suspension_reason: customer.suspensionReason,
           ),
         ),
       ),

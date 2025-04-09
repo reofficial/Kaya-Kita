@@ -6,11 +6,13 @@ import 'api_service.dart';
 class UserProfileScreen extends StatefulWidget {
   final String username;
   final bool isWorker;
+  final String suspension_reason;
 
   const UserProfileScreen({
     super.key,
     required this.username,
     required this.isWorker,
+    required this.suspension_reason
   });
 
   @override
@@ -114,7 +116,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   Future<void> _updateSuspensionStatus(String status) async {
     try {
       final response = await ApiService.updateUserSuspension(
-          widget.username, status, widget.isWorker);
+          widget.username, status, widget.suspension_reason, widget.isWorker,);
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('User ${status.toLowerCase()} ban updated')),

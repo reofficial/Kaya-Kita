@@ -163,14 +163,14 @@ class ApiService {
   }
 
   static Future<http.Response> updateUserSuspension(
-      String username, String status, bool isWorker) async {
+      String username, String status, String reason, bool isWorker) async {
     final url = isWorker
         ? Uri.parse('$baseUrl/update_suspension_worker')
         : Uri.parse('$baseUrl/update_suspension_customer');
     final response = await _client.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'username': username, 'is_suspended': status}),
+      body: jsonEncode({'username': username, 'is_suspended': status, 'suspension_reason': reason}),
     );
     return response;
   }
