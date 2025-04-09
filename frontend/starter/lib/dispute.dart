@@ -87,7 +87,7 @@ class _DisputeScreenState extends State<DisputeScreen> {
               maxLines: 4,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
-                hintText: 'Leave your comments here (Optional)',
+                hintText: 'Leave your comments here (optional)',
               ),
             ),
             const SizedBox(height: 20),
@@ -98,7 +98,7 @@ class _DisputeScreenState extends State<DisputeScreen> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Text(
-                "* Clear photo/video showing the service received would be mandatory for this request.",
+                "Optional: Upload a clear photo/video showing the service received for this request to better expedite the process.",
                 style: TextStyle(fontSize: 13),
               ),
             ),
