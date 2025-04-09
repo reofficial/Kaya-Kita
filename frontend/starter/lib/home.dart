@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'dart:async';
 
 import 'api_service.dart';
 import 'package:provider/provider.dart';
@@ -29,12 +30,76 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isSuspended = false;
   String? _suspensionType;
   String? _userName;
-
+  Timer? _disputeCheckTimer; 
+  List<dynamic> _previousDisputes = [];
   @override
   void initState() {
     super.initState();
     _checkUserStatus();
+    _startDisputeCheckTimer(); 
   }
+
+  @override
+  void dispose() {
+    _disputeCheckTimer?.cancel(); 
+    super.dispose();
+  }
+
+  void _startDisputeCheckTimer() {
+    _checkForResolvedDisputes();
+    _disputeCheckTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
+      _checkForResolvedDisputes();
+    });
+  }
+
+  Future<void> _checkForResolvedDisputes() async {
+  try {
+    final username = Provider.of<UserProvider>(context, listen: false).username;
+    final response = await ApiService.getDisputes();
+    
+    if (response.statusCode == 200) {
+      List<dynamic> currentDisputes = json.decode(response.body);
+      
+      var resolvedDisputes = currentDisputes.where((dispute) => 
+        (dispute['customer_username'] == username || dispute['worker_username'] == username) && 
+        dispute['dispute_status'] == 'Resolved'
+      ).toList();
+      
+      for (var dispute in resolvedDisputes) {
+        bool wasPreviouslyResolved = _previousDisputes.any((prev) => 
+          prev['dispute_id'] == dispute['dispute_id'] && 
+          prev['dispute_status'] == 'Resolved'
+        );
+        
+        if (!wasPreviouslyResolved && mounted) {
+          _showResolvedNotification(dispute);
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          _previousDisputes = currentDisputes;
+        });
+      }
+    }
+  } catch (e) {
+    debugPrint('Error checking disputes: $e');
+  }
+}
+
+  void _showResolvedNotification(Map<String, dynamic> dispute) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Dispute Resolved!\nTicket #${dispute['ticket_number']} has been resolved.'),
+        duration: const Duration(seconds: 4),
+        action: SnackBarAction(
+          label: 'OK',
+          onPressed: () {},
+        ),
+      ),
+    );
+  }
+
 
   Future<void> _checkUserStatus() async {
     try {
@@ -115,6 +180,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return _buildNormalScreen();
   }
+
+    
 
   Widget _buildSuspendedScreen() {
     return Scaffold(
@@ -644,3 +711,5 @@ class SidebarButton extends StatelessWidget {
     );
   }
 }
+
+
