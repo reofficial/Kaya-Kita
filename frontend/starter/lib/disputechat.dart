@@ -16,13 +16,39 @@ class DisputeChatScreen extends StatefulWidget {
 
 class _DisputeChatScreenState extends State<DisputeChatScreen> {
   late Future<Map<String, dynamic>> chatData;
+  late Future<Map<String, dynamic>> disputeData;
   final TextEditingController _messageController = TextEditingController();
   bool isSending = false;
+  bool isChatEnabled = true;
 
   @override
   void initState() {
     super.initState();
+    _loadInitialData();
+  }
+
+  void _loadInitialData() {
     chatData = _loadChatData();
+    disputeData = _loadDisputeData().then((dispute) {
+      setState(() {
+        isChatEnabled = dispute['dispute_status'] == 'Under Review';
+      });
+      return dispute;
+    });
+  }
+
+  Future<Map<String, dynamic>> _loadDisputeData() async {
+    final response = await ApiService.getDisputes();
+    if (response.statusCode == 200) {
+      final allChats = json.decode(response.body) as List;
+      final dispute = allChats.firstWhere(
+        (dispute) => dispute['dispute_id'] == widget.disputeId,
+        orElse: () => throw Exception('Dispute ${widget.disputeId} not found'),
+      );
+      return dispute;
+    } else {
+      throw Exception('Failed to load disputes: ${response.statusCode}');
+    }
   }
 
   Future<Map<String, dynamic>> _loadChatData() async {
@@ -43,6 +69,27 @@ class _DisputeChatScreenState extends State<DisputeChatScreen> {
   Future<void> _sendMessage(BuildContext context) async {
     final message = _messageController.text.trim();
     if (message.isEmpty) return;
+
+    // Refresh dispute data before sending
+    try {
+      final freshDisputeData = await _loadDisputeData();
+      if (freshDisputeData['dispute_status'] != 'Under Review') {
+        setState(() {
+          isChatEnabled = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text(
+                  'Cannot send message: Dispute is no longer under review')),
+        );
+        return;
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error checking dispute status: $e')),
+      );
+      return;
+    }
 
     final username = Provider.of<UserProvider>(context, listen: false).username;
 
@@ -89,7 +136,8 @@ class _DisputeChatScreenState extends State<DisputeChatScreen> {
         title: Text('Chat for Dispute #${widget.disputeId}'),
       ),
       body: FutureBuilder<Map<String, dynamic>>(
-        future: chatData,
+        future:
+            Future.wait([chatData, disputeData]).then((results) => results[0]),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -106,6 +154,24 @@ class _DisputeChatScreenState extends State<DisputeChatScreen> {
                   Text('Customer: ${chat['customer_username']}'),
                   Text('Worker: ${chat['worker_username']}'),
                   Text('Official: ${chat['official_username']}'),
+                  FutureBuilder<Map<String, dynamic>>(
+                    future: disputeData,
+                    builder: (context, disputeSnapshot) {
+                      if (disputeSnapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return const SizedBox();
+                      } else if (disputeSnapshot.hasError) {
+                        return Text('Status: Error loading status');
+                      }
+                      return Text(
+                        'Status: ${disputeSnapshot.data!['dispute_status']}',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: isChatEnabled ? Colors.green : Colors.red,
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
               Expanded(
@@ -170,19 +236,26 @@ class _DisputeChatScreenState extends State<DisputeChatScreen> {
                       child: TextField(
                         controller: _messageController,
                         decoration: InputDecoration(
-                          hintText: 'Type your message...',
+                          hintText: isChatEnabled
+                              ? 'Type your message...'
+                              : 'Chat is disabled (dispute not under review)',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
+                          enabled: isChatEnabled,
                         ),
-                        onSubmitted: (_) => _sendMessage(context),
+                        onSubmitted:
+                            isChatEnabled ? (_) => _sendMessage(context) : null,
+                        readOnly: !isChatEnabled,
                       ),
                     ),
                     IconButton(
                       icon: isSending
                           ? const CircularProgressIndicator()
                           : const Icon(Icons.send),
-                      onPressed: isSending ? null : () => _sendMessage(context),
+                      onPressed: isChatEnabled && !isSending
+                          ? () => _sendMessage(context)
+                          : null,
                     ),
                   ],
                 ),
