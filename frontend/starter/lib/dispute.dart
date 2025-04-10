@@ -128,18 +128,18 @@ class _DisputeScreenState extends State<DisputeScreen> {
 
                 try {
                   final response = await ApiService.postDispute({
-                    "workerUsername": widget.workerUsername,
-                    "customerUsername": widget.customerUsername,
-                    "ticketNumber": widget.ticketNumber,
+                    "worker_username": widget.workerUsername,
+                    "customer_username": widget.customerUsername,
+                    "ticket_number": widget.ticketNumber,
                     "reason": reason,
                     "solution": solution,
                     "description": description,
-                    "createdAt": widget.createdAt.toIso8601String(),
+                    "created_at": widget.createdAt.toIso8601String(),
                   });
 
                   if (response.statusCode == 200) {
                     final updateResponse = await ApiService.updateDisputes({
-                      "ticketNumber": widget.ticketNumber,
+                      "ticket_number": widget.ticketNumber,
                       "dispute_status": "Under Review",
                     });
 
@@ -163,6 +163,7 @@ class _DisputeScreenState extends State<DisputeScreen> {
                       );
                     }
                   } else {
+                    print('Response body: ${response.body}');
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                           content: Text(
