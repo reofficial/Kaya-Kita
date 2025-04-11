@@ -172,13 +172,22 @@ class _DisputeStatusScreenState extends State<DisputeStatusScreen> {
       final response = await ApiService.createChat(requestBody);
 
       if (response.statusCode == 200) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                DisputeChatScreen(disputeId: existingChat!['dispute_id']),
-          ),
-        );
+        // Refresh the chat data before navigating
+        await _loadAndCheckChats();
+
+        if (existingChat != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  DisputeChatScreen(disputeId: existingChat!['dispute_id']),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Chat created but not found')),
+          );
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
