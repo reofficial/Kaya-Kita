@@ -79,7 +79,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             originalEmail = matchedWorker['email'] ?? '';
             mobileController.text = matchedWorker['contact_number'] ?? '';
             addressController.text = matchedWorker['address'] ?? '';
-            certification = matchedWorker['is_certified'];
+            //certification = matchedWorker['is_certified'];
 
             /*
             // Format the full name as "First M. Last"
@@ -129,7 +129,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         'email': emailController.text,
         'contact_number': mobileController.text,
         'address': addressController.text,
-        'is_certified': 'Pending'
+        'is_certified': certification
       };
 
       final response1 = await ApiService.updateWorker(updateDetails);
