@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import '/providers/profile_provider.dart'; // Adjust import as needed
 
 String originalEmail = "";
+String certification = "";
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -78,6 +79,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             originalEmail = matchedWorker['email'] ?? '';
             mobileController.text = matchedWorker['contact_number'] ?? '';
             addressController.text = matchedWorker['address'] ?? '';
+            certification = matchedWorker['is_certified'];
 
             /*
             // Format the full name as "First M. Last"
@@ -127,6 +129,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         'email': emailController.text,
         'contact_number': mobileController.text,
         'address': addressController.text,
+        'is_certified': 'Pending'
       };
 
       final response1 = await ApiService.updateWorker(updateDetails);

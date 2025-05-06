@@ -103,6 +103,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         'email': emailController.text,
         'contact_number': mobileController.text,
         'address': addressController.text,
+        'is_certified': 'Pending'
       };
 
       final response = await ApiService.updateCustomer(updateDetails);
