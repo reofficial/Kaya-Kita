@@ -398,7 +398,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       title: 'Log out',
                       icon: Icons.logout,
                       screen: MyApp(),
-                      onTap: () {},
                     ),
                   ],
                 ),

@@ -218,6 +218,7 @@ class _CertifyWorkerScreenState extends State<CertifyWorkerScreen> {
                   } else {
                     setState(() {
                       worker['is_certified'] = 'accepted';
+                      worker['deny_reason'] = '';
                     });
                     updateCertification();
                   }
@@ -319,6 +320,7 @@ class _CertifyWorkerScreenState extends State<CertifyWorkerScreen> {
               ? () {
                   setState(() {
                     worker['is_certified'] = 'pending';
+                    worker['deny_reason'] = '';
                   });
                   updateCertification();
                 }
